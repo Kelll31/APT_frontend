@@ -20,6 +20,7 @@ import { useWebSocket } from '../hooks/useWebSocket';
 // Типы
 import type { ScanOptions } from '../services/api';
 import type { ScanProfile } from '../hooks/useScanner';
+import type { ScanProgress as ScanProgressType } from '../types/scanner';
 
 // Интерфейс состояния страницы
 interface ScannerPageState {
@@ -27,28 +28,6 @@ interface ScannerPageState {
     isLoading: boolean;
     error: string | null;
 }
-
-// ErrorBoundary компонент
-const ErrorFallback: React.FC<{ error: Error; resetErrorBoundary: () => void }> = ({
-    error,
-    resetErrorBoundary
-}) => (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-        <div className="text-red-500 text-6xl">⚠️</div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Произошла ошибка
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300 max-w-md text-center">
-            {error.message}
-        </p>
-        <button
-            onClick={resetErrorBoundary}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-            Попробовать снова
-        </button>
-    </div>
-);
 
 const ScannerPage: React.FC = () => {
     // Состояние страницы
@@ -156,12 +135,13 @@ const ScannerPage: React.FC = () => {
         updateScanData({ options: { ...scanData.options, ...options } });
     }, [updateScanData, scanData.options]);
 
+    // Исправлено: добавлен аргумент target для validateScanTarget
     const handleStartScan = useCallback(async () => {
         try {
             setPageState(prev => ({ ...prev, isLoading: true, error: null }));
 
-            // Валидация цели - исправляем вызов без аргументов
-            const isValid = await validateScanTarget();
+            // Валидация цели - исправлен вызов с аргументом target
+            const isValid = await validateScanTarget(scanData.target);
             if (!isValid) {
                 throw new Error('Недопустимая цель сканирования');
             }
@@ -258,6 +238,12 @@ const ScannerPage: React.FC = () => {
         }
     }, [currentScan, exportScanResults, addNotification]);
 
+    // Обработчик отправки формы - исправлено: добавлен onSubmit для ScanForm
+    const handleFormSubmit = useCallback((e: React.FormEvent) => {
+        e.preventDefault();
+        handleStartScan();
+    }, [handleStartScan]);
+
     // Отслеживание завершения сканирования
     useEffect(() => {
         if (currentScan?.status === 'completed') {
@@ -290,33 +276,73 @@ const ScannerPage: React.FC = () => {
         }
     }, [scannerError]);
 
-    // Адаптированные пропсы для ScanForm
-    const scanFormProps = useMemo(() => ({
-        target: scanData.target,
-        ports: scanData.ports,
-        profile: selectedProfile,
-        options: scanData.options || {},
-        profiles: scanProfiles,
-        onTargetChange: handleTargetChange,
-        onPortsChange: handlePortsChange,
-        onProfileChange: handleProfileChange,
-        onOptionsChange: handleOptionsChange,
-        onStartScan: handleStartScan,
-        disabled: pageState.isLoading || isScanning,
-    }), [
-        scanData.target,
-        scanData.ports,
-        selectedProfile,
-        scanData.options,
-        scanProfiles,
-        handleTargetChange,
-        handlePortsChange,
-        handleProfileChange,
-        handleOptionsChange,
-        handleStartScan,
-        pageState.isLoading,
-        isScanning
-    ]);
+    // Адаптер для преобразования ScanProgress из useScanner в тип, ожидаемый компонентом ScanProgress
+    const adaptedProgress = useMemo((): ScanProgressType | null => {
+        if (!scanProgress) return null;
+
+        // Вычисляем elapsedTime на основе текущего времени и времени начала сканирования
+        const currentTime = Date.now();
+        const startTime = currentScan?.startTime ? currentScan.startTime.getTime() : currentTime;
+        const elapsedTimeMs = currentTime - startTime;
+        const elapsedTimeSeconds = Math.floor(elapsedTimeMs / 1000);
+
+        return {
+            scanId: scanProgress.scanId || 'unknown',
+            status: 'running' as const,
+            percentage: scanProgress.progress || 0,
+            hostsScanned: scanProgress.completedTargets || 0,
+            hostsTotal: scanProgress.totalTargets || 1,
+            hostsUp: scanProgress.completedTargets || 0,
+            hostsDown: 0,
+            hostsFiltered: 0,
+            openPorts: scanProgress.foundPorts || 0, // Используем foundPorts вместо openPorts
+            closedPorts: 0,
+            filteredPorts: 0,
+            vulnerabilities: 0,
+            elapsedTime: elapsedTimeSeconds, // Вычисляем elapsedTime
+            estimatedTime: scanProgress.estimatedTimeRemaining, // Используем estimatedTimeRemaining
+            scanRate: scanProgress.completedTargets ? scanProgress.completedTargets / Math.max(elapsedTimeSeconds, 1) : 0,
+            currentHost: scanProgress.currentTarget || scanData.target,
+            currentHostIndex: scanProgress.completedTargets || 0,
+            currentActivity: scanProgress.stage || 'Сканирование',
+            currentPort: 0,
+            currentService: '',
+            phase: 'port_scan' as const,
+            bytesReceived: 0,
+            bytesSent: 0,
+            packetsReceived: 0,
+            packetsSent: 0,
+            errors: [],
+            warnings: [],
+            recentDiscoveries: [],
+            statistics: {
+                totalHosts: scanProgress.totalTargets || 1,
+                aliveHosts: scanProgress.completedTargets || 0,
+                deadHosts: 0,
+                totalPorts: 1000,
+                openPorts: scanProgress.foundPorts || 0,
+                closedPorts: 0,
+                filteredPorts: 0,
+                uniqueServices: 0,
+                uniqueOperatingSystems: 0,
+                vulnerabilitiesFound: 0,
+                averageResponseTime: 0,
+                maxResponseTime: 0,
+                minResponseTime: 0,
+                packetsPerSecond: 0,
+                hostsPerMinute: scanProgress.completedTargets ? (scanProgress.completedTargets / Math.max(elapsedTimeSeconds / 60, 1)) : 0
+            },
+            performance: {
+                cpuUsage: 0,
+                memoryUsage: 0,
+                networkUtilization: 0,
+                ioOperations: 0,
+                threadsActive: 0,
+                bandwidthUsed: 0
+            }
+        };
+    }, [scanProgress, scanData.target, currentScan?.startTime]);
+
 
     // Загрузка при инициализации
     if (!isInitialized) {
@@ -354,8 +380,8 @@ const ScannerPage: React.FC = () => {
                     {/* Индикатор подключения */}
                     <div className="flex items-center space-x-2">
                         <div className={`w-3 h-3 rounded-full ${connectionStatus === 'connected'
-                                ? 'bg-green-500'
-                                : 'bg-red-500'
+                            ? 'bg-green-500'
+                            : 'bg-red-500'
                             }`} />
                         <span className="text-sm text-gray-600 dark:text-gray-300">
                             {connectionStatus === 'connected' ? 'Подключено' : 'Отключено'}
@@ -434,12 +460,25 @@ const ScannerPage: React.FC = () => {
                         transition={{ duration: 0.2 }}
                     >
                         {pageState.currentView === 'form' && (
-                            <ScanForm {...scanFormProps} />
+                            <ScanForm
+                                target={scanData.target}
+                                ports={scanData.ports}
+                                profile={selectedProfile}
+                                options={scanData.options || {}}
+                                profiles={scanProfiles}
+                                onTargetChange={handleTargetChange}
+                                onPortsChange={handlePortsChange}
+                                onProfileChange={handleProfileChange}
+                                onOptionsChange={handleOptionsChange}
+                                onStartScan={handleStartScan}
+                                onSubmit={handleFormSubmit}
+                                disabled={pageState.isLoading || isScanning}
+                            />
                         )}
 
-                        {pageState.currentView === 'progress' && scanProgress && (
+                        {pageState.currentView === 'progress' && adaptedProgress && (
                             <ScanProgress
-                                progress={scanProgress}
+                                progress={adaptedProgress}
                                 onStop={handleStopScan}
                                 onViewResults={handleViewResults}
                             />
@@ -476,8 +515,8 @@ const ScannerPage: React.FC = () => {
                                                     </div>
                                                     <div className="text-right">
                                                         <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${scan.status === 'up'
-                                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                                                             }`}>
                                                             {scan.status === 'up' ? 'Онлайн' : 'Офлайн'}
                                                         </span>
@@ -524,8 +563,8 @@ const ScannerPage: React.FC = () => {
                             Статус подключения
                         </h3>
                         <p className={`text-2xl font-bold ${connectionStatus === 'connected'
-                                ? 'text-green-600 dark:text-green-400'
-                                : 'text-red-600 dark:text-red-400'
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-red-600 dark:text-red-400'
                             }`}>
                             {connectionStatus === 'connected' ? '🟢' : '🔴'}
                         </p>
