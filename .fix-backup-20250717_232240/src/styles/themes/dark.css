@@ -1,0 +1,9 @@
+/* src/styles/themes/dark.css */
+[data-theme="dark"] {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --border-primary: #374151;
+  --accent-primary: #10b981;
+}

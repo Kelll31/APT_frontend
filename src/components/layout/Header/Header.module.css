@@ -1,0 +1,152 @@
+/* IP Roast Enterprise - Header Styles v3.0 */
+
+.header {
+    @apply bg-gray-900 border-b border-gray-700 shadow-lg backdrop-blur-sm;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.headerLight {
+    @apply bg-white border-gray-200 shadow-md;
+}
+
+.headerContainer {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.headerContent {
+    @apply flex items-center justify-between h-16;
+}
+
+.logo {
+    @apply flex items-center space-x-3;
+}
+
+.logoIcon {
+    @apply w-8 h-8 text-emerald-500;
+    filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.3));
+}
+
+.logoText {
+    @apply text-xl font-bold text-white;
+    font-family: 'Inter', 'system-ui', sans-serif;
+    letter-spacing: -0.025em;
+}
+
+.logoTextLight {
+    @apply text-gray-900;
+}
+
+.logoSubtext {
+    @apply text-xs text-gray-400 font-medium tracking-wide uppercase;
+}
+
+.logoSubtextLight {
+    @apply text-gray-500;
+}
+
+.navigationWrapper {
+    @apply hidden md:block flex-1 mx-8;
+}
+
+.rightSection {
+    @apply flex items-center space-x-4;
+}
+
+.mobileMenuButton {
+    @apply md:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700;
+    transition: all 0.2s ease;
+}
+
+.mobileMenuButtonLight {
+    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+}
+
+.statusIndicator {
+    @apply flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium;
+    transition: all 0.3s ease;
+}
+
+.statusOnline {
+    @apply bg-emerald-900/30 text-emerald-400 border border-emerald-800;
+}
+
+.statusOffline {
+    @apply bg-red-900/30 text-red-400 border border-red-800;
+}
+
+.statusConnecting {
+    @apply bg-yellow-900/30 text-yellow-400 border border-yellow-800;
+}
+
+.statusDot {
+    @apply w-2 h-2 rounded-full;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.headerGradient {
+    background: linear-gradient(135deg,
+            rgba(31, 41, 55, 0.95) 0%,
+            rgba(17, 24, 39, 0.98) 100%);
+}
+
+.headerGradientLight {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(249, 250, 251, 0.98) 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .headerContent {
+        @apply h-14;
+    }
+
+    .logoText {
+        @apply text-lg;
+    }
+
+    .rightSection {
+        @apply space-x-2;
+    }
+}
+
+/* Animation keyframes */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .header {
+        @apply border-b-2;
+    }
+
+    .logoIcon {
+        filter: none;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .header,
+    .statusIndicator,
+    .mobileMenuButton {
+        transition: none;
+    }
+
+    .statusDot {
+        animation: none;
+    }
+}

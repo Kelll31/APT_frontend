@@ -1,0 +1,137 @@
+{
+    "compilerOptions": {
+        // Основные настройки
+        "target": "ES2020",
+        "lib": [
+            "ES2020",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "module": "ESNext",
+        "skipLibCheck": true,
+        "allowJs": false,
+        // Разрешение модулей
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        // Строгая типизация
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "exactOptionalPropertyTypes": true,
+        "noImplicitReturns": true,
+        "noImplicitOverride": true,
+        "noUncheckedIndexedAccess": true,
+        // Дополнительные проверки
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        // Путеводные алиасы
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+            "@/components/*": [
+                "src/components/*"
+            ],
+            "@/services/*": [
+                "src/services/*"
+            ],
+            "@/stores/*": [
+                "src/stores/*"
+            ],
+            "@/hooks/*": [
+                "src/hooks/*"
+            ],
+            "@/utils/*": [
+                "src/utils/*"
+            ],
+            "@/types/*": [
+                "src/types/*"
+            ],
+            "@/assets/*": [
+                "src/assets/*"
+            ],
+            "@/styles/*": [
+                "src/styles/*"
+            ],
+            "@/pages/*": [
+                "src/pages/*"
+            ]
+        },
+        // Настройки для Vite
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "verbatimModuleSyntax": false,
+        // Настройки для разработки
+        "sourceMap": true,
+        "declaration": false,
+        "declarationMap": false,
+        "outDir": "dist",
+        "removeComments": false,
+        "noEmitOnError": true,
+        // Experimental features
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        // Типы для глобального окружения
+        "types": [
+            "vite/client",
+            "node"
+        ],
+        // Дополнительные настройки
+        "incremental": true,
+        "tsBuildInfoFile": ".tsbuildinfo"
+    },
+    "include": [
+        "src/**/*",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.js",
+        "src/**/*.jsx",
+        "src/**/*.json",
+        "src/**/*.vue",
+        "vite.config.ts",
+        "vitest.config.ts",
+        "tailwind.config.js",
+        "postcss.config.js"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "build",
+        "coverage",
+        "*.min.js",
+        "public",
+        ".git",
+        ".vscode",
+        ".idea",
+        "cypress",
+        "tests-examples",
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "**/*.e2e.ts",
+        "playwright-report",
+        "test-results"
+    ],
+    "ts-node": {
+        "esm": true,
+        "experimentalSpecifierResolution": "node"
+    },
+    "vite": {
+        "define": {
+            "__DEV__": true,
+            "__PROD__": false,
+            "__TEST__": false
+        }
+    }
+}
