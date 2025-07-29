@@ -174,7 +174,7 @@ export const useNotificationStore = create<NotificationStore>()(
                             state.notifications = state.notifications.slice(0, state.settings.maxNotifications);
                         }
 
-                        // Обновляем счетчик непрочитанных - ИСПРАВЛЕНО
+                        
                         state.unreadCount = state.notifications.filter((n: IPRoastNotification) => !n.read).length;
                     });
 
@@ -183,7 +183,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
                 removeNotification: (id) => {
                     set((state) => {
-                        // ИСПРАВЛЕНО: явная типизация
+                        
                         state.notifications = state.notifications.filter((n: IPRoastNotification) => n.id !== id);
                         state.unreadCount = state.notifications.filter((n: IPRoastNotification) => !n.read).length;
                     });
@@ -191,7 +191,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
                 updateNotification: (id, updates) => {
                     set((state) => {
-                        // ИСПРАВЛЕНО: явная типизация
+                        
                         const index = state.notifications.findIndex((n: IPRoastNotification) => n.id === id);
                         if (index !== -1) {
                             state.notifications[index] = { ...state.notifications[index], ...updates };
@@ -202,7 +202,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
                 markAsRead: (id) => {
                     set((state) => {
-                        // ИСПРАВЛЕНО: явная типизация
+                        
                         const notification = state.notifications.find((n: IPRoastNotification) => n.id === id);
                         if (notification && !notification.read) {
                             notification.read = true;
@@ -213,7 +213,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
                 markAllAsRead: () => {
                     set((state) => {
-                        // ИСПРАВЛЕНО: явная типизация
+                        
                         state.notifications.forEach((n: IPRoastNotification) => n.read = true);
                         state.unreadCount = 0;
                     });
@@ -222,7 +222,7 @@ export const useNotificationStore = create<NotificationStore>()(
                 clearNotifications: (category) => {
                     set((state) => {
                         if (category) {
-                            // ИСПРАВЛЕНО: явная типизация
+                            
                             state.notifications = state.notifications.filter(
                                 (n: IPRoastNotification) => n.category !== category
                             );
@@ -235,7 +235,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
                 clearOldNotifications: (olderThan) => {
                     set((state) => {
-                        // ИСПРАВЛЕНО: явная типизация
+                        
                         state.notifications = state.notifications.filter(
                             (n: IPRoastNotification) => n.timestamp > (Date.now() - olderThan)
                         );
@@ -250,23 +250,22 @@ export const useNotificationStore = create<NotificationStore>()(
                 },
 
                 getNotificationsByCategory: (category) => {
-                    // ИСПРАВЛЕНО: явная типизация
+                    
                     return get().notifications.filter((n: IPRoastNotification) => n.category === category);
                 },
 
                 getNotificationsByPriority: (priority) => {
-                    // ИСПРАВЛЕНО: явная типизация
+                    
                     return get().notifications.filter((n: IPRoastNotification) => n.priority === priority);
                 },
 
                 getUnreadNotifications: () => {
-                    // ИСПРАВЛЕНО: явная типизация
+                    
                     return get().notifications.filter((n: IPRoastNotification) => !n.read);
                 },
 
                 getRecentNotifications: (limit = 10) => {
                     return get().notifications
-                        // ИСПРАВЛЕНО: явная типизация для sort
                         .sort((a: IPRoastNotification, b: IPRoastNotification) => b.timestamp - a.timestamp)
                         .slice(0, limit);
                 }
@@ -275,7 +274,7 @@ export const useNotificationStore = create<NotificationStore>()(
                 name: 'ip-roast-notifications',
                 partialize: (state) => ({
                     settings: state.settings,
-                    // ИСПРАВЛЕНО: явная типизация
+                    
                     notifications: state.notifications.filter((n: IPRoastNotification) => n.persistent)
                 })
             }

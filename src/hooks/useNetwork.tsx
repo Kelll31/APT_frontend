@@ -396,7 +396,7 @@ export const useNetwork = (options: UseNetworkOptions = {}): UseNetworkReturn =>
                         protocol: (service.protocol as 'tcp' | 'udp' | 'sctp') || 'tcp',
                         state: 'open',
                         service: service.name || 'unknown',
-                        // ИСПРАВЛЕНО: Используем правильное свойство
+                        
                         ...(service.version && { version: service.version }),
                         detection: {
                             method: 'banner',
@@ -478,7 +478,7 @@ export const useNetwork = (options: UseNetworkOptions = {}): UseNetworkReturn =>
                     }
                 };
 
-                // ИСПРАВЛЕНО: Добавляем optional свойства только если они есть
+                
                 if (apiDevice.hostname) {
                     device.hostname = apiDevice.hostname;
                     device.hostnames = [apiDevice.hostname];
@@ -538,7 +538,7 @@ export const useNetwork = (options: UseNetworkOptions = {}): UseNetworkReturn =>
                 error: null
             }));
 
-            // ИСПРАВЛЕНО: Убираем неиспользуемые параметры
+            
             await networkApi.startAutoDiscovery();
 
             // Мониторим прогресс через WebSocket
@@ -603,7 +603,7 @@ export const useNetwork = (options: UseNetworkOptions = {}): UseNetworkReturn =>
 
     const addDevice = useCallback(async (deviceData: Partial<NetworkDevice>): Promise<NetworkDevice> => {
         try {
-            // ИСПРАВЛЕНО: Создаем базовый объект без optional свойств
+           
             const newDevice: NetworkDevice = {
                 id: `device-${Date.now()}`,
                 ip: deviceData.ip || '',
@@ -732,7 +732,7 @@ export const useNetwork = (options: UseNetworkOptions = {}): UseNetworkReturn =>
                 }
             };
 
-            // ИСПРАВЛЕНО: Добавляем optional свойства только если они есть значения
+             значения
             if (deviceData.ipv6) newDevice.ipv6 = deviceData.ipv6;
             if (deviceData.hostname) newDevice.hostname = deviceData.hostname;
             if (deviceData.hostnames) newDevice.hostnames = deviceData.hostnames;
@@ -785,7 +785,7 @@ export const useNetwork = (options: UseNetworkOptions = {}): UseNetworkReturn =>
 
     const updateDevice = useCallback(async (id: string, updates: Partial<NetworkDevice>) => {
         try {
-            // ИСПРАВЛЕНО: Приводим статус к типу, совместимому с API
+            
             const apiUpdates = {
                 ...updates,
                 // Приводим DeviceStatus к совместимому типу
@@ -822,7 +822,7 @@ export const useNetwork = (options: UseNetworkOptions = {}): UseNetworkReturn =>
 
     const removeDevice = useCallback(async (id: string) => {
         try {
-            // ИСПРАВЛЕНО: Используем deleteDevice вместо removeDevice
+            
             await networkApi.deleteDevice(id);
 
             setState(prev => ({
@@ -905,7 +905,7 @@ export const useNetwork = (options: UseNetworkOptions = {}): UseNetworkReturn =>
                         strength = 1;
                 }
 
-                // ИСПРАВЛЕНО: Обеспечиваем правильные типы для bandwidth и latency
+                
                 links.push({
                     id: `${device.id}-${connection.targetId}`,
                     sourceId: device.id,

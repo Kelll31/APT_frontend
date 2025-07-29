@@ -87,7 +87,7 @@ export interface UseScannerActions {
     // Работа с историей
     loadScanHistory: () => Promise<void>;
     deleteScan: (scanId: string) => Promise<void>;
-    exportScanResults: (scanId: string, format: 'json' | 'csv' | 'excel' | 'pdf') => Promise<void>; // Исправлено
+    exportScanResults: (scanId: string, format: 'json' | 'csv' | 'excel' | 'pdf') => Promise<void>; 
     // Утилиты
     clearError: () => void;
     resetState: () => void;

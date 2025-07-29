@@ -99,7 +99,7 @@ class DirectoryTree:
 
 def main():
     if len(sys.argv) > 1:
-        root_dir = sys.argv[1]  # Исправлено: было sys.argv
+        root_dir = sys.argv[1]  
     else:
         root_dir = "."
 

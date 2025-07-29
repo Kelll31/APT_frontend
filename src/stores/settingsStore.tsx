@@ -669,7 +669,7 @@ export interface ScheduledReport {
     next_run: string;
 }
 
-// Конфигурация расписания - ИСПРАВЛЕНО: добавлен 'quarterly'
+
 export interface ScheduleConfig {
     type: 'once' | 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'cron';
     interval?: number;
