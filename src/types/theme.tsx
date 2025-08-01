@@ -1,4 +1,5 @@
 // src/types/theme.tsx
+
 /**
  * IP Roast Enterprise - Theme System v3.0
  * Комплексная система управления темами с типобезопасностью TypeScript
@@ -126,7 +127,6 @@ export interface Typography {
         serif: string[];
         mono: string[];
     };
-
     fontSize: {
         xs: string;
         sm: string;
@@ -139,7 +139,6 @@ export interface Typography {
         '5xl': string;
         '6xl': string;
     };
-
     fontWeight: {
         thin: number;
         light: number;
@@ -150,7 +149,6 @@ export interface Typography {
         extrabold: number;
         black: number;
     };
-
     lineHeight: {
         none: number;
         tight: number;
@@ -202,6 +200,11 @@ export interface UserThemePreferences {
  * Безопасное преобразование HEX в RGB с проверкой типов
  */
 export function hexToRgb(hex: string): RGBColor | null {
+    if (!hex || typeof hex !== 'string') {
+        console.warn(`Недопустимый тип для HEX: ${typeof hex}`);
+        return null;
+    }
+
     // Удаляем # если есть
     const cleanHex = hex.replace('#', '');
 
@@ -212,7 +215,6 @@ export function hexToRgb(hex: string): RGBColor | null {
     }
 
     let normalizedHex = cleanHex;
-
     // Расширяем 3-символьный HEX до 6-символьного
     if (cleanHex.length === 3) {
         normalizedHex = cleanHex
@@ -394,14 +396,15 @@ export function setColorAlpha(color: string, alpha: number): string {
 export function getContrastRatio(color1: string, color2: string): number {
     const getLuminance = (color: string): number => {
         const rgb = hexToRgb(color);
-        if (!rgb) return 0;
+        if (!rgb) {
+            console.warn(`Не удается получить RGB для цвета: ${color}`);
+            return 0;
+        }
 
-        // Безопасная деструктуризация с явной проверкой
-        const rValue = rgb.r;
-        const gValue = rgb.g;
-        const bValue = rgb.b;
+        // Безопасное извлечение значений с явной проверкой
+        const { r: rValue, g: gValue, b: bValue } = rgb;
 
-        // Проверяем, что значения определены
+        // Проверяем, что значения определены и являются числами
         if (typeof rValue !== 'number' || typeof gValue !== 'number' || typeof bValue !== 'number') {
             console.warn(`Недопустимые RGB значения: r=${rValue}, g=${gValue}, b=${bValue}`);
             return 0;
@@ -440,7 +443,6 @@ export function getContrastRatio(color1: string, color2: string): number {
 
     const brightest = Math.max(lum1, lum2);
     const darkest = Math.min(lum1, lum2);
-
     const contrastRatio = (brightest + 0.05) / (darkest + 0.05);
 
     // Проверяем результат на валидность
@@ -522,7 +524,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ theme, children })
     React.useEffect(() => {
         // Применяем CSS переменные при изменении темы
         const root = document.documentElement;
-
         Object.entries(theme.cssVariables).forEach(([property, value]) => {
             root.style.setProperty(property, value);
         });

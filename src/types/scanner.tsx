@@ -207,6 +207,21 @@ export interface ScanResult {
     reputation?: ReputationInfo;
     geolocation?: GeolocationInfo;
     metadata?: Record<string, any>;
+    id: string;
+    scanDuration?: number;         // Длительность сканирования в мс
+    osDetection?: OSDetection;     // Результат OS detection
+}
+
+/**
+ * Детекция операционной системы
+ */
+export interface OSDetection {
+    name: string;
+    family: string;
+    generation?: string;
+    vendor?: string;
+    accuracy: number;
+    cpe?: string[];
 }
 
 export interface HostState {
@@ -236,14 +251,15 @@ export interface ExtraPortsInfo {
 }
 
 export interface OpenPort {
-    portid: number;
-    protocol: 'tcp' | 'udp' | 'sctp';
-    state: 'open' | 'open|filtered';
-    reason: string;
-    reasonTtl?: number;
-    service: ServiceDetection;
-    scripts?: NmapScript[];
-    owner?: string;
+    port: number;                    // Номер порта (22, 80, 443, etc.)
+    protocol: 'tcp' | 'udp';        // Протокол
+    state: 'open' | 'closed' | 'filtered';  // Состояние порта
+    service?: ServiceDetection;      // Информация о сервисе (опционально)
+    version?: string;               // Версия сервиса (опционально)
+    banner?: string;                // Баннер сервиса (опционально)
+    confidence?: number;            // Уверенность в детекции (0-100)
+    reason?: string;                // Причина состояния
+    extraInfo?: string;             // Дополнительная информация
 }
 
 export interface ClosedPort {
@@ -279,6 +295,21 @@ export interface ServiceDetection {
     method: 'table' | 'probed' | 'detection';
     conf: number;
     cpe?: string[];
+    extraInfo?: string;             // Дополнительная информация
+    osType?: string;               // Тип ОС
+    deviceType?: string;           // Тип устройства
+    confidence?: number;           // Уверенность в детекции
+    scripts?: ScriptResult[];      // Результаты NSE скриптов
+
+}
+
+/**
+ * Результат NSE скрипта
+ */
+export interface ScriptResult {
+    id: string;                    // ID скрипта
+    output: string;                // Вывод скрипта
+    elements?: Record<string, any>; // Структурированные элементы
 }
 
 export interface ServiceInfo {
@@ -410,6 +441,8 @@ export interface Vulnerability {
     riskAccepted: boolean;
     notes?: string;
     evidences?: Evidence[];
+    cvss?: number;
+    cve?: string[];
 }
 
 export interface VulnerabilityReference {

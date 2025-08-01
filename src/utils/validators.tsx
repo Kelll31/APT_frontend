@@ -11,14 +11,13 @@ import validator from 'validator';
 // ТИПЫ И ИНТЕРФЕЙСЫ
 // =============================================================================
 
-export interface ValidationResult<T = unknown> {
+export interface ValidationResult<T = any> {
     isValid: boolean;
-    value?: T | undefined;
-    error?: string | undefined;
-    warnings?: string[] | undefined;
-    metadata?: Record<string, unknown> | undefined;
+    value?: T;
+    error?: string;
+    warnings?: string[];
+    metadata?: Record<string, any>;
 }
-
 
 export interface ValidationOptions {
     strict?: boolean;
@@ -29,7 +28,7 @@ export interface ValidationOptions {
     customMessage?: string;
 }
 
-export type ValidatorFunction<T = string> = (
+export type ValidatorFunction<T = any> = (
     value: unknown,
     options?: ValidationOptions
 ) => ValidationResult<T>;
@@ -263,12 +262,10 @@ export const validateCIDR: ValidatorFunction<string> = (value) => {
         if (cidrParts.length !== 2) {
             return {
                 isValid: false,
-                error: 'Недопустимый формат CIDR',
-                value: undefined,
-                warnings: undefined,
-                metadata: undefined
+                error: 'Недопустимый формат CIDR'
             };
         }
+
         const ip = cidrParts[0]!;
         const prefix = cidrParts[1]!;
         const prefixNum = parseInt(prefix, 10);
@@ -311,7 +308,6 @@ export const validateIPRange: ValidatorFunction<string> = (value, options = {}) 
 
         if (trimmedValue.includes('-')) {
             const [startIP, endIP] = trimmedValue.split('-').map(ip => ip.trim());
-
             const startResult = validateIPv4(startIP, options);
             const endResult = validateIPv4(endIP, options);
 
@@ -370,7 +366,6 @@ export const validatePort: ValidatorFunction<number> = (value) => {
         }
 
         const warnings: string[] = [];
-
         if (numValue <= 1024) {
             warnings.push('Системный порт (требуются права администратора)');
         }
@@ -397,15 +392,12 @@ export const validatePort: ValidatorFunction<number> = (value) => {
 /**
  * Валидация диапазона портов
  */
-const validatePortRange = (portRange: string): ValidationResult<string> => {
+export const validatePortRange: ValidatorFunction<string> = (portRange) => {
     try {
         if (!portRange || typeof portRange !== 'string') {
             return {
                 isValid: false,
-                error: 'Значение должно быть строкой',
-                value: undefined,
-                warnings: undefined,
-                metadata: undefined
+                error: 'Значение должно быть строкой'
             };
         }
 
@@ -415,10 +407,7 @@ const validatePortRange = (portRange: string): ValidationResult<string> => {
         if (!result.success) {
             return {
                 isValid: false,
-                error: result.error.errors[0]?.message || 'Недопустимый диапазон портов',
-                value: undefined,
-                warnings: undefined,
-                metadata: undefined
+                error: result.error.errors[0]?.message || 'Недопустимый диапазон портов'
             };
         }
 
@@ -432,7 +421,6 @@ const validatePortRange = (portRange: string): ValidationResult<string> => {
         return {
             isValid: true,
             value: trimmedValue,
-            error: undefined,
             warnings: warnings.length > 0 ? warnings : undefined,
             metadata: {
                 portCount,
@@ -443,10 +431,7 @@ const validatePortRange = (portRange: string): ValidationResult<string> => {
     } catch (error) {
         return {
             isValid: false,
-            error: error instanceof Error ? error.message : 'Ошибка валидации диапазона портов',
-            value: undefined,
-            warnings: undefined,
-            metadata: undefined
+            error: error instanceof Error ? error.message : 'Ошибка валидации диапазона портов'
         };
     }
 };
@@ -649,16 +634,23 @@ export const validateEmail: ValidatorFunction<string> = (value) => {
         }
 
         const trimmedValue = value.trim().toLowerCase();
+        const result = EmailSchema.safeParse(trimmedValue);
+
+        if (!result.success) {
+            return {
+                isValid: false,
+                error: result.error.errors[0]?.message || 'Недопустимый email'
+            };
+        }
+
         const emailParts = trimmedValue.split('@');
         if (emailParts.length !== 2) {
             return {
                 isValid: false,
-                error: 'Недопустимый формат email',
-                value: undefined,
-                warnings: undefined,
-                metadata: undefined
+                error: 'Недопустимый формат email'
             };
         }
+
         const localPart = emailParts[0]!;
         const domain = emailParts[1]!;
 
@@ -707,7 +699,6 @@ export const validateFilePath: ValidatorFunction<string> = (value) => {
         }
 
         const warnings: string[] = [];
-
         if (trimmedValue.startsWith('/')) {
             warnings.push('Абсолютный путь');
         }
@@ -805,10 +796,7 @@ export const validateNmapOptions: ValidatorFunction<string> = (value) => {
         if (!value || typeof value !== 'string') {
             return {
                 isValid: true,
-                value: '',
-                error: undefined,
-                warnings: undefined,
-                metadata: undefined
+                value: ''
             };
         }
 
@@ -825,10 +813,7 @@ export const validateNmapOptions: ValidatorFunction<string> = (value) => {
             if (pattern.test(trimmedValue)) {
                 return {
                     isValid: false,
-                    error: 'Обнаружена потенциально опасная команда',
-                    value: undefined,
-                    warnings: undefined,
-                    metadata: undefined
+                    error: 'Обнаружена потенциально опасная команда'
                 };
             }
         }
@@ -846,7 +831,6 @@ export const validateNmapOptions: ValidatorFunction<string> = (value) => {
         return {
             isValid: true,
             value: trimmedValue,
-            error: undefined,
             warnings: warnings.length > 0 ? warnings : undefined,
             metadata: {
                 hasScripts: trimmedValue.includes('--script'),
@@ -857,10 +841,7 @@ export const validateNmapOptions: ValidatorFunction<string> = (value) => {
     } catch (error) {
         return {
             isValid: false,
-            error: error instanceof Error ? error.message : 'Ошибка валидации nmap опций',
-            value: undefined,
-            warnings: undefined,
-            metadata: undefined
+            error: error instanceof Error ? error.message : 'Ошибка валидации nmap опций'
         };
     }
 };
@@ -908,7 +889,9 @@ const isLocalhostDomain = (domain: string): boolean => {
 const getNetworkClass = (ip: string): string => {
     const ipParts = ip.split('.');
     if (ipParts.length === 0) return 'Unknown';
+
     const firstOctet = parseInt(ipParts[0] || '0', 10);
+
     if (firstOctet >= 1 && firstOctet <= 126) return 'A';
     if (firstOctet >= 128 && firstOctet <= 191) return 'B';
     if (firstOctet >= 192 && firstOctet <= 223) return 'C';
@@ -948,7 +931,6 @@ const calculatePortCount = (portRange: string): number => {
             const start = rangeParts[0];
             const end = rangeParts[1];
 
-            // Проверяем на undefined
             if (start === undefined || end === undefined) {
                 continue;
             }
@@ -1060,7 +1042,7 @@ const getTLD = (domain: string): string => {
 };
 
 /**
- * Подсчет поддоменовexport interface ValidationResult<T
+ * Подсчет поддоменов
  */
 const getSubdomainCount = (domain: string): number => {
     return Math.max(0, domain.split('.').length - 2);
@@ -1079,7 +1061,6 @@ const normalizeMACAddress = (mac: string): string => {
  */
 const getMACVendor = (mac: string): string | undefined => {
     const oui = mac.substring(0, 8).replace(/:/g, '').toUpperCase();
-
     const vendors: Record<string, string> = {
         '001122': 'Cisco Systems',
         '001A2B': 'Intel Corporation',
@@ -1166,6 +1147,8 @@ const estimateHostCount = (targets: string[]): number => {
                     count += calculateIPRangeCount(start.trim(), end.trim());
                 }
             }
+        } else {
+            count += 1;
         }
     }
 
@@ -1191,10 +1174,7 @@ export const validateScanConfig: ValidatorFunction<ScanConfig> = (value) => {
         if (!value || typeof value !== 'object') {
             return {
                 isValid: false,
-                error: 'Конфигурация должна быть объектом',
-                value: undefined,
-                warnings: undefined,
-                metadata: undefined
+                error: 'Конфигурация должна быть объектом'
             };
         }
 
@@ -1233,17 +1213,13 @@ export const validateScanConfig: ValidatorFunction<ScanConfig> = (value) => {
         if (errors.length > 0) {
             return {
                 isValid: false,
-                error: errors.join('; '),
-                value: undefined,
-                warnings: undefined,
-                metadata: undefined
+                error: errors.join('; ')
             };
         }
 
         return {
             isValid: true,
             value: config,
-            error: undefined,
             warnings: warnings.length > 0 ? warnings : undefined,
             metadata: {
                 estimatedDuration: estimateScanDuration(config),
@@ -1254,10 +1230,7 @@ export const validateScanConfig: ValidatorFunction<ScanConfig> = (value) => {
     } catch (error) {
         return {
             isValid: false,
-            error: error instanceof Error ? error.message : 'Ошибка валидации конфигурации',
-            value: undefined,
-            warnings: undefined,
-            metadata: undefined
+            error: error instanceof Error ? error.message : 'Ошибка валидации конфигурации'
         };
     }
 };
@@ -1269,8 +1242,8 @@ const estimateScanDuration = (config: ScanConfig): string => {
     // Базовая эвристика для оценки времени
     const hostCount = 100; // Заглушка
     const portCount = config.ports ? calculatePortCount(config.ports) : 1000;
-
     const baseTime = hostCount * portCount * 0.01; // секунды
+
     const minutes = Math.ceil(baseTime / 60);
 
     if (minutes < 60) {

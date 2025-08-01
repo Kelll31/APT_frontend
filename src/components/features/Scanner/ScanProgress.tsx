@@ -4,6 +4,7 @@ import { ScanProgress as ScanProgressType } from '../../../types/scanner';
 interface ScanProgressProps {
     progress: ScanProgressType;
     onCancel?: () => void;
+    onViewResults?: () => void;
 }
 
 export const ScanProgress: React.FC<ScanProgressProps> = ({ progress, onCancel }) => {

@@ -17,10 +17,20 @@ import { useScanner } from '../hooks/useScanner';
 import { useNotifications } from '../hooks/useNotifications';
 import { useWebSocket } from '../hooks/useWebSocket';
 
-// Типы
-import type { ScanOptions } from '../services/api';
-import type { ScanProfile } from '../hooks/useScanner';
-import type { ScanProgress as ScanProgressType } from '../types/scanner';
+// ИСПРАВЛЕНИЕ: Используем только существующие типы из scanner.tsx
+import type {
+    ScanRequest,
+    ScanProgress as ScanProgressType
+} from '../types/scanner';
+
+// ИСПРАВЛЕНИЕ: Определяем отсутствующие типы локально
+interface ScanData {
+    target: string;
+    ports: string;
+    profile: string;
+    options: Record<string, any>;
+}
+
 
 // Интерфейс состояния страницы
 interface ScannerPageState {
@@ -37,23 +47,19 @@ const ScannerPage: React.FC = () => {
         error: null,
     });
 
-    // Хуки
+    // Хуки - ИСПРАВЛЕНИЕ: убираем неиспользуемые переменные
     const { addNotification } = useNotifications();
     const {
         scanData,
         currentScan,
         scanHistory,
         scanProgress,
-        availableProfiles,
-        selectedProfile,
         isScanning,
         isInitialized,
         error: scannerError,
         startScan,
         stopScan,
         validateScanTarget,
-        updateScanData,
-        setSelectedProfile,
         exportScanResults,
     } = useScanner();
 
@@ -63,98 +69,44 @@ const ScannerPage: React.FC = () => {
         shouldConnect: isInitialized,
     });
 
-    // Профили сканирования
-    const scanProfiles = useMemo(() => {
-        const defaultProfiles: Record<string, ScanProfile> = {
-            quick: {
-                name: 'Быстрое сканирование',
-                description: 'Сканирование основных портов',
-                ports: '21,22,23,25,53,80,110,143,443,993,995',
-                options: {
-                    timing_template: 4,
-                    enable_scripts: false,
-                    version_detection: false,
-                    os_detection: false
-                },
-                warnings: []
-            },
-            balanced: {
-                name: 'Сбалансированное сканирование',
-                description: 'Оптимальное соотношение скорости и точности',
-                ports: '1-1000',
-                options: {
-                    timing_template: 3,
-                    enable_scripts: true,
-                    version_detection: true,
-                    os_detection: false
-                },
-                warnings: ['Может занять несколько минут']
-            },
-            thorough: {
-                name: 'Полное сканирование',
-                description: 'Детальное сканирование всех портов',
-                ports: '1-65535',
-                options: {
-                    timing_template: 2,
-                    enable_scripts: true,
-                    version_detection: true,
-                    os_detection: true
-                },
-                warnings: [
-                    'Может занять продолжительное время',
-                    'Высокая нагрузка на целевую систему'
-                ]
-            }
-        };
-
-        return { ...defaultProfiles, ...availableProfiles };
-    }, [availableProfiles]);
-
-    // Обработчики событий
-    const handleTargetChange = useCallback((target: string) => {
-        updateScanData({ target });
-    }, [updateScanData]);
-
-    const handlePortsChange = useCallback((ports: string) => {
-        updateScanData({ ports });
-    }, [updateScanData]);
-
-    const handleProfileChange = useCallback((profileKey: string) => {
-        setSelectedProfile(profileKey);
-        const profile = scanProfiles[profileKey];
-        if (profile) {
-            updateScanData({
-                ports: profile.ports,
-                profile: profileKey,
-                options: profile.options
-            });
-        }
-    }, [setSelectedProfile, scanProfiles, updateScanData]);
-
-    const handleOptionsChange = useCallback((options: Partial<ScanOptions>) => {
-        updateScanData({ options: { ...scanData.options, ...options } });
-    }, [updateScanData, scanData.options]);
-
-    // Исправлено: добавлен аргумент target для validateScanTarget
-    const handleStartScan = useCallback(async () => {
+    // ИСПРАВЛЕНИЕ: Обработчик для ScanForm
+    const handleScanSubmit = useCallback(async (scanRequest: ScanRequest) => {
         try {
             setPageState(prev => ({ ...prev, isLoading: true, error: null }));
 
-            // Валидация цели - исправлен вызов с аргументом target
-            const isValid = await validateScanTarget(scanData.target);
+            // Преобразуем ScanRequest в ScanData для useScanner
+            const scanSettings: ScanData = {
+                target: scanRequest.targets,
+                ports: scanRequest.ports || '1-1000',
+                profile: scanRequest.scanType === 'quick' ? 'quick' :
+                    scanRequest.scanType === 'comprehensive' ? 'thorough' : 'balanced',
+                options: {
+                    timing_template: scanRequest.timing === 'paranoid' ? 1 :
+                        scanRequest.timing === 'sneaky' ? 2 :
+                            scanRequest.timing === 'polite' ? 3 :
+                                scanRequest.timing === 'normal' ? 4 :
+                                    scanRequest.timing === 'aggressive' ? 5 : 6,
+                    enable_scripts: scanRequest.scripts || false,
+                    version_detection: scanRequest.serviceDetection || false,
+                    os_detection: scanRequest.osDetection || false
+                }
+            };
+
+            // Валидация цели
+            const isValid = await validateScanTarget(scanSettings.target);
             if (!isValid) {
                 throw new Error('Недопустимая цель сканирования');
             }
 
             // Запуск сканирования
-            await startScan(scanData);
+            await startScan(scanSettings);
 
             addNotification({
                 type: 'success',
                 category: 'scan',
                 priority: 'normal',
                 title: 'Сканирование запущено',
-                message: `Начато сканирование ${scanData.target}`
+                message: `Начато сканирование ${scanSettings.target}`
             });
 
             setPageState(prev => ({
@@ -179,7 +131,7 @@ const ScannerPage: React.FC = () => {
                 message: errorMessage
             });
         }
-    }, [scanData, validateScanTarget, startScan, addNotification]);
+    }, [validateScanTarget, startScan, addNotification]);
 
     const handleStopScan = useCallback(async () => {
         if (!currentScan?.id) return;
@@ -238,11 +190,77 @@ const ScannerPage: React.FC = () => {
         }
     }, [currentScan, exportScanResults, addNotification]);
 
-    // Обработчик отправки формы - исправлено: добавлен onSubmit для ScanForm
-    const handleFormSubmit = useCallback((e: React.FormEvent) => {
-        e.preventDefault();
-        handleStartScan();
-    }, [handleStartScan]);
+    // ИСПРАВЛЕНИЕ: Адаптер для ScanProgress с правильной типизацией
+    const adaptedProgress = useMemo((): ScanProgressType | null => {
+        if (!scanProgress) return null;
+
+        // Создаем объект с обязательными полями согласно типу ScanProgressType
+        const baseProgress: ScanProgressType = {
+            scanId: scanProgress.scanId || 'unknown',
+            status: 'running' as const,
+            percentage: scanProgress.progress || 0,
+            hostsScanned: scanProgress.completedTargets || 0,
+            hostsTotal: scanProgress.totalTargets || 1,
+            hostsUp: scanProgress.completedTargets || 0,
+            hostsDown: 0,
+            hostsFiltered: 0,
+            openPorts: scanProgress.foundPorts || 0,
+            closedPorts: 0,
+            filteredPorts: 0,
+            vulnerabilities: 0,
+            elapsedTime: Math.floor((Date.now() - (currentScan?.startTime?.getTime() || Date.now())) / 1000),
+            scanRate: scanProgress.completedTargets ? scanProgress.completedTargets / Math.max(1, Math.floor((Date.now() - (currentScan?.startTime?.getTime() || Date.now())) / 1000)) : 0,
+            currentHost: scanProgress.currentTarget || scanData.target,
+            currentHostIndex: scanProgress.completedTargets || 0,
+            currentActivity: scanProgress.stage || 'Сканирование',
+            currentPort: 0,
+            currentService: '',
+            phase: 'port_scan' as const,
+            bytesReceived: 0,
+            bytesSent: 0,
+            packetsReceived: 0,
+            packetsSent: 0,
+            errors: [],
+            warnings: [],
+            recentDiscoveries: [],
+            statistics: {
+                totalHosts: scanProgress.totalTargets || 1,
+                aliveHosts: scanProgress.completedTargets || 0,
+                deadHosts: 0,
+                totalPorts: 1000,
+                openPorts: scanProgress.foundPorts || 0,
+                closedPorts: 0,
+                filteredPorts: 0,
+                uniqueServices: 0,
+                uniqueOperatingSystems: 0,
+                vulnerabilitiesFound: 0,
+                averageResponseTime: 0,
+                maxResponseTime: 0,
+                minResponseTime: 0,
+                packetsPerSecond: 0,
+                hostsPerMinute: scanProgress.completedTargets ? (scanProgress.completedTargets / Math.max(1, Math.floor((Date.now() - (currentScan?.startTime?.getTime() || Date.now())) / 60000))) : 0
+            },
+            performance: {
+                cpuUsage: 0,
+                memoryUsage: 0,
+                networkUtilization: 0,
+                ioOperations: 0,
+                threadsActive: 0,
+                bandwidthUsed: 0
+            }
+        };
+
+        // Условно добавляем опциональные свойства для exactOptionalPropertyTypes
+        const result: ScanProgressType = { ...baseProgress };
+
+        if (scanProgress.estimatedTimeRemaining !== undefined &&
+            scanProgress.estimatedTimeRemaining !== null &&
+            typeof scanProgress.estimatedTimeRemaining === 'number') {
+            result.estimatedTime = scanProgress.estimatedTimeRemaining;
+        }
+
+        return result;
+    }, [scanProgress, scanData.target, currentScan?.startTime]);
 
     // Отслеживание завершения сканирования
     useEffect(() => {
@@ -275,74 +293,6 @@ const ScannerPage: React.FC = () => {
             setPageState(prev => ({ ...prev, error: scannerError }));
         }
     }, [scannerError]);
-
-    // Адаптер для преобразования ScanProgress из useScanner в тип, ожидаемый компонентом ScanProgress
-    const adaptedProgress = useMemo((): ScanProgressType | null => {
-        if (!scanProgress) return null;
-
-        // Вычисляем elapsedTime на основе текущего времени и времени начала сканирования
-        const currentTime = Date.now();
-        const startTime = currentScan?.startTime ? currentScan.startTime.getTime() : currentTime;
-        const elapsedTimeMs = currentTime - startTime;
-        const elapsedTimeSeconds = Math.floor(elapsedTimeMs / 1000);
-
-        return {
-            scanId: scanProgress.scanId || 'unknown',
-            status: 'running' as const,
-            percentage: scanProgress.progress || 0,
-            hostsScanned: scanProgress.completedTargets || 0,
-            hostsTotal: scanProgress.totalTargets || 1,
-            hostsUp: scanProgress.completedTargets || 0,
-            hostsDown: 0,
-            hostsFiltered: 0,
-            openPorts: scanProgress.foundPorts || 0, // Используем foundPorts вместо openPorts
-            closedPorts: 0,
-            filteredPorts: 0,
-            vulnerabilities: 0,
-            elapsedTime: elapsedTimeSeconds, // Вычисляем elapsedTime
-            estimatedTime: scanProgress.estimatedTimeRemaining, // Используем estimatedTimeRemaining
-            scanRate: scanProgress.completedTargets ? scanProgress.completedTargets / Math.max(elapsedTimeSeconds, 1) : 0,
-            currentHost: scanProgress.currentTarget || scanData.target,
-            currentHostIndex: scanProgress.completedTargets || 0,
-            currentActivity: scanProgress.stage || 'Сканирование',
-            currentPort: 0,
-            currentService: '',
-            phase: 'port_scan' as const,
-            bytesReceived: 0,
-            bytesSent: 0,
-            packetsReceived: 0,
-            packetsSent: 0,
-            errors: [],
-            warnings: [],
-            recentDiscoveries: [],
-            statistics: {
-                totalHosts: scanProgress.totalTargets || 1,
-                aliveHosts: scanProgress.completedTargets || 0,
-                deadHosts: 0,
-                totalPorts: 1000,
-                openPorts: scanProgress.foundPorts || 0,
-                closedPorts: 0,
-                filteredPorts: 0,
-                uniqueServices: 0,
-                uniqueOperatingSystems: 0,
-                vulnerabilitiesFound: 0,
-                averageResponseTime: 0,
-                maxResponseTime: 0,
-                minResponseTime: 0,
-                packetsPerSecond: 0,
-                hostsPerMinute: scanProgress.completedTargets ? (scanProgress.completedTargets / Math.max(elapsedTimeSeconds / 60, 1)) : 0
-            },
-            performance: {
-                cpuUsage: 0,
-                memoryUsage: 0,
-                networkUtilization: 0,
-                ioOperations: 0,
-                threadsActive: 0,
-                bandwidthUsed: 0
-            }
-        };
-    }, [scanProgress, scanData.target, currentScan?.startTime]);
-
 
     // Загрузка при инициализации
     if (!isInitialized) {
@@ -461,25 +411,15 @@ const ScannerPage: React.FC = () => {
                     >
                         {pageState.currentView === 'form' && (
                             <ScanForm
-                                target={scanData.target}
-                                ports={scanData.ports}
-                                profile={selectedProfile}
-                                options={scanData.options || {}}
-                                profiles={scanProfiles}
-                                onTargetChange={handleTargetChange}
-                                onPortsChange={handlePortsChange}
-                                onProfileChange={handleProfileChange}
-                                onOptionsChange={handleOptionsChange}
-                                onStartScan={handleStartScan}
-                                onSubmit={handleFormSubmit}
-                                disabled={pageState.isLoading || isScanning}
+                                onSubmit={handleScanSubmit}
+                                loading={pageState.isLoading || isScanning}
                             />
                         )}
 
                         {pageState.currentView === 'progress' && adaptedProgress && (
                             <ScanProgress
                                 progress={adaptedProgress}
-                                onStop={handleStopScan}
+                                onCancel={handleStopScan}
                                 onViewResults={handleViewResults}
                             />
                         )}

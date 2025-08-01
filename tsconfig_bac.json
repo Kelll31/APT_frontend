@@ -9,7 +9,7 @@
         ],
         "module": "ESNext",
         "skipLibCheck": true,
-        "allowJs": true,
+        "allowJs": false,
         // Разрешение модулей
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
@@ -17,24 +17,24 @@
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
-        // Ослабленная типизация для запуска с ошибками
-        "strict": false,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false,
-        "noFallthroughCasesInSwitch": false,
-        "exactOptionalPropertyTypes": false,
-        "noImplicitReturns": false,
-        "noImplicitOverride": false,
-        "noUncheckedIndexedAccess": false,
-        // Отключенные строгие проверки
-        "noImplicitAny": false,
-        "noImplicitThis": false,
-        "alwaysStrict": false,
-        "strictNullChecks": false,
-        "strictFunctionTypes": false,
-        "strictBindCallApply": false,
-        "strictPropertyInitialization": false,
-        // Путеводные алиасы (без изменений)
+        // Строгая типизация
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "exactOptionalPropertyTypes": true,
+        "noImplicitReturns": true,
+        "noImplicitOverride": true,
+        "noUncheckedIndexedAccess": true,
+        // Дополнительные проверки
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        // Путеводные алиасы
         "baseUrl": ".",
         "paths": {
             "@/*": [
@@ -71,15 +71,15 @@
         // Настройки для Vite
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": false,
+        "forceConsistentCasingInFileNames": true,
         "verbatimModuleSyntax": false,
-        // Настройки для разработки (ключевые изменения)
+        // Настройки для разработки
         "sourceMap": true,
         "declaration": false,
         "declarationMap": false,
         "outDir": "dist",
         "removeComments": false,
-        "noEmitOnError": false, // Позволяет генерировать файлы при ошибках
+        "noEmitOnError": true,
         // Experimental features
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
@@ -125,8 +125,7 @@
     ],
     "ts-node": {
         "esm": true,
-        "experimentalSpecifierResolution": "node",
-        "transpileOnly": true // Пропускает проверку типов при компиляции
+        "experimentalSpecifierResolution": "node"
     },
     "vite": {
         "define": {

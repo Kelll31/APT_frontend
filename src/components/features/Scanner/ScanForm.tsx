@@ -29,7 +29,7 @@ export const ScanForm: React.FC<ScanFormProps> = ({ onSubmit, loading = false })
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-gray-900 p-6 rounded-lg">
             {/* Target Input */}
             <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -107,78 +107,65 @@ export const ScanForm: React.FC<ScanFormProps> = ({ onSubmit, loading = false })
 
             {/* Advanced Options */}
             <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3">
-                    Advanced Options
-                </label>
-                <div className="space-y-3">
-                    <label className="flex items-center">
+                <h3 className="text-sm font-medium text-gray-300 mb-3">Advanced Options</h3>
+                <div className="space-y-2">
+                    <label className="flex items-center space-x-2">
                         <input
                             type="checkbox"
                             checked={formData.aggressive}
                             onChange={(e) => handleInputChange('aggressive', e.target.checked)}
                             className="form-checkbox bg-gray-800 border-gray-700 text-emerald-600 rounded focus:ring-emerald-500"
                         />
-                        <span className="ml-2 text-sm text-gray-300">
+                        <span className="text-sm text-gray-300">
                             Aggressive Scan (Enable OS detection, version detection, script scanning)
                         </span>
                     </label>
 
-                    <label className="flex items-center">
+                    <label className="flex items-center space-x-2">
                         <input
                             type="checkbox"
                             checked={formData.osDetection}
                             onChange={(e) => handleInputChange('osDetection', e.target.checked)}
                             className="form-checkbox bg-gray-800 border-gray-700 text-emerald-600 rounded focus:ring-emerald-500"
                         />
-                        <span className="ml-2 text-sm text-gray-300">
-                            OS Detection (-O)
-                        </span>
+                        <span className="text-sm text-gray-300">OS Detection (-O)</span>
                     </label>
 
-                    <label className="flex items-center">
+                    <label className="flex items-center space-x-2">
                         <input
                             type="checkbox"
                             checked={formData.serviceDetection}
                             onChange={(e) => handleInputChange('serviceDetection', e.target.checked)}
                             className="form-checkbox bg-gray-800 border-gray-700 text-emerald-600 rounded focus:ring-emerald-500"
                         />
-                        <span className="ml-2 text-sm text-gray-300">
-                            Service Version Detection (-sV)
-                        </span>
+                        <span className="text-sm text-gray-300">Service Version Detection (-sV)</span>
                     </label>
 
-                    <label className="flex items-center">
+                    <label className="flex items-center space-x-2">
                         <input
                             type="checkbox"
                             checked={formData.scripts}
                             onChange={(e) => handleInputChange('scripts', e.target.checked)}
                             className="form-checkbox bg-gray-800 border-gray-700 text-emerald-600 rounded focus:ring-emerald-500"
                         />
-                        <span className="ml-2 text-sm text-gray-300">
-                            Default NSE Scripts (-sC)
-                        </span>
+                        <span className="text-sm text-gray-300">Default NSE Scripts (-sC)</span>
                     </label>
                 </div>
             </div>
 
             {/* Submit Button */}
-            <div className="flex space-x-3">
+            <div className="flex space-x-4">
                 <Button
                     type="submit"
-                    loading={loading}
-                    className="flex-1"
-                    icon={
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    }
+                    disabled={loading}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
                 >
                     {loading ? 'Starting Scan...' : 'Start Scan'}
                 </Button>
 
                 <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => {
                         setFormData({
                             targets: '',
