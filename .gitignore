@@ -79,3 +79,4 @@ temp/
 
 # ESLint cache
 .eslintcache
+APT_frontend_light/walk.py
