@@ -1,3 +1,4 @@
+# Автоматический деплой статического сайта на GitHub Pages
 name: Deploy APT Frontend Light to Pages
 
 on:
@@ -25,23 +26,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: List directory for debug
+      - name: Debug directory structure
         run: ls -R .
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+
+      - name: Upload artifact for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
 
       - name: Deploy to GitHub Pages
         id: deployment
