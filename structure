@@ -14,6 +14,8 @@
 │   ├── overview.js (28.2KB)
 │   ├── widgets.css (23.0KB)
 │   └── widgets.js (9.9KB)
+├── dist/
+│   └── style.css (199.5KB)
 ├── icons/
 │   ├── icon-144x144.png (258.0B)
 │   ├── icon-32x32.png (162.0B)
@@ -52,9 +54,7 @@
 │   │       ├── critical.json (593.0B)
 │   │       ├── index.json (1.4KB)
 │   │       └── stats.json (336.0B)
-│   ├── mock-server.js (3.5KB)
-│   ├── structure (2.5KB)
-│   └── structure_creator.py (5.4KB)
+│   └── mock-server.js (3.5KB)
 ├── network-topology/
 │   ├── device-details.css (20.9KB)
 │   ├── device-details.js (3.7KB)
@@ -64,6 +64,13 @@
 │   ├── network-map.js (5.6KB)
 │   ├── topology-viewer.css (29.7KB)
 │   └── topology-viewer.js (41.5KB)
+├── pages/
+│   ├── attack-constructor.html (272.0B)
+│   ├── dashboard.html (272.0B)
+│   ├── network-topology.html (272.0B)
+│   ├── reports.html (272.0B)
+│   ├── scanner.html (272.0B)
+│   └── settings.html (272.0B)
 ├── reports/
 │   ├── export-manager.css (23.6KB)
 │   ├── export-manager.js (6.4KB)
@@ -94,7 +101,7 @@
 ├── shared/
 │   ├── components/
 │   │   ├── common.css (2.6KB)
-│   │   ├── common.js (3.2KB)
+│   │   ├── common.js (100.5KB)
 │   │   ├── modals.css (1.9KB)
 │   │   ├── modals.js (3.0KB)
 │   │   ├── navigation.css (2.6KB)
@@ -104,13 +111,14 @@
 │   │   ├── global.css (30.5KB)
 │   │   ├── navigation.css (37.0KB)
 │   │   ├── themes.css (41.7KB)
-│   │   └── variables.css (44.3KB)
+│   │   └── variables.css (40.1KB)
 │   └── utils/
-│       ├── api.js (16.6KB)
-│       ├── constants.js (17.3KB)
-│       └── helpers.js (20.5KB)
-├── app.js (37.0KB)
-├── index.html (29.0KB)
+│       ├── api.js (27.6KB)
+│       ├── constants.js (22.4KB)
+│       └── helpers.js (34.8KB)
+├── app.js (44.3KB)
+├── index.html (18.6KB)
 ├── manifest.json (636.0B)
 ├── structure (0.0B)
-└── sw.js (0.0B)
+├── sw.js (0.0B)
+└── walk.py (4.3KB)

@@ -204,10 +204,7 @@ class IPRoastEnterpriseApp extends EventEmitter {
     async setupUI() {
         try {
             // Инициализация навигации
-            this.components.navigation = new NavigationComponent({
-                container: '#nav-menu',
-                onNavigate: (tab) => this.switchTab(tab)
-            });
+            this.setupNavigation();
 
             // Настройка sidebar
             this.setupSidebar();
@@ -220,6 +217,11 @@ class IPRoastEnterpriseApp extends EventEmitter {
 
             // Настройка модальных окон
             this.setupModals();
+
+            // Автоматическое открытие dashboard
+            setTimeout(() => {
+                this.switchTab('dashboard');
+            }, 100);
 
             logger.info('🎨 Пользовательский интерфейс настроен');
         } catch (error) {
@@ -257,25 +259,130 @@ class IPRoastEnterpriseApp extends EventEmitter {
      * Подготовка заглушек модулей
      */
     async prepareModuleStubs() {
-        const moduleStubs = [
-            'scanner',
-            'attack-constructor',
-            'network-topology',
-            'reports',
-            'settings'
-        ];
-
-        moduleStubs.forEach(moduleId => {
-            const container = document.querySelector(`#${moduleId}-container .tab-content-inner`);
-            if (container && container.querySelector('.module-placeholder')) {
-                // Добавляем интерактивности к placeholder
-                const placeholder = container.querySelector('.module-placeholder');
-                placeholder.style.cursor = 'pointer';
-                placeholder.addEventListener('click', () => {
-                    this.loadModule(moduleId);
+        const modules = ['scanner', 'attack-constructor', 'network-topology', 'reports', 'settings'];
+        modules.forEach(id => {
+            const container = document.querySelector(`#${id}-container .tab-content-inner`);
+            if (container) {
+                container.innerHTML = `
+              <div class="module-placeholder">
+                <button data-module="${id}">Загрузить ${this.getModuleTitle(id)}</button>
+              </div>
+            `;
+                container.querySelector('button').addEventListener('click', () => {
+                    this.loadStaticModule(id, container);
                 });
             }
         });
+    }
+
+    /**
+ * Загрузка статического модуля из pages/
+ */
+    async loadStaticModule(moduleId, buttonElement = null) {
+        logger.info(`📄 Загрузка статического модуля: ${moduleId}`);
+
+        const container = document.querySelector(`#${moduleId}-container .tab-content-inner`);
+        if (!container) {
+            logger.error(`Контейнер для модуля ${moduleId} не найден`);
+            return;
+        }
+
+        try {
+            // Показать индикатор загрузки
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+            }
+
+            container.innerHTML = `
+            <div class="module-loading">
+                <div class="loading-spinner"></div>
+                <p>Загрузка модуля ${this.getModuleTitle(moduleId)}...</p>
+            </div>
+        `;
+
+            // Загружаем HTML из папки pages/
+            const response = await fetch(`pages/${moduleId}.html`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const html = await response.text();
+
+            // Добавляем небольшую задержку для плавности
+            await delay(300);
+
+            // Вставляем загруженный контент
+            container.innerHTML = html;
+
+            // Отмечаем модуль как загруженный
+            this.state.loadedModules.add(moduleId);
+
+            // Инициализируем функциональность модуля, если есть
+            this.initializeModuleFunctionality(moduleId);
+
+            // Показать уведомление об успехе
+            this.showNotification(
+                `Модуль "${this.getModuleTitle(moduleId)}" успешно загружен`,
+                NOTIFICATION_TYPES.SUCCESS
+            );
+
+            logger.info(`✅ Модуль ${moduleId} загружен из pages/${moduleId}.html`);
+
+        } catch (error) {
+            logger.error(`❌ Ошибка загрузки модуля ${moduleId}:`, error);
+
+            // Показать ошибку в контейнере
+            container.innerHTML = `
+            <div class="module-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Ошибка загрузки модуля</h3>
+                <p>${error.message}</p>
+                <button class="btn btn--primary retry-btn" onclick="window.ipRoastApp.loadStaticModule('${moduleId}')">
+                    <i class="fas fa-redo"></i>
+                    Попробовать снова
+                </button>
+            </div>
+        `;
+
+            // Показать уведомление об ошибке
+            this.showNotification(
+                `Ошибка загрузки модуля: ${error.message}`,
+                NOTIFICATION_TYPES.ERROR
+            );
+
+        } finally {
+            // Восстанавливаем кнопку
+            if (buttonElement) {
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = '<i class="fas fa-play"></i> Загрузить модуль';
+            }
+        }
+    }
+
+    /**
+     * Инициализация функциональности модуля
+     */
+    initializeModuleFunctionality(moduleId) {
+        // Добавить специфичную логику для каждого модуля
+        switch (moduleId) {
+            case 'scanner':
+                this.initializeScannerModule();
+                break;
+            case 'attack-constructor':
+                this.initializeAttackConstructorModule();
+                break;
+            case 'network-topology':
+                this.initializeTopologyModule();
+                break;
+            case 'reports':
+                this.initializeReportsModule();
+                break;
+            case 'settings':
+                this.initializeSettingsModule();
+                break;
+        }
     }
 
     /**
@@ -797,53 +904,146 @@ class IPRoastEnterpriseApp extends EventEmitter {
     }
 
     /**
+     * Настройка навигации
+     */
+    setupNavigation() {
+        // Обработка кликов по навигационным элементам
+        document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = item.dataset.tab;
+                this.switchTab(tabId);
+            });
+        });
+
+        // Обработка кнопок загрузки модулей
+        document.querySelectorAll('.module-load-btn[data-module]').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const moduleId = button.dataset.module;
+                await this.loadStaticModule(moduleId, button);
+            });
+        });
+
+        logger.info('🧭 Навигация настроена');
+    }
+
+    /**
      * Переключение вкладок
      */
+
     switchTab(tabId) {
-        if (this.state.currentTab === tabId) return;
+        logger.info(`🔄 Переключение на таб: ${tabId}`);
+
+        // Удаляем активные классы у всех элементов навигации
+        document.querySelectorAll('.nav-item').forEach(item => {
+            removeClass(item, 'active');
+        });
+
+        // Скрываем все контейнеры табов
+        document.querySelectorAll('.tab-container').forEach(container => {
+            removeClass(container, 'active');
+            container.style.display = 'none';
+        });
+
+        // Активируем выбранный таб в навигации
+        const activeNavItem = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+        if (activeNavItem) {
+            addClass(activeNavItem, 'active');
+        }
+
+        // Показываем соответствующий контейнер
+        const targetContainer = document.getElementById(`${tabId}-container`);
+        if (targetContainer) {
+            addClass(targetContainer, 'active');
+            targetContainer.style.display = 'block';
+
+            // Автоматическая загрузка dashboard при первом открытии
+            if (tabId === 'dashboard' && !this.state.loadedModules.has('dashboard')) {
+                this.loadDashboardContent();
+            }
+        }
+
+        // Обновляем состояние
+        this.state.currentTab = tabId;
+        this.emit('tabChanged', { tabId });
+
+        // Сохраняем в localStorage
+        Storage.set(STORAGE_KEYS.CURRENT_TAB, tabId);
+    }
+
+    /**
+ * Загрузка содержимого dashboard
+ */
+    async loadDashboardContent() {
+        const container = document.querySelector('#dashboard-container .tab-content-inner');
+        if (!container) return;
 
         try {
-            // Скрыть текущую вкладку
-            const currentTab = document.querySelector('.tab-content.active');
-            if (currentTab) {
-                removeClass(currentTab, 'active');
+            // Загружаем dashboard из pages/ или используем модуль dashboard
+            const response = await fetch('pages/dashboard.html');
+
+            if (response.ok) {
+                const html = await response.text();
+                container.innerHTML = html;
+            } else {
+                // Fallback к статическому содержимому
+                container.innerHTML = `
+                <div class="dashboard-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-network-wired"></i></div>
+                            <div class="stat-info">
+                                <h3>Активные устройства</h3>
+                                <div class="stat-value">247</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div class="stat-info">
+                                <h3>Критические уязвимости</h3>
+                                <div class="stat-value">12</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div class="stat-info">
+                                <h3>Защищенные хосты</h3>
+                                <div class="stat-value">235</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-widgets">
+                        <div class="widget-grid">
+                            <div class="widget">
+                                <h3>Статус сети</h3>
+                                <p>Все системы работают нормально</p>
+                            </div>
+                            <div class="widget">
+                                <h3>Последние события</h3>
+                                <p>Нет новых событий безопасности</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
             }
 
-            // Показать новую вкладку
-            const newTab = document.querySelector(`#${tabId}-container`);
-            if (newTab) {
-                addClass(newTab, 'active');
-                this.state.currentTab = tabId;
+            this.state.loadedModules.add('dashboard');
+            logger.info('✅ Dashboard загружен');
 
-                // Обновить навигацию
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    removeClass(item, 'active');
-                });
-
-                const activeNavItem = document.querySelector(`[data-tab="${tabId}"]`);
-                if (activeNavItem) {
-                    addClass(activeNavItem, 'active');
-                }
-
-                // Сохранить в storage
-                Storage.set(STORAGE_KEYS.CURRENT_TAB, tabId);
-
-                // Загрузить модуль если нужно
-                if (!this.state.loadedModules.has(tabId) && tabId !== 'dashboard') {
-                    this.loadModule(tabId).catch(error => {
-                        logger.error(`Ошибка загрузки модуля ${tabId}:`, error);
-                    });
-                }
-
-                // Эмитировать событие
-                this.emit('tabChanged', { from: this.state.currentTab, to: tabId });
-
-                logger.debug(`Переключение на вкладку: ${tabId}`);
-            }
         } catch (error) {
-            logger.error('Ошибка переключения вкладки:', error);
+            logger.error('❌ Ошибка загрузки dashboard:', error);
+            container.innerHTML = `
+            <div class="module-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Ошибка загрузки панели управления</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
         }
     }
+
 
     /**
      * Переключение sidebar
@@ -1314,7 +1514,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.ipRoastApp = new IPRoastEnterpriseApp();
 
     // Глобальный доступ для отладки
-    if (process?.env?.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
         window.IPRoast = {
             app: window.ipRoastApp,
             logger,
@@ -1323,6 +1523,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+
 
 // Экспорт для модульных систем
 export default IPRoastEnterpriseApp;

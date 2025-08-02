@@ -59,9 +59,9 @@
                 <div class="loading-version">v4.0.0</div>
             </div>
             <div class="loading-progress">
-                <div class="loading-progress-bar"></div>
+                <div class="loading-progress-bar" id="loading-progress-bar"></div>
             </div>
-            <div class="loading-text">Инициализация...</div>
+            <div class="loading-text" id="loading-progress-text">Инициализация...</div>
         </div>
     </div>
 
@@ -105,14 +105,14 @@
             </div>
 
             <div class="navbar-controls">
-                <div class="connection-status">
+                <div class="connection-status" id="connection-status">
                     <div class="status-indicator status-connected"></div>
                     <span class="status-text">Подключено</span>
                 </div>
 
                 <button class="notification-btn" id="notification-btn">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
+                    <span class="notification-badge" id="notification-count">3</span>
                 </button>
 
                 <button class="theme-btn" id="theme-btn">
@@ -130,38 +130,38 @@
         <!-- Sidebar Navigation -->
         <aside id="sidebar" class="sidebar">
             <nav class="sidebar-nav">
-                <ul class="nav-menu">
-                    <li class="nav-item active" data-page="dashboard">
+                <ul class="nav-menu" id="nav-menu">
+                    <li class="nav-item active" data-tab="dashboard">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
                             <span class="nav-text">Панель управления</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-page="scanner">
+                    <li class="nav-item" data-tab="scanner">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-search"></i>
                             <span class="nav-text">Модуль сканирования</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-page="attack-constructor">
+                    <li class="nav-item" data-tab="attack-constructor">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-hammer"></i>
                             <span class="nav-text">Конструктор атак</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-page="network-topology">
+                    <li class="nav-item" data-tab="network-topology">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-project-diagram"></i>
                             <span class="nav-text">Топология сети</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-page="reports">
+                    <li class="nav-item" data-tab="reports">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-chart-bar"></i>
                             <span class="nav-text">Отчеты и аналитика</span>
                         </a>
                     </li>
-                    <li class="nav-item" data-page="settings">
+                    <li class="nav-item" data-tab="settings">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-cog"></i>
                             <span class="nav-text">Настройки системы</span>
@@ -181,7 +181,7 @@
         <main class="main-content">
 
             <!-- Dashboard Tab -->
-            <div id="dashboard-container" class="tab-container active">
+            <div id="dashboard-container" class="tab-container active" data-tab="dashboard">
                 <div class="tab-content">
                     <div class="tab-content-inner">
                         <!-- Dashboard будет загружен динамически -->
@@ -190,6 +190,7 @@
                                 <i class="fas fa-tachometer-alt placeholder-icon"></i>
                                 <h3>Панель управления</h3>
                                 <p>Активные устройства, критические уязвимости и защищенные хосты</p>
+                                <div class="loading-spinner" id="dashboard-spinner" style="display: none;"></div>
                             </div>
                         </div>
                     </div>
@@ -197,7 +198,7 @@
             </div>
 
             <!-- Scanner Tab -->
-            <div id="scanner-container" class="tab-container">
+            <div id="scanner-container" class="tab-container" data-tab="scanner">
                 <div class="tab-content">
                     <div class="tab-content-inner">
                         <div class="module-placeholder">
@@ -205,7 +206,7 @@
                                 <i class="fas fa-search placeholder-icon"></i>
                                 <h3>Модуль сканирования</h3>
                                 <p>Выберите цель и тип сканирования для начала работы</p>
-                                <button class="btn btn--primary module-load-btn">
+                                <button class="btn btn--primary module-load-btn" data-module="scanner">
                                     <i class="fas fa-play"></i>
                                     Загрузить модуль
                                 </button>
@@ -216,7 +217,7 @@
             </div>
 
             <!-- Attack Constructor Tab -->
-            <div id="attack-constructor-container" class="tab-container">
+            <div id="attack-constructor-container" class="tab-container" data-tab="attack-constructor">
                 <div class="tab-content">
                     <div class="tab-content-inner">
                         <div class="module-placeholder">
@@ -224,7 +225,7 @@
                                 <i class="fas fa-hammer placeholder-icon"></i>
                                 <h3>Конструктор атак</h3>
                                 <p>Создание и настройка модулей атак</p>
-                                <button class="btn btn--primary module-load-btn">
+                                <button class="btn btn--primary module-load-btn" data-module="attack-constructor">
                                     <i class="fas fa-play"></i>
                                     Загрузить модуль
                                 </button>
@@ -235,7 +236,7 @@
             </div>
 
             <!-- Network Topology Tab -->
-            <div id="network-topology-container" class="tab-container">
+            <div id="network-topology-container" class="tab-container" data-tab="network-topology">
                 <div class="tab-content">
                     <div class="tab-content-inner">
                         <div class="module-placeholder">
@@ -243,7 +244,7 @@
                                 <i class="fas fa-project-diagram placeholder-icon"></i>
                                 <h3>Топология сети</h3>
                                 <p>Визуализация топологии сети и подключенных устройств</p>
-                                <button class="btn btn--primary module-load-btn">
+                                <button class="btn btn--primary module-load-btn" data-module="network-topology">
                                     <i class="fas fa-play"></i>
                                     Загрузить модуль
                                 </button>
@@ -254,7 +255,7 @@
             </div>
 
             <!-- Reports Tab -->
-            <div id="reports-container" class="tab-container">
+            <div id="reports-container" class="tab-container" data-tab="reports">
                 <div class="tab-content">
                     <div class="tab-content-inner">
                         <div class="module-placeholder">
@@ -262,7 +263,7 @@
                                 <i class="fas fa-chart-bar placeholder-icon"></i>
                                 <h3>Отчеты и аналитика</h3>
                                 <p>Генерация отчетов и анализ данных безопасности</p>
-                                <button class="btn btn--primary module-load-btn">
+                                <button class="btn btn--primary module-load-btn" data-module="reports">
                                     <i class="fas fa-play"></i>
                                     Загрузить модуль
                                 </button>
@@ -273,7 +274,7 @@
             </div>
 
             <!-- Settings Tab -->
-            <div id="settings-container" class="tab-container">
+            <div id="settings-container" class="tab-container" data-tab="settings">
                 <div class="tab-content">
                     <div class="tab-content-inner">
                         <div class="module-placeholder">
@@ -281,7 +282,7 @@
                                 <i class="fas fa-cog placeholder-icon"></i>
                                 <h3>Настройки системы</h3>
                                 <p>Конфигурация платформы и пользовательские настройки</p>
-                                <button class="btn btn--primary module-load-btn">
+                                <button class="btn btn--primary module-load-btn" data-module="settings">
                                     <i class="fas fa-play"></i>
                                     Загрузить модуль
                                 </button>
@@ -442,6 +443,7 @@
             display: flex;
             gap: 1rem;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .module-placeholder {
@@ -475,9 +477,31 @@
 
         .module-load-btn {
             margin-top: 1rem;
+            transition: all 0.3s ease;
         }
 
-        /* Анимации */
+        .module-load-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(var(--color-primary-rgb), 0.3);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Анимации табов */
         .tab-container {
             display: none;
             animation: fadeIn 0.3s ease-in-out;
@@ -498,7 +522,141 @@
                 transform: translateY(0);
             }
         }
+
+        /* Улучшенная навигация */
+        .nav-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(var(--color-primary-rgb), 0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(var(--color-primary-rgb), 0.15);
+            border-left: 3px solid var(--color-primary);
+        }
+
+        /* Состояния кнопок */
+        .btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Responsive улучшения */
+        @media (max-width: 768px) {
+            .navbar-center {
+                display: none;
+            }
+
+            .navbar-controls {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .error-actions {
+                flex-direction: column;
+            }
+
+            .module-placeholder {
+                height: 50vh;
+                padding: 2rem 1rem;
+            }
+        }
     </style>
+
+    <!-- Простая навигация для совместимости -->
+    <script>
+        // Простая навигация до полной загрузки app.js
+        document.addEventListener('DOMContentLoaded', () => {
+            // Флаг для проверки загрузки app.js
+            let appLoaded = false;
+
+            // Проверяем каждые 100мс, загрузился ли app.js
+            const checkAppLoaded = setInterval(() => {
+                if (window.ipRoastApp && window.ipRoastApp.state.isInitialized) {
+                    appLoaded = true;
+                    clearInterval(checkAppLoaded);
+                    console.log('✅ App.js загружен, временная навигация отключена');
+                    return;
+                }
+            }, 100);
+
+            // Временная навигация по табам (работает до загрузки app.js)
+            document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (appLoaded) return; // Если app.js загружен, не выполняем
+
+                    e.preventDefault();
+                    const tabId = item.dataset.tab;
+
+                    // Убираем активные классы
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    document.querySelectorAll('.tab-container').forEach(tab => {
+                        tab.classList.remove('active');
+                        tab.style.display = 'none';
+                    });
+
+                    // Добавляем активные классы
+                    item.classList.add('active');
+                    const targetContainer = document.getElementById(`${tabId}-container`);
+                    if (targetContainer) {
+                        targetContainer.classList.add('active');
+                        targetContainer.style.display = 'block';
+                    }
+                });
+            });
+
+            // Временная обработка кнопок загрузки модулей
+            document.querySelectorAll('.module-load-btn[data-module]').forEach(button => {
+                button.addEventListener('click', () => {
+                    if (appLoaded && window.ipRoastApp) {
+                        // Если app.js загружен, используем его метод
+                        const moduleId = button.dataset.module;
+                        window.ipRoastApp.loadStaticModule(moduleId, button);
+                    } else {
+                        // Иначе показываем сообщение ожидания
+                        button.disabled = true;
+                        button.innerHTML = '<i class="fas fa-hourglass-half"></i> Ожидание приложения...';
+
+                        setTimeout(() => {
+                            button.disabled = false;
+                            button.innerHTML = '<i class="fas fa-play"></i> Загрузить модуль';
+                        }, 2000);
+                    }
+                });
+            });
+
+            // Toggle sidebar
+            document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+                document.getElementById('sidebar')?.classList.toggle('collapsed');
+            });
+
+            console.log('⚡ Временная навигация активирована');
+        });
+    </script>
+
 </body>
 
 </html>
