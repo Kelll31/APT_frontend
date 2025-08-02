@@ -1,7 +1,7 @@
 /**
- * IP Roast Enterprise 4.0 - Fixed API Client
- * Исправленный централизованный клиент для работы с API
- * Версия: Enterprise 4.0 (Fixed)
+ * IP Roast Enterprise 4.0 - API Client
+ * Централизованный клиент для работы с API
+ * Версия: Enterprise 4.0
  */
 
 import { API_CONFIG, ERROR_MESSAGES, SUCCESS_MESSAGES } from './constants.js';
@@ -822,8 +822,8 @@ setInterval(() => {
     defaultApiClient.cleanupCache();
 }, 60000); // Каждую минуту
 
-// Экспорт для использования в других модулях
-export { ApiClient, defaultApiClient };
+// Экспорт для использования в других модулях - убрана дублирующая строка
+export { defaultApiClient };
 
 export default {
     ApiClient,
