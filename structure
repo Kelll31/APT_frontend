@@ -1,27 +1,6 @@
 ./
-├── attack-constructor/
-│   ├── attack-builder.css (2.0KB)
-│   ├── attack-builder.js (12.9KB)
-│   ├── AttackModuleConstructor.js (83.0KB)
-│   ├── constructor-styles.css (1.1KB)
-│   ├── exploit-library.css (1.9KB)
-│   ├── exploit-library.js (5.4KB)
-│   └── payload-editor.css (2.4KB)
-├── dashboard/
-│   ├── dashboard.css (20.6KB)
-│   ├── dashboard.js (54.9KB)
-│   ├── overview.css (13.9KB)
-│   ├── overview.js (28.2KB)
-│   ├── widgets.css (23.0KB)
-│   └── widgets.js (9.9KB)
-├── dist/
-│   └── style.css (199.5KB)
-├── icons/
-│   ├── icon-144x144.png (258.0B)
-│   ├── icon-32x32.png (162.0B)
-│   └── icon-64x64.png (258.0B)
-├── mocks/
-│   ├── api/
+├── api/
+│   ├── mocks/
 │   │   ├── analytics/
 │   │   │   ├── activity.json (1.6KB)
 │   │   │   ├── dashboard.json (1.2KB)
@@ -55,49 +34,111 @@
 │   │       ├── index.json (1.4KB)
 │   │       └── stats.json (336.0B)
 │   └── mock-server.js (3.5KB)
-├── network-topology/
-│   ├── device-details.css (20.9KB)
-│   ├── device-details.js (3.7KB)
-│   ├── network-graph.css (22.1KB)
-│   ├── network-graph.js (4.8KB)
-│   ├── network-map.css (26.0KB)
-│   ├── network-map.js (5.6KB)
-│   ├── topology-viewer.css (29.7KB)
-│   └── topology-viewer.js (41.5KB)
+├── assets/
+│   └── icons/
+│       ├── icon-144x144.png (258.0B)
+│       ├── icon-32x32.png (162.0B)
+│       └── icon-64x64.png (258.0B)
+├── config/
+│   ├── app-config.js (0.0B)
+│   └── routes.js (0.0B)
+├── core/
+│   ├── components/
+│   │   ├── header.html (0.0B)
+│   │   └── sidebar.html (0.0B)
+│   ├── scripts/
+│   │   ├── header.js (18.9KB)
+│   │   ├── main.js (24.1KB)
+│   │   ├── page-loader.js (20.1KB)
+│   │   └── sidebar.js (21.8KB)
+│   ├── styles/
+│   │   ├── header.css (34.0KB)
+│   │   ├── layout.css (33.3KB)
+│   │   ├── main.css (36.2KB)
+│   │   └── sidebar.css (40.2KB)
+│   └── index.html (10.8KB)
+├── dist/
+│   └── style.css (199.5KB)
+├── legacy/
+│   ├── app.js (61.6KB)
+│   └── index.html (22.7KB)
+├── modules/
+│   ├── attack-constructor/
+│   │   ├── attack-builder.css (2.0KB)
+│   │   ├── attack-builder.js (12.9KB)
+│   │   ├── AttackModuleConstructor.js (83.0KB)
+│   │   ├── constructor-styles.css (1.1KB)
+│   │   ├── exploit-library.css (1.9KB)
+│   │   ├── exploit-library.js (5.4KB)
+│   │   └── payload-editor.css (2.4KB)
+│   ├── dashboard/
+│   │   ├── dashboard.css (20.6KB)
+│   │   ├── dashboard.js (54.9KB)
+│   │   ├── overview.css (13.9KB)
+│   │   ├── overview.js (28.2KB)
+│   │   ├── widgets.css (23.0KB)
+│   │   └── widgets.js (9.9KB)
+│   ├── network-topology/
+│   │   ├── device-details.css (20.9KB)
+│   │   ├── device-details.js (3.7KB)
+│   │   ├── network-graph.css (22.1KB)
+│   │   ├── network-graph.js (4.8KB)
+│   │   ├── network-map.css (26.0KB)
+│   │   ├── network-map.js (5.6KB)
+│   │   ├── topology-viewer.css (29.7KB)
+│   │   └── topology-viewer.js (41.6KB)
+│   ├── reports/
+│   │   ├── export-manager.css (23.6KB)
+│   │   ├── export-manager.js (6.4KB)
+│   │   ├── report-generator.css (30.7KB)
+│   │   ├── report-generator.js (8.1KB)
+│   │   ├── report-viewer.css (8.3KB)
+│   │   ├── report-viewer.js (2.9KB)
+│   │   ├── reports.css (37.3KB)
+│   │   └── reports.js (4.5KB)
+│   ├── scanner/
+│   │   ├── port-scanner.css (4.1KB)
+│   │   ├── port-scanner.js (4.0KB)
+│   │   ├── scan-form.css (4.3KB)
+│   │   ├── scan-form.js (6.3KB)
+│   │   ├── scan-results.css (3.4KB)
+│   │   ├── scan-results.js (2.5KB)
+│   │   ├── scanner.css (3.6KB)
+│   │   └── scanner.js (1.1KB)
+│   └── settings/
+│       ├── settings.css (4.7KB)
+│       ├── settings.js (2.1KB)
+│       ├── system-config.css (2.8KB)
+│       ├── system-config.js (2.2KB)
+│       ├── theme-manager.css (3.0KB)
+│       ├── theme-manager.js (1.7KB)
+│       ├── user-preferences.css (3.5KB)
+│       └── user-preferences.js (2.1KB)
 ├── pages/
-│   ├── attack-constructor.html (272.0B)
-│   ├── dashboard.html (272.0B)
-│   ├── network-topology.html (272.0B)
-│   ├── reports.html (272.0B)
-│   ├── scanner.html (272.0B)
-│   └── settings.html (272.0B)
-├── reports/
-│   ├── export-manager.css (23.6KB)
-│   ├── export-manager.js (6.4KB)
-│   ├── report-generator.css (30.7KB)
-│   ├── report-generator.js (8.1KB)
-│   ├── report-viewer.css (8.3KB)
-│   ├── report-viewer.js (2.9KB)
-│   ├── reports.css (37.3KB)
-│   └── reports.js (4.5KB)
-├── scanner/
-│   ├── port-scanner.css (4.1KB)
-│   ├── port-scanner.js (4.0KB)
-│   ├── scan-form.css (4.3KB)
-│   ├── scan-form.js (6.3KB)
-│   ├── scan-results.css (3.4KB)
-│   ├── scan-results.js (2.5KB)
-│   ├── scanner.css (3.6KB)
-│   └── scanner.js (1.1KB)
-├── settings/
-│   ├── settings.css (4.7KB)
-│   ├── settings.js (2.1KB)
-│   ├── system-config.css (2.8KB)
-│   ├── system-config.js (2.2KB)
-│   ├── theme-manager.css (3.0KB)
-│   ├── theme-manager.js (1.7KB)
-│   ├── user-preferences.css (3.5KB)
-│   └── user-preferences.js (2.1KB)
+│   ├── attack-constructor/
+│   │   ├── attack-constructor.css (0.0B)
+│   │   ├── attack-constructor.html (61.8KB)
+│   │   └── attack-constructor.js (0.0B)
+│   ├── dashboard/
+│   │   ├── dashboard.css (0.0B)
+│   │   ├── dashboard.html (36.1KB)
+│   │   └── dashboard.js (0.0B)
+│   ├── network-topology/
+│   │   ├── network-topology.css (0.0B)
+│   │   ├── network-topology.html (47.2KB)
+│   │   └── network-topology.js (0.0B)
+│   ├── reports/
+│   │   ├── reports.css (0.0B)
+│   │   ├── reports.html (49.5KB)
+│   │   └── reports.js (0.0B)
+│   ├── scanner/
+│   │   ├── scanner.css (0.0B)
+│   │   ├── scanner.html (80.5KB)
+│   │   └── scanner.js (0.0B)
+│   └── settings/
+│       ├── settings.css (0.0B)
+│       ├── settings.html (69.4KB)
+│       └── settings.js (0.0B)
 ├── shared/
 │   ├── components/
 │   │   ├── common.css (2.6KB)
@@ -108,16 +149,14 @@
 │   │   └── navigation.js (5.2KB)
 │   ├── styles/
 │   │   ├── common.css (38.8KB)
-│   │   ├── global.css (30.5KB)
+│   │   ├── global.css (31.1KB)
 │   │   ├── navigation.css (37.0KB)
 │   │   ├── themes.css (41.7KB)
 │   │   └── variables.css (40.1KB)
 │   └── utils/
 │       ├── api.js (27.6KB)
-│       ├── constants.js (22.4KB)
+│       ├── constants.js (22.5KB)
 │       └── helpers.js (34.8KB)
-├── app.js (44.3KB)
-├── index.html (18.6KB)
 ├── manifest.json (636.0B)
 ├── structure (0.0B)
 ├── sw.js (0.0B)

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Roast Enterprise 4.0</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles/layout.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/sidebar.css">
+    <link rel="stylesheet" href="styles/header.css">
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="scripts/main.js" as="script">
+    <link rel="preload" href="scripts/sidebar.js" as="script">
+    <link rel="preload" href="scripts/header.js" as="script">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-container">
+            <div class="loading-logo">
+                <div class="logo-icon">IP</div>
+                <div class="logo-text">
+                    <h1>IP Roast</h1>
+                    <span>Enterprise 4.0</span>
+                </div>
+            </div>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div id="progress-text" class="progress-text">Инициализация...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="app" id="app">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <!-- Sidebar Header -->
+            <div class="sidebar__header">
+                <a href="#dashboard" class="sidebar__brand">
+                    <div class="sidebar__brand-icon">IP</div>
+                    <div class="sidebar__brand-text">
+                        <div class="sidebar__brand-name">IP Roast</div>
+                        <div class="sidebar__brand-version">Enterprise 4.0</div>
+                    </div>
+                </a>
+
+                <!-- Desktop Collapse Button -->
+                <button id="sidebar-collapse" class="sidebar__collapse-toggle" aria-label="Свернуть меню">
+                    <span class="collapse-icon">‹</span>
+                </button>
+            </div>
+
+            <!-- Sidebar Navigation -->
+            <div class="sidebar__nav">
+                <ul class="nav-list">
+                    <li class="nav-item active" data-page="dashboard">
+                        <a href="#dashboard" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Панель управления</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="scanner">
+                        <a href="#scanner" class="nav-link">
+                            <span class="nav-icon">🔍</span>
+                            <span class="nav-text">Модуль сканирования</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="attack-constructor">
+                        <a href="#attack-constructor" class="nav-link">
+                            <span class="nav-icon">⚔️</span>
+                            <span class="nav-text">Конструктор атак</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="network-topology">
+                        <a href="#network-topology" class="nav-link">
+                            <span class="nav-icon">🌐</span>
+                            <span class="nav-text">Топология сети</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="reports">
+                        <a href="#reports" class="nav-link">
+                            <span class="nav-icon">📋</span>
+                            <span class="nav-text">Отчеты и аналитика</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="settings">
+                        <a href="#settings" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-text">Настройки системы</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Sidebar Footer (System Status) -->
+            <div class="sidebar__footer">
+                <div class="system-status">
+                    <div class="status-item">
+                        <span class="status-label">Система</span>
+                        <span class="status-value status-healthy">OK</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Сеть</span>
+                        <span class="status-value status-healthy">Connected</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Безопасность</span>
+                        <span class="status-value status-healthy">Protected</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Sidebar Expand Button (appears when collapsed) -->
+        <button id="sidebar-expand" class="sidebar__expand-toggle" aria-label="Развернуть меню">
+            <span class="expand-icon">›</span>
+        </button>
+
+        <!-- Sidebar Overlay (mobile) -->
+        <div id="sidebar-overlay" class="sidebar__overlay"></div>
+
+        <!-- Mobile Toggle -->
+        <button id="sidebar-mobile-toggle" class="sidebar__mobile-toggle" aria-label="Открыть меню">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </button>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header id="main-header" class="main-header">
+                <div class="header-left">
+                    <h1 id="page-title" class="page-title">Панель управления</h1>
+                    <nav id="breadcrumb" class="breadcrumb">
+                        <span class="breadcrumb-item">Главная</span>
+                        <span class="breadcrumb-separator">›</span>
+                        <span class="breadcrumb-item active">Панель управления</span>
+                    </nav>
+                </div>
+
+                <div class="header-right">
+                    <!-- Notifications -->
+                    <button id="notifications-btn" class="header-btn" aria-label="Уведомления">
+                        <span class="btn-icon">🔔</span>
+                        <span id="notification-badge" class="notification-badge" style="display: none;">0</span>
+                    </button>
+
+                    <!-- Fullscreen Toggle -->
+                    <button id="fullscreen-btn" class="header-btn" aria-label="Полноэкранный режим">
+                        <span class="btn-icon">🔳</span>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="user-menu">
+                        <button id="user-btn" class="user-btn" aria-expanded="false">
+                            <div class="user-avatar">
+                                <span class="avatar-text">AD</span>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name">Administrator</div>
+                                <div class="user-role">Системный администратор</div>
+                            </div>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Container -->
+            <div id="page-container" class="page-container">
+                <!-- Page Loading Indicator -->
+                <div id="page-loading" class="page-loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Загрузка страницы...</div>
+                </div>
+
+                <!-- Page Content -->
+                <div id="page-content" class="page-content">
+                    <!-- Default Dashboard Content -->
+                    <div class="container">
+                        <div style="padding: 40px; text-align: center;">
+                            <h2>🎯 IP Roast Enterprise 4.0</h2>
+                            <p>Система успешно инициализирована и готова к работе!</p>
+                            <div class="card" style="max-width: 600px; margin: 20px auto; text-align: left;">
+                                <div class="card__body">
+                                    <h3>Статус системы</h3>
+                                    <ul>
+                                        <li>✅ Ядро системы загружено</li>
+                                        <li>✅ Боковое меню активно</li>
+                                        <li>✅ Заголовок функционирует</li>
+                                        <li>✅ Уведомления настроены</li>
+                                        <li>✅ Навигация работает</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="scripts/sidebar.js"></script>
+    <script src="scripts/header.js"></script>
+    <script src="scripts/page-loader.js"></script>
+    <script src="scripts/component-loader.js"></script>
+    <script src="scripts/main.js"></script>
+
+    <!-- Initialize Application -->
+    <script>
+        // Initialize app when DOM is ready
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 DOM готов, запускаем IP Roast Enterprise 4.0');
+
+            // Create global app instance
+            window.ipRoastApp = new IPRoastApp();
+
+            // Development helpers
+            if (localStorage.getItem('dev-mode') === 'true') {
+                console.log('🔧 Режим разработки активен');
+                window.dev = {
+                    app: window.ipRoastApp,
+                    sidebar: window.ipRoastApp.components.sidebar,
+                    header: window.ipRoastApp.components.header,
+                    pageLoader: window.ipRoastApp.components.pageLoader
+                };
+            }
+        });
+    </script>
+</body>
+
+</html>
