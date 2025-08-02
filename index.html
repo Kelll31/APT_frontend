@@ -1,195 +1,100 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Roast Enterprise 4.0 - Network Security Platform</title>
-    <meta name="description" content="Корпоративная платформа кибербезопасности">
+    <title>IP Roast Enterprise 4.0 - Fixed Version</title>
 
-    <!-- Подключение CSS в правильном порядке -->
-    <link rel="stylesheet" href="shared/styles/variables.css">
-    <link rel="stylesheet" href="shared/styles/themes.css">
-    <link rel="stylesheet" href="shared/styles/global.css">
-    <link rel="stylesheet" href="shared/styles/navigation.css">
-    <link rel="stylesheet" href="shared/styles/common.css">
-    <link rel="stylesheet" href="dashboard/dashboard.css">
-    <link rel="stylesheet" href="dashboard/overview.css">
-    <link rel="stylesheet" href="dashboard/widgets.css">
+    <!-- Meta tags -->
+    <meta name="description" content="Корпоративная платформа автоматизированной оценки безопасности">
+    <meta name="author" content="IP Roast Team">
+    <meta name="theme-color" content="#21808d">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Манифест PWA -->
+    <!-- Manifest для PWA -->
     <link rel="manifest" href="manifest.json">
 
-    <style>
-        /* Критически важные стили для корректного отображения */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
+    <!-- Иконки -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="icons/icon-64x64.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
 
-        .loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-        .loading-content {
-            text-align: center;
-            color: #f3f4f6;
-        }
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
 
-        .loading-logo {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 32px;
-        }
+    <!-- ИСПРАВЛЕННЫЕ СТИЛИ (ПРАВИЛЬНЫЙ ПОРЯДОК) -->
+    <link rel="stylesheet" href="variables.css">
+    <link rel="stylesheet" href="shared/styles/global.css">
+    <link rel="stylesheet" href="shared/styles/themes.css">
+    <link rel="stylesheet" href="shared/styles/navigation.css">
+    <link rel="stylesheet" href="shared/styles/common.css">
 
-        .loading-logo i {
-            font-size: 64px;
-            color: #32b8c6;
-            margin-bottom: 16px;
-        }
+    <!-- Компоненты стили -->
+    <link rel="stylesheet" href="shared/components/common.css">
+    <link rel="stylesheet" href="shared/components/modals.css">
+    <link rel="stylesheet" href="shared/components/navigation.css">
 
-        .loading-logo h1 {
-            font-size: 32px;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-            background: linear-gradient(135deg, #32b8c6, #2d96b2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .loading-version {
-            font-size: 14px;
-            opacity: 0.7;
-        }
-
-        .loading-spinner {
-            margin: 24px 0;
-        }
-
-        .spinner-ring {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            margin: 0 4px;
-            border: 3px solid rgba(50, 184, 198, 0.3);
-            border-radius: 50%;
-            border-top-color: #32b8c6;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .loading-text {
-            font-size: 16px;
-            margin: 16px 0;
-        }
-
-        .loading-progress {
-            width: 300px;
-            margin: 24px auto 0;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #32b8c6, #2d96b2);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .loading-footer {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 11px;
-            opacity: 0.6;
-        }
-
-        .app {
-            display: none;
-            height: 100vh;
-            background: var(--color-background, #1f2937);
-            color: var(--color-text, #f3f4f6);
-        }
-
-        .app.loaded {
-            display: flex;
-            flex-direction: column;
-        }
-    </style>
+    <!-- Модули стили -->
+    <link rel="stylesheet" href="dashboard/dashboard.css">
+    <link rel="stylesheet" href="scanner/scanner.css">
+    <link rel="stylesheet" href="attack-constructor/constructor-styles.css">
+    <link rel="stylesheet" href="network-topology/topology-viewer.css">
+    <link rel="stylesheet" href="reports/reports.css">
+    <link rel="stylesheet" href="settings/settings.css">
 </head>
 
 <body>
-    <!-- Экран загрузки -->
+    <!-- Loading Screen -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-content">
             <div class="loading-logo">
                 <i class="fas fa-shield-alt"></i>
-                <h1>IP Roast</h1>
-                <span class="loading-version">Enterprise 4.0</span>
+                <h1>IP Roast Enterprise</h1>
+                <div class="loading-version">v4.0.0 (Fixed)</div>
             </div>
-            <div class="loading-spinner">
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-            </div>
-            <div class="loading-text" id="loading-text">Загрузка платформы безопасности...</div>
             <div class="loading-progress">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="loading-progress-bar"></div>
-                </div>
-                <div class="progress-text" id="loading-progress-text">Инициализация модулей...</div>
+                <div class="loading-progress-bar"></div>
             </div>
-        </div>
-        <div class="loading-footer">
-            <span>© 2024 IP Roast Enterprise. Все права защищены.</span>
+            <div class="loading-text">Инициализация...</div>
         </div>
     </div>
 
-    <!-- Основное приложение -->
-    <div id="app" class="app">
-        <!-- Верхняя панель навигации -->
-        <header class="top-navbar">
-            <div class="navbar-left">
-                <button id="sidebar-toggle" class="navbar-toggle">
-                    <i class="fas fa-bars"></i>
+    <!-- Error Boundary -->
+    <div id="error-boundary" class="error-boundary" style="display: none;">
+        <div class="error-content">
+            <i class="fas fa-exclamation-triangle error-icon"></i>
+            <h2>Не удалось инициализировать IP Roast Enterprise</h2>
+            <p id="error-message">Произошла критическая ошибка при запуске приложения.</p>
+            <div class="error-actions">
+                <button class="btn btn--primary" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                    Перезагрузить страницу
                 </button>
-                <div class="navbar-brand">
+                <button class="btn btn--secondary" onclick="localStorage.clear(); location.reload()">
+                    <i class="fas fa-trash"></i>
+                    Очистить данные и перезагрузить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="app-container">
+
+        <!-- Top Navigation Bar -->
+        <header class="top-navbar">
+            <div class="navbar-brand">
+                <div class="brand-logo">
                     <i class="fas fa-shield-alt"></i>
-                    <span>IP Roast Enterprise</span>
+                    <span class="brand-name">IP Roast</span>
                 </div>
+                <span class="brand-version">Enterprise</span>
             </div>
 
             <div class="navbar-center">
@@ -199,327 +104,394 @@
                 </div>
             </div>
 
-            <div class="navbar-right">
-                <button class="navbar-btn" id="notifications-btn">
+            <div class="navbar-controls">
+                <div class="connection-status">
+                    <div class="status-indicator status-connected"></div>
+                    <span class="status-text">Подключено</span>
+                </div>
+
+                <button class="notification-btn" id="notification-btn">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge" id="notification-count">3</span>
+                    <span class="notification-badge">3</span>
                 </button>
-                <button class="navbar-btn" id="theme-toggle">
+
+                <button class="theme-btn" id="theme-btn">
                     <i class="fas fa-moon"></i>
                 </button>
-                <div class="user-menu">
-                    <button class="user-avatar" id="user-menu-btn">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Администратор</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
+
+                <div class="user-btn" id="user-btn">
+                    <img src="https://via.placeholder.com/24x24/21808d/ffffff?text=A" alt="Avatar" class="user-avatar">
+                    <span class="user-name">Администратор</span>
+                    <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
         </header>
 
-        <div class="app-layout">
-            <!-- Боковая панель -->
-            <nav class="app-sidebar" id="app-sidebar">
-                <div class="sidebar-content">
-                    <ul class="nav-menu" id="nav-menu">
-                        <li class="nav-item active" data-tab="dashboard">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <span class="nav-text">Панель управления</span>
-                            </a>
-                        </li>
-                        <li class="nav-item" data-tab="scanner">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-radar-dish"></i>
-                                <span class="nav-text">Сканирование сети</span>
-                            </a>
-                        </li>
-                        <li class="nav-item" data-tab="attack-constructor">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-tools"></i>
-                                <span class="nav-text">Конструктор атак</span>
-                            </a>
-                        </li>
-                        <li class="nav-item" data-tab="network-topology">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-project-diagram"></i>
-                                <span class="nav-text">Топология сети</span>
-                            </a>
-                        </li>
-                        <li class="nav-item" data-tab="reports">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-file-alt"></i>
-                                <span class="nav-text">Отчеты</span>
-                            </a>
-                        </li>
-                        <li class="nav-item" data-tab="settings">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-cog"></i>
-                                <span class="nav-text">Настройки</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="sidebar-footer">
-                    <div class="connection-status" id="connection-status">
-                        <i class="fas fa-circle"></i>
-                        <span>Подключено</span>
-                    </div>
-                </div>
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar">
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-page="dashboard">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <span class="nav-text">Панель управления</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="scanner">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-search"></i>
+                            <span class="nav-text">Модуль сканирования</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="attack-constructor">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-hammer"></i>
+                            <span class="nav-text">Конструктор атак</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="network-topology">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-project-diagram"></i>
+                            <span class="nav-text">Топология сети</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="reports">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-chart-bar"></i>
+                            <span class="nav-text">Отчеты и аналитика</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-page="settings">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <span class="nav-text">Настройки системы</span>
+                        </a>
+                    </li>
+                </ul>
             </nav>
 
-            <!-- Основной контент -->
-            <main class="app-main">
-                <!-- Панель управления -->
-                <section id="dashboard-container" class="tab-content active" data-tab="dashboard">
-                    <div class="page-header">
-                        <h1 class="page-title">
-                            <i class="fas fa-tachometer-alt"></i>
-                            Панель управления
-                        </h1>
-                        <div class="page-actions">
-                            <button class="btn btn-primary">
-                                <i class="fas fa-sync-alt"></i>
-                                Обновить
-                            </button>
-                        </div>
-                    </div>
+            <div class="sidebar-footer">
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+            </div>
+        </aside>
 
-                    <div class="dashboard-content">
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fas fa-network-wired"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <h3>Активные устройства</h3>
-                                    <p class="stat-number">247</p>
-                                </div>
-                            </div>
+        <!-- Main Content Area -->
+        <main class="main-content">
 
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <h3>Критические уязвимости</h3>
-                                    <p class="stat-number">12</p>
-                                </div>
-                            </div>
-
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fas fa-shield-alt"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <h3>Защищенные хосты</h3>
-                                    <p class="stat-number">235</p>
-                                </div>
-                            </div>
-
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <h3>Последнее сканирование</h3>
-                                    <p class="stat-text">2 часа назад</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="dashboard-widgets">
-                            <div class="widget">
-                                <div class="widget-header">
-                                    <h3>Статус сети</h3>
-                                </div>
-                                <div class="widget-content">
-                                    <p>Все системы работают нормально</p>
-                                </div>
-                            </div>
-
-                            <div class="widget">
-                                <div class="widget-header">
-                                    <h3>Последние события</h3>
-                                </div>
-                                <div class="widget-content">
-                                    <p>Новых событий нет</p>
-                                </div>
+            <!-- Dashboard Tab -->
+            <div id="dashboard-container" class="tab-container active">
+                <div class="tab-content">
+                    <div class="tab-content-inner">
+                        <!-- Dashboard будет загружен динамически -->
+                        <div class="module-placeholder">
+                            <div class="placeholder-content">
+                                <i class="fas fa-tachometer-alt placeholder-icon"></i>
+                                <h3>Панель управления</h3>
+                                <p>Активные устройства, критические уязвимости и защищенные хосты</p>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
+            </div>
 
-                <!-- Остальные секции -->
-                <section id="scanner-container" class="tab-content" data-tab="scanner">
-                    <div class="module-placeholder">
-                        <i class="fas fa-radar-dish"></i>
-                        <h3>Модуль сканирования</h3>
-                        <p>Выберите цель и тип сканирования для начала работы</p>
+            <!-- Scanner Tab -->
+            <div id="scanner-container" class="tab-container">
+                <div class="tab-content">
+                    <div class="tab-content-inner">
+                        <div class="module-placeholder">
+                            <div class="placeholder-content">
+                                <i class="fas fa-search placeholder-icon"></i>
+                                <h3>Модуль сканирования</h3>
+                                <p>Выберите цель и тип сканирования для начала работы</p>
+                                <button class="btn btn--primary module-load-btn">
+                                    <i class="fas fa-play"></i>
+                                    Загрузить модуль
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </section>
+                </div>
+            </div>
 
-                <section id="attack-constructor-container" class="tab-content" data-tab="attack-constructor">
-                    <div class="module-placeholder">
-                        <i class="fas fa-tools"></i>
-                        <h3>Конструктор атак</h3>
-                        <p>Создание и настройка модулей атак</p>
+            <!-- Attack Constructor Tab -->
+            <div id="attack-constructor-container" class="tab-container">
+                <div class="tab-content">
+                    <div class="tab-content-inner">
+                        <div class="module-placeholder">
+                            <div class="placeholder-content">
+                                <i class="fas fa-hammer placeholder-icon"></i>
+                                <h3>Конструктор атак</h3>
+                                <p>Создание и настройка модулей атак</p>
+                                <button class="btn btn--primary module-load-btn">
+                                    <i class="fas fa-play"></i>
+                                    Загрузить модуль
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </section>
+                </div>
+            </div>
 
-                <section id="network-topology-container" class="tab-content" data-tab="network-topology">
-                    <div class="module-placeholder">
-                        <i class="fas fa-project-diagram"></i>
-                        <h3>Топология сети</h3>
-                        <p>Визуализация топологии сети и подключенных устройств</p>
+            <!-- Network Topology Tab -->
+            <div id="network-topology-container" class="tab-container">
+                <div class="tab-content">
+                    <div class="tab-content-inner">
+                        <div class="module-placeholder">
+                            <div class="placeholder-content">
+                                <i class="fas fa-project-diagram placeholder-icon"></i>
+                                <h3>Топология сети</h3>
+                                <p>Визуализация топологии сети и подключенных устройств</p>
+                                <button class="btn btn--primary module-load-btn">
+                                    <i class="fas fa-play"></i>
+                                    Загрузить модуль
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </section>
+                </div>
+            </div>
 
-                <section id="reports-container" class="tab-content" data-tab="reports">
-                    <div class="module-placeholder">
-                        <i class="fas fa-file-alt"></i>
-                        <h3>Отчеты и аналитика</h3>
-                        <p>Генерация отчетов и анализ данных безопасности</p>
+            <!-- Reports Tab -->
+            <div id="reports-container" class="tab-container">
+                <div class="tab-content">
+                    <div class="tab-content-inner">
+                        <div class="module-placeholder">
+                            <div class="placeholder-content">
+                                <i class="fas fa-chart-bar placeholder-icon"></i>
+                                <h3>Отчеты и аналитика</h3>
+                                <p>Генерация отчетов и анализ данных безопасности</p>
+                                <button class="btn btn--primary module-load-btn">
+                                    <i class="fas fa-play"></i>
+                                    Загрузить модуль
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </section>
+                </div>
+            </div>
 
-                <section id="settings-container" class="tab-content" data-tab="settings">
-                    <div class="module-placeholder">
-                        <i class="fas fa-cog"></i>
-                        <h3>Настройки системы</h3>
-                        <p>Конфигурация платформы и пользовательские настройки</p>
+            <!-- Settings Tab -->
+            <div id="settings-container" class="tab-container">
+                <div class="tab-content">
+                    <div class="tab-content-inner">
+                        <div class="module-placeholder">
+                            <div class="placeholder-content">
+                                <i class="fas fa-cog placeholder-icon"></i>
+                                <h3>Настройки системы</h3>
+                                <p>Конфигурация платформы и пользовательские настройки</p>
+                                <button class="btn btn--primary module-load-btn">
+                                    <i class="fas fa-play"></i>
+                                    Загрузить модуль
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </section>
-            </main>
-        </div>
+                </div>
+            </div>
+
+        </main>
     </div>
 
-    <!-- Простой JavaScript без ES6 модулей -->
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <!-- ИСПРАВЛЕННЫЙ ПОРЯДОК ЗАГРУЗКИ СКРИПТОВ -->
+    <script type="module" src="app.js"></script>
+
+    <!-- Service Worker Registration -->
     <script>
-        // Простая версия приложения для Live Server
-        class SimpleIPRoastApp {
-            constructor() {
-                this.currentTab = 'dashboard';
-                this.init();
-            }
-
-            async init() {
-                console.log('🚀 Запуск IP Roast Enterprise');
-
-                // Симулируем загрузку
-                await this.simulateLoading();
-
-                // Скрываем экран загрузки
-                this.hideLoadingScreen();
-
-                // Настраиваем интерфейс
-                this.setupUI();
-            }
-
-            async simulateLoading() {
-                const progressBar = document.getElementById('loading-progress-bar');
-                const progressText = document.getElementById('loading-progress-text');
-
-                const steps = [
-                    { percent: 20, text: 'Инициализация ядра...' },
-                    { percent: 40, text: 'Настройка интерфейса...' },
-                    { percent: 60, text: 'Загрузка модулей...' },
-                    { percent: 80, text: 'Применение настроек...' },
-                    { percent: 100, text: 'Готово!' }
-                ];
-
-                for (const step of steps) {
-                    if (progressBar) progressBar.style.width = step.percent + '%';
-                    if (progressText) progressText.textContent = step.text;
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-            }
-
-            hideLoadingScreen() {
-                const loadingScreen = document.getElementById('loading-screen');
-                const app = document.getElementById('app');
-
-                if (loadingScreen) {
-                    loadingScreen.classList.add('hidden');
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                    }, 500);
-                }
-
-                if (app) {
-                    app.classList.add('loaded');
-                    app.style.display = 'flex';
-                }
-            }
-
-            setupUI() {
-                // Навигация по вкладкам
-                document.querySelectorAll('[data-tab]').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const tabId = item.dataset.tab;
-                        this.switchTab(tabId);
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
                     });
-                });
+            });
+        }
+    </script>
 
-                // Переключение sidebar
-                document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
-                    this.toggleSidebar();
-                });
+    <!-- CSS для Loading Screen -->
+    <style>
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity var(--duration-normal) var(--ease-standard);
+        }
 
-                // Переключение темы
-                document.getElementById('theme-toggle')?.addEventListener('click', () => {
-                    this.toggleTheme();
-                });
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-logo i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .loading-logo h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+
+        .loading-version {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .loading-progress {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 2rem auto;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
             }
 
-            switchTab(tabId) {
-                // Скрыть все вкладки
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-
-                document.querySelectorAll('.nav-item').forEach(nav => {
-                    nav.classList.remove('active');
-                });
-
-                // Показать выбранную вкладку
-                const targetTab = document.getElementById(tabId + '-container');
-                const targetNav = document.querySelector(`[data-tab="${tabId}"]`);
-
-                if (targetTab) targetTab.classList.add('active');
-                if (targetNav) targetNav.classList.add('active');
-
-                this.currentTab = tabId;
-                console.log('Переключение на вкладку:', tabId);
-            }
-
-            toggleSidebar() {
-                const sidebar = document.getElementById('app-sidebar');
-                if (sidebar) {
-                    sidebar.classList.toggle('collapsed');
-                }
-            }
-
-            toggleTheme() {
-                const html = document.documentElement;
-                const currentTheme = html.getAttribute('data-theme') || 'dark';
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                html.setAttribute('data-theme', newTheme);
-
-                const themeIcon = document.querySelector('#theme-toggle i');
-                if (themeIcon) {
-                    themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
             }
         }
 
-        // Запуск приложения после загрузки DOM
-        document.addEventListener('DOMContentLoaded', () => {
-            window.ipRoastApp = new SimpleIPRoastApp();
-        });
-    </script>
+        .error-boundary {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+
+        .error-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 2rem;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: var(--color-error);
+            margin-bottom: 1rem;
+        }
+
+        .error-content h2 {
+            color: var(--color-text);
+            margin-bottom: 1rem;
+        }
+
+        .error-content p {
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .module-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+            text-align: center;
+        }
+
+        .placeholder-content {
+            max-width: 400px;
+        }
+
+        .placeholder-icon {
+            font-size: 4rem;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .placeholder-content h3 {
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .placeholder-content p {
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .module-load-btn {
+            margin-top: 1rem;
+        }
+
+        /* Анимации */
+        .tab-container {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </body>
 
 </html>

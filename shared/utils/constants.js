@@ -1,7 +1,7 @@
 /**
- * IP Roast Frontend - Constants
- * Константы и конфигурация для корпоративной платформы кибербезопасности
- * Версия: Lite 1.0
+ * IP Roast Enterprise 4.0 - Fixed Constants
+ * Исправленные константы и конфигурация
+ * Версия: Enterprise 4.0 (Fixed)
  */
 
 /**
@@ -12,12 +12,13 @@
 
 // Информация о приложении
 export const APP_INFO = {
-    NAME: 'IP Roast',
-    VERSION: '1.0.0',
+    NAME: 'IP Roast Enterprise',
+    VERSION: '4.0.0',
     DESCRIPTION: 'Корпоративная платформа автоматизированной оценки безопасности',
-    BUILD_DATE: '2025-01-15',
+    BUILD_DATE: '2025-02-15',
     AUTHOR: 'IP Roast Team',
-    LICENSE: 'Enterprise'
+    LICENSE: 'Enterprise',
+    EDITION: 'Enterprise'
 };
 
 // API конфигурация
@@ -36,6 +37,24 @@ export const WEBSOCKET_CONFIG = {
     RECONNECT_INTERVAL: 5000,
     MAX_RECONNECT_ATTEMPTS: 10,
     HEARTBEAT_INTERVAL: 30000
+};
+
+/**
+ * ===========================
+ * КЛЮЧИ ЛОКАЛЬНОГО ХРАНИЛИЩА
+ * ===========================
+ */
+
+export const STORAGE_KEYS = {
+    SETTINGS: 'ipRoast:settings',
+    THEME: 'ipRoast:theme',
+    LANGUAGE: 'ipRoast:language',
+    CURRENT_TAB: 'ipRoast:currentTab',
+    SIDEBAR_STATE: 'ipRoast:sidebarState',
+    USER_PREFERENCES: 'ipRoast:userPreferences',
+    CACHE: 'ipRoast:cache',
+    SESSION: 'ipRoast:session',
+    NOTIFICATIONS: 'ipRoast:notifications'
 };
 
 /**
@@ -87,6 +106,56 @@ export const LANGUAGES = {
     EN: 'en'
 };
 
+// Состояния UI
+export const UI_STATES = {
+    LOADING: 'loading',
+    LOADED: 'loaded',
+    ERROR: 'error',
+    EMPTY: 'empty'
+};
+
+// Z-индексы
+export const Z_INDEX = {
+    DROPDOWN: 1000,
+    STICKY: 1020,
+    FIXED: 1030,
+    MODAL_BACKDROP: 1040,
+    MODAL: 1050,
+    POPOVER: 1060,
+    TOOLTIP: 1070,
+    TOAST: 1080
+};
+
+// Настройки UI по умолчанию
+export const DEFAULT_UI_SETTINGS = {
+    theme: THEMES.LIGHT,
+    language: LANGUAGES.RU,
+    autoRefresh: true,
+    refreshInterval: 30000,
+    enableNotifications: true,
+    enableWebSocket: true,
+    enableSounds: false,
+    enableAnimations: true,
+    enableHotkeys: true,
+    sidebarCollapsed: false,
+    maxNotifications: 50,
+    timezone: 'Europe/Moscow'
+};
+
+/**
+ * ===========================
+ * СТАТУСЫ ПОДКЛЮЧЕНИЯ
+ * ===========================
+ */
+
+export const CONNECTION_STATUS = {
+    CONNECTED: 'connected',
+    DISCONNECTED: 'disconnected',
+    CONNECTING: 'connecting',
+    RECONNECTING: 'reconnecting',
+    ERROR: 'error'
+};
+
 /**
  * ===========================
  * СЕТЕВЫЕ КОНСТАНТЫ
@@ -99,7 +168,8 @@ export const SCAN_TYPES = {
     PORT_SCAN: 'port_scan',
     SERVICE_SCAN: 'service_scan',
     VULNERABILITY_SCAN: 'vulnerability_scan',
-    FULL_SCAN: 'full_scan'
+    FULL_SCAN: 'full_scan',
+    CUSTOM_SCAN: 'custom_scan'
 };
 
 // Статусы сканирования
@@ -109,7 +179,8 @@ export const SCAN_STATUS = {
     PAUSED: 'paused',
     COMPLETED: 'completed',
     FAILED: 'failed',
-    CANCELLED: 'cancelled'
+    CANCELLED: 'cancelled',
+    TIMEOUT: 'timeout'
 };
 
 // Статусы устройств
@@ -117,7 +188,8 @@ export const DEVICE_STATUS = {
     ACTIVE: 'active',
     INACTIVE: 'inactive',
     UNKNOWN: 'unknown',
-    OFFLINE: 'offline'
+    OFFLINE: 'offline',
+    FILTERED: 'filtered'
 };
 
 // Уровни риска
@@ -126,7 +198,8 @@ export const RISK_LEVELS = {
     HIGH: 'high',
     MEDIUM: 'medium',
     LOW: 'low',
-    INFO: 'info'
+    INFO: 'info',
+    NONE: 'none'
 };
 
 // Типы протоколов
@@ -145,7 +218,9 @@ export const PROTOCOLS = {
     IMAP: 'imap',
     DNS: 'dns',
     DHCP: 'dhcp',
-    SNMP: 'snmp'
+    SNMP: 'snmp',
+    RDP: 'rdp',
+    VNC: 'vnc'
 };
 
 // Стандартные порты
@@ -167,7 +242,10 @@ export const COMMON_PORTS = {
     RDP: 3389,
     POSTGRESQL: 5432,
     HTTP_ALT: 8080,
-    HTTPS_ALT: 8443
+    HTTPS_ALT: 8443,
+    SNMP: 161,
+    LDAP: 389,
+    LDAPS: 636
 };
 
 // Типы IP адресов
@@ -186,7 +264,9 @@ export const IP_TYPES = {
 export const PRIVATE_NETWORKS = [
     '10.0.0.0/8',
     '172.16.0.0/12',
-    '192.168.0.0/16'
+    '192.168.0.0/16',
+    '127.0.0.0/8',
+    '169.254.0.0/16'
 ];
 
 /**
@@ -220,7 +300,8 @@ export const ATTACK_STATUS = {
     SUCCESS: 'success',
     FAILED: 'failed',
     CANCELLED: 'cancelled',
-    TIMEOUT: 'timeout'
+    TIMEOUT: 'timeout',
+    PARTIAL: 'partial'
 };
 
 // Типы полезной нагрузки
@@ -230,7 +311,9 @@ export const PAYLOAD_TYPES = {
     SCRIPT: 'script',
     WEB_SHELL: 'web_shell',
     REVERSE_SHELL: 'reverse_shell',
-    BIND_SHELL: 'bind_shell'
+    BIND_SHELL: 'bind_shell',
+    METERPRETER: 'meterpreter',
+    CUSTOM: 'custom'
 };
 
 /**
@@ -243,7 +326,8 @@ export const PAYLOAD_TYPES = {
 export const VULNERABILITY_SCORING = {
     CVSS_V2: 'cvss_v2',
     CVSS_V3: 'cvss_v3',
-    CVSS_V4: 'cvss_v4'
+    CVSS_V4: 'cvss_v4',
+    CUSTOM: 'custom'
 };
 
 // Типы уязвимостей
@@ -261,7 +345,9 @@ export const VULNERABILITY_TYPES = {
     WEAK_AUTHENTICATION: 'weak_authentication',
     INFORMATION_DISCLOSURE: 'information_disclosure',
     DENIAL_OF_SERVICE: 'denial_of_service',
-    MISCONFIGURATION: 'misconfiguration'
+    MISCONFIGURATION: 'misconfiguration',
+    CRYPTO_WEAKNESS: 'crypto_weakness',
+    PATH_TRAVERSAL: 'path_traversal'
 };
 
 // Статусы уязвимостей
@@ -271,7 +357,8 @@ export const VULNERABILITY_STATUS = {
     FALSE_POSITIVE: 'false_positive',
     FIXED: 'fixed',
     ACCEPTED_RISK: 'accepted_risk',
-    MITIGATED: 'mitigated'
+    MITIGATED: 'mitigated',
+    WONT_FIX: 'wont_fix'
 };
 
 /**
@@ -287,7 +374,8 @@ export const REPORT_TYPES = {
     NETWORK_SCAN: 'network_scan',
     COMPLIANCE: 'compliance',
     EXECUTIVE_SUMMARY: 'executive_summary',
-    TECHNICAL_DETAILS: 'technical_details'
+    TECHNICAL_DETAILS: 'technical_details',
+    CUSTOM: 'custom'
 };
 
 // Форматы отчетов
@@ -297,7 +385,8 @@ export const REPORT_FORMATS = {
     JSON: 'json',
     XML: 'xml',
     CSV: 'csv',
-    DOCX: 'docx'
+    DOCX: 'docx',
+    XLSX: 'xlsx'
 };
 
 // Статусы отчетов
@@ -305,7 +394,8 @@ export const REPORT_STATUS = {
     GENERATING: 'generating',
     COMPLETED: 'completed',
     FAILED: 'failed',
-    CANCELLED: 'cancelled'
+    CANCELLED: 'cancelled',
+    QUEUED: 'queued'
 };
 
 /**
@@ -354,7 +444,19 @@ export const EVENT_TYPES = {
     SECURITY_EVENT: 'security_event',
     SCAN_EVENT: 'scan_event',
     ATTACK_EVENT: 'attack_event',
-    ERROR_EVENT: 'error_event'
+    ERROR_EVENT: 'error_event',
+    API_EVENT: 'api_event'
+};
+
+// События WebSocket
+export const WEBSOCKET_EVENTS = {
+    SCAN_UPDATE: 'scan_update',
+    DEVICE_DISCOVERED: 'device_discovered',
+    VULNERABILITY_FOUND: 'vulnerability_found',
+    ATTACK_COMPLETE: 'attack_complete',
+    SYSTEM_ALERT: 'system_alert',
+    USER_ACTIVITY: 'user_activity',
+    CONNECTION_STATUS: 'connection_status'
 };
 
 // Категории событий безопасности
@@ -365,7 +467,8 @@ export const SECURITY_EVENT_CATEGORIES = {
     CONFIGURATION_CHANGE: 'configuration_change',
     SUSPICIOUS_ACTIVITY: 'suspicious_activity',
     VULNERABILITY_DETECTED: 'vulnerability_detected',
-    ATTACK_ATTEMPT: 'attack_attempt'
+    ATTACK_ATTEMPT: 'attack_attempt',
+    INTRUSION_DETECTED: 'intrusion_detected'
 };
 
 /**
@@ -384,6 +487,7 @@ export const OS_TYPES = {
     ANDROID: 'android',
     IOS: 'ios',
     EMBEDDED: 'embedded',
+    NETWORK_DEVICE: 'network_device',
     UNKNOWN: 'unknown'
 };
 
@@ -414,7 +518,9 @@ export const LINUX_FAMILIES = {
     ARCH: 'Arch Linux',
     KALI: 'Kali Linux',
     ALPINE: 'Alpine Linux',
-    AMAZON_LINUX: 'Amazon Linux'
+    AMAZON_LINUX: 'Amazon Linux',
+    MINT: 'Linux Mint',
+    MANJARO: 'Manjaro'
 };
 
 /**
@@ -435,7 +541,8 @@ export const REGEX_PATTERNS = {
     PORT: /^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/,
     SUBNET: /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/([0-9]|[1-2][0-9]|3[0-2])$/,
     CVE: /^CVE-\d{4}-\d{4,}$/,
-    PASSWORD_STRONG: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    PASSWORD_STRONG: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    UUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 };
 
 /**
@@ -454,6 +561,7 @@ export const PAGINATION_LIMITS = {
 // Лимиты загрузки файлов
 export const FILE_UPLOAD_LIMITS = {
     MAX_SIZE: 10 * 1024 * 1024, // 10MB
+    MAX_SIZE_FORMATTED: '10MB',
     ALLOWED_TYPES: [
         'image/jpeg',
         'image/png',
@@ -462,8 +570,10 @@ export const FILE_UPLOAD_LIMITS = {
         'text/csv',
         'application/json',
         'application/xml',
-        'application/pdf'
-    ]
+        'application/pdf',
+        'application/zip'
+    ],
+    ALLOWED_EXTENSIONS: ['.jpg', '.jpeg', '.png', '.gif', '.txt', '.csv', '.json', '.xml', '.pdf', '.zip']
 };
 
 // Лимиты сканирования
@@ -474,7 +584,9 @@ export const SCAN_LIMITS = {
     TIMEOUT_MIN: 1,
     TIMEOUT_MAX: 3600, // 1 час
     THREADS_MIN: 1,
-    THREADS_MAX: 100
+    THREADS_MAX: 100,
+    RATE_LIMIT_MIN: 1,
+    RATE_LIMIT_MAX: 1000
 };
 
 /**
@@ -497,7 +609,10 @@ export const ERROR_MESSAGES = {
     MAINTENANCE_ERROR: 'Система находится на техническом обслуживании.',
     INVALID_INPUT: 'Некорректные входные данные.',
     PERMISSION_DENIED: 'Доступ запрещен.',
-    SESSION_EXPIRED: 'Сессия истекла. Необходимо войти в систему заново.'
+    SESSION_EXPIRED: 'Сессия истекла. Необходимо войти в систему заново.',
+    MODULE_LOAD_ERROR: 'Ошибка загрузки модуля',
+    WEBSOCKET_ERROR: 'Ошибка WebSocket подключения',
+    CRITICAL_ERROR: 'Критическая ошибка системы'
 };
 
 // Сообщения об успехе
@@ -514,73 +629,139 @@ export const SUCCESS_MESSAGES = {
     PASSWORD_CHANGED: 'Пароль успешно изменен.',
     EMAIL_SENT: 'Сообщение отправлено.',
     FILE_UPLOADED: 'Файл успешно загружен.',
-    OPERATION_COMPLETED: 'Операция выполнена успешно.'
+    MODULE_LOADED: 'Модуль успешно загружен.',
+    CONNECTION_ESTABLISHED: 'Подключение успешно установлено.',
+    APP_INITIALIZED: 'IP Roast Enterprise успешно инициализирован.'
+};
+
+// Предупреждающие сообщения
+export const WARNING_MESSAGES = {
+    UNSAVED_CHANGES: 'У вас есть несохраненные изменения.',
+    WEAK_PASSWORD: 'Пароль недостаточно надежен.',
+    LARGE_FILE: 'Файл имеет большой размер и может долго загружаться.',
+    OLD_BROWSER: 'Ваш браузер устарел. Рекомендуется обновление.',
+    NETWORK_SLOW: 'Медленное сетевое соединение.',
+    STORAGE_FULL: 'Локальное хранилище заполнено.',
+    SESSION_TIMEOUT: 'Сессия скоро истечет.'
+};
+
+// Информационные сообщения
+export const INFO_MESSAGES = {
+    LOADING: 'Загрузка...',
+    PROCESSING: 'Обработка...',
+    CONNECTING: 'Подключение...',
+    SAVING: 'Сохранение...',
+    DELETING: 'Удаление...',
+    UPLOADING: 'Загрузка файла...',
+    DOWNLOADING: 'Скачивание...',
+    SEARCHING: 'Поиск...',
+    GENERATING: 'Генерация...',
+    SCANNING: 'Сканирование...'
 };
 
 /**
  * ===========================
- * НАСТРОЙКИ ПО УМОЛЧАНИЮ
+ * КОНФИГУРАЦИЯ МОДУЛЕЙ
  * ===========================
  */
 
-// Настройки пользовательского интерфейса
-export const DEFAULT_UI_SETTINGS = {
-    theme: THEMES.DARK,
-    language: LANGUAGES.RU,
-    notifications: true,
-    autoRefresh: true,
-    refreshInterval: 30000, // 30 секунд
-    pageSize: PAGINATION_LIMITS.DEFAULT,
-    dateFormat: 'DD.MM.YYYY HH:mm:ss',
-    timezone: 'Europe/Moscow'
+// Доступные модули
+export const MODULES = {
+    DASHBOARD: 'dashboard',
+    SCANNER: 'scanner',
+    ATTACK_CONSTRUCTOR: 'attack-constructor',
+    NETWORK_TOPOLOGY: 'network-topology',
+    REPORTS: 'reports',
+    SETTINGS: 'settings'
 };
 
-// Настройки сканирования по умолчанию
-export const DEFAULT_SCAN_SETTINGS = {
-    timeout: 5000,
-    threads: 10,
-    retries: 2,
-    pingBeforeScan: true,
-    detectOS: true,
-    detectServices: true,
-    scanTcpPorts: true,
-    scanUdpPorts: false,
-    commonPortsOnly: true,
-    followRedirects: true,
-    userAgent: 'IP Roast Scanner 1.0'
-};
-
-// Настройки безопасности по умолчанию
-export const DEFAULT_SECURITY_SETTINGS = {
-    sessionTimeout: 3600000, // 1 час
-    maxLoginAttempts: 5,
-    lockoutDuration: 300000, // 5 минут
-    passwordMinLength: 8,
-    passwordRequireNumbers: true,
-    passwordRequireSymbols: true,
-    passwordRequireUppercase: true,
-    passwordRequireLowercase: true,
-    twoFactorEnabled: false,
-    auditLogging: true,
-    encryptSensitiveData: true
+// Состояния модулей
+export const MODULE_STATES = {
+    NOT_LOADED: 'not_loaded',
+    LOADING: 'loading',
+    LOADED: 'loaded',
+    ERROR: 'error',
+    INITIALIZING: 'initializing',
+    READY: 'ready'
 };
 
 /**
  * ===========================
- * ЭКСПОРТ КОНСТАНТ
+ * ДОПОЛНИТЕЛЬНЫЕ КОНСТАНТЫ
  * ===========================
  */
 
-// Объединение всех констант для удобного экспорта
-export const CONSTANTS = {
+// Форматы дат
+export const DATE_FORMATS = {
+    SHORT: 'DD.MM.YYYY',
+    LONG: 'DD.MM.YYYY HH:mm:ss',
+    TIME: 'HH:mm:ss',
+    ISO: 'YYYY-MM-DDTHH:mm:ss.sssZ'
+};
+
+// Единицы измерения
+export const UNITS = {
+    BYTES: ['B', 'KB', 'MB', 'GB', 'TB', 'PB'],
+    TIME: ['мс', 'с', 'мин', 'ч', 'дн'],
+    NETWORK: ['b/s', 'Kb/s', 'Mb/s', 'Gb/s']
+};
+
+// Цвета для статусов
+export const STATUS_COLORS = {
+    SUCCESS: '#10B981',
+    ERROR: '#EF4444',
+    WARNING: '#F59E0B',
+    INFO: '#3B82F6',
+    NEUTRAL: '#6B7280'
+};
+
+// Иконки для типов файлов
+export const FILE_ICONS = {
+    'pdf': 'fa-file-pdf',
+    'doc': 'fa-file-word',
+    'docx': 'fa-file-word',
+    'xls': 'fa-file-excel',
+    'xlsx': 'fa-file-excel',
+    'ppt': 'fa-file-powerpoint',
+    'pptx': 'fa-file-powerpoint',
+    'txt': 'fa-file-alt',
+    'csv': 'fa-file-csv',
+    'json': 'fa-file-code',
+    'xml': 'fa-file-code',
+    'html': 'fa-file-code',
+    'css': 'fa-file-code',
+    'js': 'fa-file-code',
+    'zip': 'fa-file-archive',
+    'rar': 'fa-file-archive',
+    '7z': 'fa-file-archive',
+    'jpg': 'fa-file-image',
+    'jpeg': 'fa-file-image',
+    'png': 'fa-file-image',
+    'gif': 'fa-file-image',
+    'svg': 'fa-file-image',
+    'mp4': 'fa-file-video',
+    'avi': 'fa-file-video',
+    'mov': 'fa-file-video',
+    'mp3': 'fa-file-audio',
+    'wav': 'fa-file-audio',
+    'default': 'fa-file'
+};
+
+// Экспорт всех констант как объект по умолчанию
+export default {
     APP_INFO,
     API_CONFIG,
     WEBSOCKET_CONFIG,
+    STORAGE_KEYS,
     BREAKPOINTS,
     ANIMATION_DURATION,
     COMPONENT_SIZES,
     THEMES,
     LANGUAGES,
+    UI_STATES,
+    Z_INDEX,
+    DEFAULT_UI_SETTINGS,
+    CONNECTION_STATUS,
     SCAN_TYPES,
     SCAN_STATUS,
     DEVICE_STATUS,
@@ -602,6 +783,7 @@ export const CONSTANTS = {
     NOTIFICATION_POSITIONS,
     LOG_LEVELS,
     EVENT_TYPES,
+    WEBSOCKET_EVENTS,
     SECURITY_EVENT_CATEGORIES,
     OS_TYPES,
     WINDOWS_FAMILIES,
@@ -612,14 +794,12 @@ export const CONSTANTS = {
     SCAN_LIMITS,
     ERROR_MESSAGES,
     SUCCESS_MESSAGES,
-    DEFAULT_UI_SETTINGS,
-    DEFAULT_SCAN_SETTINGS,
-    DEFAULT_SECURITY_SETTINGS
+    WARNING_MESSAGES,
+    INFO_MESSAGES,
+    MODULES,
+    MODULE_STATES,
+    DATE_FORMATS,
+    UNITS,
+    STATUS_COLORS,
+    FILE_ICONS
 };
-
-// Экспорт для Node.js и браузера
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CONSTANTS;
-} else {
-    window.CONSTANTS = CONSTANTS;
-}

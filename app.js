@@ -1,30 +1,62 @@
 /**
- * IP Roast Enterprise 4.0 - Main Application Controller
- * Полный контроллер приложения с поддержкой всех модулей
- * Версия: Enterprise 4.0.0
+ * IP Roast Enterprise 4.0 - Fixed Main Application
+ * Исправленное ядро приложения с полной функциональностью
+ * Версия: Enterprise 4.0 (Fixed)
  */
 
-// Import core utilities
-import { IPRoastAPI } from './shared/utils/api.js';
-import { NOTIFICATION_TYPES, THEMES, DEFAULT_UI_SETTINGS, ANIMATION_DURATION } from './shared/utils/constants.js';
-import { formatDate, timeAgo, debounce, Storage, generateUUID, addClass, removeClass, toggleClass } from './shared/utils/helpers.js';
+// Импорты
+import {
+    APP_INFO,
+    THEMES,
+    NOTIFICATION_TYPES,
+    DEFAULT_UI_SETTINGS,
+    ANIMATION_DURATION,
+    STORAGE_KEYS,
+    UI_STATES,
+    SUCCESS_MESSAGES,
+    ERROR_MESSAGES,
+    WEBSOCKET_EVENTS,
+    CONNECTION_STATUS,
+    Z_INDEX
+} from './shared/utils/constants.js';
 
-// Import shared components
+import {
+    EventEmitter,
+    logger,
+    Storage,
+    formatDate,
+    timeAgo,
+    debounce,
+    generateUUID,
+    addClass,
+    removeClass,
+    toggleClass,
+    delay,
+    AppError,
+    createError,
+    handleError
+} from './shared/utils/helpers.js';
+
+import { IPRoastAPI, MockApiClient } from './shared/utils/api.js';
+
+// Импорт компонентов
 import { NavigationComponent } from './shared/components/navigation.js';
 import { Modal, ConfirmModal } from './shared/components/modals.js';
 import { Button, Spinner } from './shared/components/common.js';
 
-// Import module controllers
+// Импорт контроллеров модулей
 import { DashboardController } from './dashboard/dashboard.js';
 
 /**
  * Главный класс Enterprise приложения IP Roast
  */
-class IPRoastEnterpriseApp {
+class IPRoastEnterpriseApp extends EventEmitter {
     constructor() {
+        super();
+
         // Информация о приложении
-        this.version = '4.0.0';
-        this.buildDate = '2024-12-15';
+        this.version = APP_INFO.VERSION;
+        this.buildDate = APP_INFO.BUILD_DATE;
         this.edition = 'Enterprise';
 
         // Состояние приложения
@@ -33,6 +65,7 @@ class IPRoastEnterpriseApp {
             currentTab: 'dashboard',
             isLoading: true,
             sidebarCollapsed: false,
+            connectionStatus: CONNECTION_STATUS.DISCONNECTED,
 
             // Пользователь
             user: {
@@ -43,33 +76,28 @@ class IPRoastEnterpriseApp {
             },
 
             // Подключение
-            connectionStatus: 'connected',
             lastActivity: new Date(),
 
             // Уведомления
             notifications: [],
-            unreadCount: 0
+            unreadCount: 0,
+
+            // Модули
+            loadedModules: new Set(['dashboard']),
+            moduleErrors: new Map()
         };
 
         // Контроллеры модулей
         this.modules = new Map();
-        this.loadedModules = new Set();
 
         // Таймеры и интервалы
         this.intervals = new Map();
+        this.timeouts = new Map();
 
         // Настройки приложения
         this.settings = {
-            theme: THEMES.DARK,
-            autoRefresh: true,
-            refreshInterval: 30000,
-            enableNotifications: true,
-            enableWebSocket: true,
-            enableSounds: false,
-            maxNotifications: 50,
-            language: 'ru',
-            timezone: 'Europe/Moscow',
-            ...Storage.get('ipRoastSettings', {})
+            ...DEFAULT_UI_SETTINGS,
+            ...Storage.get(STORAGE_KEYS.SETTINGS, {})
         };
 
         // Компоненты UI
@@ -80,20 +108,27 @@ class IPRoastEnterpriseApp {
             notifications: null
         };
 
+        // WebSocket подключение
+        this.websocket = null;
+        this.websocketReconnectAttempts = 0;
+
+        // API клиент
+        this.api = IPRoastAPI;
+
         // Горячие клавиши
         this.hotkeys = new Map([
-            ['Ctrl+1', () => this.switchTab('dashboard')],
-            ['Ctrl+2', () => this.switchTab('scanner')],
-            ['Ctrl+3', () => this.switchTab('attack-constructor')],
-            ['Ctrl+4', () => this.switchTab('network-topology')],
-            ['Ctrl+5', () => this.switchTab('reports')],
-            ['Ctrl+6', () => this.switchTab('settings')],
-            ['Ctrl+Shift+R', () => this.refreshCurrentModule()],
-            ['Ctrl+/', () => this.showHelpDialog()],
-            ['Escape', () => this.closeModals()]
+            ['ctrl+1', () => this.switchTab('dashboard')],
+            ['ctrl+2', () => this.switchTab('scanner')],
+            ['ctrl+3', () => this.switchTab('attack-constructor')],
+            ['ctrl+4', () => this.switchTab('network-topology')],
+            ['ctrl+5', () => this.switchTab('reports')],
+            ['ctrl+6', () => this.switchTab('settings')],
+            ['ctrl+shift+r', () => this.refreshCurrentModule()],
+            ['ctrl+/', () => this.showHelpDialog()],
+            ['escape', () => this.closeModals()]
         ]);
 
-        console.log(`🚀 Инициализация IP Roast ${this.edition} ${this.version}`);
+        logger.info(`🚀 Инициализация IP Roast ${this.edition} ${this.version}`);
         this.init();
     }
 
@@ -102,43 +137,37 @@ class IPRoastEnterpriseApp {
      */
     async init() {
         try {
-            // Показываем прогресс загрузки
             this.updateLoadingProgress(5, 'Инициализация ядра...');
-
-            // Инициализация основных систем
             await this.initializeCore();
+
             this.updateLoadingProgress(15, 'Настройка интерфейса...');
-
-            // Настройка UI компонентов
             await this.setupUI();
+
             this.updateLoadingProgress(25, 'Загрузка модулей...');
-
-            // Инициализация модулей
             await this.initializeModules();
+
             this.updateLoadingProgress(60, 'Применение настроек...');
-
-            // Применение пользовательских настроек
             await this.applyUserSettings();
+
             this.updateLoadingProgress(80, 'Запуск сервисов...');
-
-            // Запуск фоновых сервисов
             await this.startServices();
-            this.updateLoadingProgress(95, 'Завершение загрузки...');
 
-            // Финализация
+            this.updateLoadingProgress(95, 'Завершение загрузки...');
             await this.finalizeBoot();
+
             this.updateLoadingProgress(100, 'Готово!');
 
             // Скрыть экран загрузки
             setTimeout(() => {
                 this.hideLoadingScreen();
                 this.state.isInitialized = true;
-                this.showNotification('IP Roast Enterprise успешно загружен', NOTIFICATION_TYPES.SUCCESS);
-                console.log('✅ IP Roast Enterprise инициализирован');
+                this.showNotification(SUCCESS_MESSAGES.APP_INITIALIZED, NOTIFICATION_TYPES.SUCCESS);
+                this.emit('initialized');
+                logger.info('✅ IP Roast Enterprise инициализирован');
             }, 800);
 
         } catch (error) {
-            console.error('❌ Критическая ошибка инициализации:', error);
+            logger.error('❌ Критическая ошибка инициализации:', error);
             this.handleCriticalError(error);
         }
     }
@@ -147,41 +176,55 @@ class IPRoastEnterpriseApp {
      * Инициализация основных систем
      */
     async initializeCore() {
-        // Инициализация системы уведомлений
-        this.initializeNotificationSystem();
+        try {
+            // Инициализация системы уведомлений
+            this.initializeNotificationSystem();
 
-        // Настройка обработчиков ошибок
-        this.setupErrorHandlers();
+            // Настройка обработчиков ошибок
+            this.setupErrorHandlers();
 
-        // Инициализация системы событий
-        this.setupEventSystem();
+            // Инициализация системы событий
+            this.setupEventSystem();
 
-        // Настройка горячих клавиш
-        this.setupHotkeys();
+            // Настройка горячих клавиш
+            this.setupHotkeys();
 
-        console.log('🔧 Ядро системы инициализировано');
+            // Инициализация WebSocket
+            this.initializeWebSocket();
+
+            logger.info('🔧 Ядро системы инициализировано');
+        } catch (error) {
+            throw createError('Ошибка инициализации ядра: ' + error.message, 500, 'CORE_INIT_ERROR');
+        }
     }
 
     /**
      * Настройка пользовательского интерфейса
      */
     async setupUI() {
-        // Инициализация навигации
-        this.components.navigation = new NavigationComponent({
-            container: '#nav-menu',
-            onNavigate: (tab) => this.switchTab(tab)
-        });
+        try {
+            // Инициализация навигации
+            this.components.navigation = new NavigationComponent({
+                container: '#nav-menu',
+                onNavigate: (tab) => this.switchTab(tab)
+            });
 
-        // Настройка sidebar
-        this.setupSidebar();
+            // Настройка sidebar
+            this.setupSidebar();
 
-        // Настройка header элементов
-        this.setupHeader();
+            // Настройка header элементов
+            this.setupHeader();
 
-        // Настройка поиска
-        this.setupSearch();
+            // Настройка поиска
+            this.setupSearch();
 
-        console.log('🎨 Пользовательский интерфейс настроен');
+            // Настройка модальных окон
+            this.setupModals();
+
+            logger.info('🎨 Пользовательский интерфейс настроен');
+        } catch (error) {
+            throw createError('Ошибка настройки UI: ' + error.message, 500, 'UI_SETUP_ERROR');
+        }
     }
 
     /**
@@ -190,24 +233,23 @@ class IPRoastEnterpriseApp {
     async initializeModules() {
         try {
             // 1. Dashboard (основной модуль, загружается сразу)
-            console.log('📊 Инициализация Dashboard...');
+            logger.info('📊 Инициализация Dashboard...');
             const dashboardController = new DashboardController({
                 container: '#dashboard-container .tab-content-inner',
                 autoRefresh: this.settings.autoRefresh,
                 refreshInterval: this.settings.refreshInterval,
                 enableWebSocket: this.settings.enableWebSocket
             });
+
             this.modules.set('dashboard', dashboardController);
-            this.loadedModules.add('dashboard');
+            this.state.loadedModules.add('dashboard');
 
             // 2. Остальные модули загружаем по требованию, но подготавливаем заглушки
             await this.prepareModuleStubs();
 
-            console.log('📦 Модули инициализированы');
-
+            logger.info('📦 Модули инициализированы');
         } catch (error) {
-            console.error('❌ Ошибка инициализации модулей:', error);
-            throw error;
+            throw createError('Ошибка инициализации модулей: ' + error.message, 500, 'MODULE_INIT_ERROR');
         }
     }
 
@@ -240,12 +282,15 @@ class IPRoastEnterpriseApp {
      * Динамическая загрузка модуля
      */
     async loadModule(moduleId) {
-        if (this.loadedModules.has(moduleId)) {
+        if (this.state.loadedModules.has(moduleId)) {
             return this.modules.get(moduleId);
         }
 
         const container = document.querySelector(`#${moduleId}-container .tab-content-inner`);
-        if (!container) return null;
+        if (!container) {
+            logger.warn(`Container for module ${moduleId} not found`);
+            return null;
+        }
 
         try {
             // Показать спиннер загрузки
@@ -285,24 +330,35 @@ class IPRoastEnterpriseApp {
                         `#${moduleId}-container .tab-content-inner`
                     );
                     break;
+
+                default:
+                    throw new Error(`Unknown module: ${moduleId}`);
             }
 
             if (moduleController) {
                 this.modules.set(moduleId, moduleController);
-                this.loadedModules.add(moduleId);
-                console.log(`✅ Модуль ${moduleId} загружен`);
+                this.state.loadedModules.add(moduleId);
+                this.state.moduleErrors.delete(moduleId);
 
+                logger.info(`✅ Модуль ${moduleId} загружен`);
                 this.showNotification(
                     `Модуль "${this.getModuleTitle(moduleId)}" загружен`,
                     NOTIFICATION_TYPES.INFO
                 );
+
+                this.emit('moduleLoaded', { moduleId, moduleController });
             }
 
             return moduleController;
 
         } catch (error) {
-            console.error(`❌ Ошибка загрузки модуля ${moduleId}:`, error);
+            logger.error(`❌ Ошибка загрузки модуля ${moduleId}:`, error);
+            this.state.moduleErrors.set(moduleId, error);
             this.showModuleError(container, error.message);
+            this.showNotification(
+                ERROR_MESSAGES.MODULE_LOAD_ERROR + `: ${moduleId}`,
+                NOTIFICATION_TYPES.ERROR
+            );
             throw error;
         }
     }
@@ -312,234 +368,398 @@ class IPRoastEnterpriseApp {
      */
     async loadNetworkTopologyModule(container) {
         container.innerHTML = `
-            <div class="network-topology-module">
-                <div class="topology-header">
-                    <h2>
-                        <i class="fas fa-project-diagram"></i>
-                        Топология сети
-                    </h2>
-                    <div class="topology-controls">
-                        <button class="btn btn-primary" onclick="window.ipRoastApp.refreshTopology()">
-                            <i class="fas fa-sync-alt"></i>
-                            Обновить карту
-                        </button>
-                    </div>
+            <div class="topology-loading">
+                <div class="topology-loading__content">
+                    <h3>🌐 Визуализация топологии сети</h3>
+                    <p>Загрузка модуля...</p>
+                    <div class="spinner-lg"></div>
                 </div>
-                
-                <div class="topology-filters">
-                    <div class="filter-group">
-                        <label>Тип устройства:</label>
-                        <select class="filter-select">
-                            <option value="all">Все устройства</option>
-                            <option value="router">Маршрутизаторы</option>
-                            <option value="switch">Коммутаторы</option>
-                            <option value="server">Серверы</option>
-                            <option value="workstation">Рабочие станции</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label>Статус:</label>
-                        <select class="filter-select">
-                            <option value="all">Все статусы</option>
-                            <option value="active">Активные</option>
-                            <option value="inactive">Неактивные</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="topology-content">
-                    <div class="network-map" id="network-map">
-                        <div class="map-placeholder">
-                            <i class="fas fa-sitemap"></i>
-                            <h3>Карта сети</h3>
-                            <p>Визуализация топологии сети и подключенных устройств</p>
-                            <button class="btn btn-secondary" onclick="window.ipRoastApp.startTopologyDiscovery()">
-                                Запустить обнаружение
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="device-list" id="device-list">
-                        <h3>Обнаруженные устройства</h3>
-                        <div class="devices-grid">
-                            <div class="device-card">
-                                <div class="device-icon">
-                                    <i class="fas fa-server"></i>
-                                </div>
-                                <div class="device-info">
-                                    <div class="device-name">Router-01</div>
-                                    <div class="device-ip">192.168.1.1</div>
-                                </div>
-                                <div class="device-status active">Активен</div>
-                            </div>
-                            
-                            <div class="device-card">
-                                <div class="device-icon">
-                                    <i class="fas fa-desktop"></i>
-                                </div>
-                                <div class="device-info">
-                                    <div class="device-name">Workstation-01</div>
-                                    <div class="device-ip">192.168.1.100</div>
-                                </div>
-                                <div class="device-status active">Активен</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="topology-stats">
-                    <div class="stat-card">
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Активных устройств</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Подсетей</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-value">98%</div>
-                        <div class="stat-label">Доступность сети</div>
-                    </div>
+            </div>
+        `;
+
+        // Симуляция загрузки
+        await delay(1000);
+
+        const { TopologyViewer } = await import('./network-topology/topology-viewer.js');
+        const topologyViewer = new TopologyViewer(container);
+        return topologyViewer;
+    }
+
+    /**
+     * Показать спиннер загрузки модуля
+     */
+    showModuleLoading(container) {
+        container.innerHTML = `
+            <div class="module-loading">
+                <div class="module-loading__content">
+                    <div class="spinner-lg"></div>
+                    <h3>Загрузка модуля...</h3>
+                    <p>Пожалуйста, подождите</p>
                 </div>
             </div>
         `;
     }
 
     /**
-     * Переключение между вкладками
+     * Показать ошибку загрузки модуля
      */
-    async switchTab(tabId) {
-        if (this.state.currentTab === tabId) return;
+    showModuleError(container, message) {
+        container.innerHTML = `
+            <div class="module-error">
+                <div class="module-error__content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Ошибка загрузки модуля</h3>
+                    <p>${message}</p>
+                    <button class="btn btn--primary" onclick="location.reload()">
+                        Перезагрузить страницу
+                    </button>
+                </div>
+            </div>
+        `;
+    }
 
-        console.log(`🔄 Переключение на вкладку: ${tabId}`);
+    /**
+     * Получить название модуля для отображения
+     */
+    getModuleTitle(moduleId) {
+        const titles = {
+            'dashboard': 'Панель управления',
+            'scanner': 'Модуль сканирования',
+            'attack-constructor': 'Конструктор атак',
+            'network-topology': 'Топология сети',
+            'reports': 'Отчеты и аналитика',
+            'settings': 'Настройки системы'
+        };
+        return titles[moduleId] || moduleId;
+    }
 
-        // Скрыть текущий контент
-        const currentTab = document.querySelector('.tab-content.active');
-        if (currentTab) {
-            removeClass(currentTab, 'active');
+    /**
+     * Применение пользовательских настроек
+     */
+    async applyUserSettings() {
+        try {
+            // Применение темы
+            this.applyTheme(this.settings.theme);
+
+            // Применение языка
+            this.setLanguage(this.settings.language);
+
+            // Состояние sidebar
+            if (this.settings.sidebarCollapsed) {
+                this.collapseSidebar();
+            }
+
+            // Активация текущей вкладки
+            const savedTab = Storage.get(STORAGE_KEYS.CURRENT_TAB, 'dashboard');
+            this.switchTab(savedTab);
+
+            logger.info('⚙️ Пользовательские настройки применены');
+        } catch (error) {
+            logger.warn('Ошибка применения настроек:', error);
         }
+    }
 
-        // Обновить навигацию
-        document.querySelectorAll('.nav-item').forEach(item => {
-            removeClass(item, 'active');
+    /**
+     * Запуск фоновых сервисов
+     */
+    async startServices() {
+        try {
+            // Запуск автообновления
+            if (this.settings.autoRefresh) {
+                this.startAutoRefresh();
+            }
+
+            // Запуск WebSocket
+            if (this.settings.enableWebSocket) {
+                this.connectWebSocket();
+            }
+
+            // Запуск мониторинга активности
+            this.startActivityMonitoring();
+
+            // Запуск системы уведомлений
+            this.startNotificationSystem();
+
+            logger.info('🔄 Фоновые сервисы запущены');
+        } catch (error) {
+            logger.warn('Ошибка запуска сервисов:', error);
+        }
+    }
+
+    /**
+     * Финализация загрузки
+     */
+    async finalizeBoot() {
+        try {
+            // Применение анимаций
+            if (this.settings.enableAnimations) {
+                document.body.classList.add('animations-enabled');
+            }
+
+            // Очистка старых данных
+            this.cleanupOldData();
+
+            // Регистрация Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(error => {
+                    logger.warn('SW registration failed:', error);
+                });
+            }
+
+            // Отправка события готовности
+            this.emit('ready');
+
+            logger.info('🎯 Финализация завершена');
+        } catch (error) {
+            logger.warn('Ошибка финализации:', error);
+        }
+    }
+
+    /**
+     * Инициализация системы уведомлений
+     */
+    initializeNotificationSystem() {
+        // Создание контейнера для уведомлений
+        if (!document.querySelector('.notification-container')) {
+            const container = document.createElement('div');
+            container.className = 'notification-container';
+            container.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 24px;
+                z-index: ${Z_INDEX.TOAST};
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                max-width: 400px;
+            `;
+            document.body.appendChild(container);
+            this.components.notifications = container;
+        }
+    }
+
+    /**
+     * Настройка обработчиков ошибок
+     */
+    setupErrorHandlers() {
+        // Глобальные ошибки JavaScript
+        window.addEventListener('error', (event) => {
+            logger.error('Global error:', event.error);
+            this.handleError(event.error, 'Global Error');
         });
 
-        const navItem = document.querySelector(`[data-tab="${tabId}"]`);
-        if (navItem) {
-            addClass(navItem, 'active');
-        }
+        // Необработанные промисы
+        window.addEventListener('unhandledrejection', (event) => {
+            logger.error('Unhandled promise rejection:', event.reason);
+            this.handleError(event.reason, 'Unhandled Promise');
+            event.preventDefault();
+        });
+    }
 
-        // Показать новый контент
-        const newTab = document.querySelector(`#${tabId}-container`);
-        if (newTab) {
-            addClass(newTab, 'active');
+    /**
+     * Настройка системы событий
+     */
+    setupEventSystem() {
+        // Слушаем события приложения
+        this.on('error', (error) => {
+            this.showNotification(error.message, NOTIFICATION_TYPES.ERROR);
+        });
 
-            // Загрузить модуль если еще не загружен
-            if (!this.loadedModules.has(tabId)) {
-                await this.loadModule(tabId);
+        this.on('warning', (message) => {
+            this.showNotification(message, NOTIFICATION_TYPES.WARNING);
+        });
+
+        this.on('success', (message) => {
+            this.showNotification(message, NOTIFICATION_TYPES.SUCCESS);
+        });
+
+        this.on('info', (message) => {
+            this.showNotification(message, NOTIFICATION_TYPES.INFO);
+        });
+    }
+
+    /**
+     * Настройка горячих клавиш
+     */
+    setupHotkeys() {
+        if (!this.settings.enableHotkeys) return;
+
+        document.addEventListener('keydown', (event) => {
+            const key = [];
+            if (event.ctrlKey) key.push('ctrl');
+            if (event.shiftKey) key.push('shift');
+            if (event.altKey) key.push('alt');
+            key.push(event.key.toLowerCase());
+
+            const combo = key.join('+');
+            const handler = this.hotkeys.get(combo);
+
+            if (handler) {
+                event.preventDefault();
+                handler();
             }
+        });
+    }
+
+    /**
+     * Инициализация WebSocket
+     */
+    initializeWebSocket() {
+        if (!this.settings.enableWebSocket) return;
+
+        try {
+            const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
+            this.websocket = new WebSocket(wsUrl);
+
+            this.websocket.onopen = () => {
+                logger.info('🔌 WebSocket подключен');
+                this.state.connectionStatus = CONNECTION_STATUS.CONNECTED;
+                this.websocketReconnectAttempts = 0;
+                this.emit('websocketConnected');
+                this.updateConnectionStatus();
+            };
+
+            this.websocket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    this.handleWebSocketMessage(data);
+                } catch (error) {
+                    logger.error('Ошибка парсинга WebSocket сообщения:', error);
+                }
+            };
+
+            this.websocket.onclose = () => {
+                logger.warn('🔌 WebSocket отключен');
+                this.state.connectionStatus = CONNECTION_STATUS.DISCONNECTED;
+                this.emit('websocketDisconnected');
+                this.updateConnectionStatus();
+                this.scheduleWebSocketReconnect();
+            };
+
+            this.websocket.onerror = (error) => {
+                logger.error('🔌 Ошибка WebSocket:', error);
+                this.state.connectionStatus = CONNECTION_STATUS.ERROR;
+                this.emit('websocketError', error);
+                this.updateConnectionStatus();
+            };
+
+        } catch (error) {
+            logger.error('Ошибка инициализации WebSocket:', error);
+        }
+    }
+
+    /**
+     * Подключение WebSocket
+     */
+    connectWebSocket() {
+        if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+            return;
         }
 
-        this.state.currentTab = tabId;
+        this.state.connectionStatus = CONNECTION_STATUS.CONNECTING;
+        this.updateConnectionStatus();
+        this.initializeWebSocket();
+    }
 
-        // Обновить title страницы
-        document.title = `${this.getModuleTitle(tabId)} - IP Roast Enterprise`;
+    /**
+     * Планирование переподключения WebSocket
+     */
+    scheduleWebSocketReconnect() {
+        if (this.websocketReconnectAttempts >= 10) {
+            logger.error('Максимальное количество попыток переподключения WebSocket превышено');
+            return;
+        }
 
-        // Сохранить в истории
-        this.updateUrlHash(tabId);
+        this.websocketReconnectAttempts++;
+        const delay = Math.min(1000 * Math.pow(2, this.websocketReconnectAttempts), 30000);
+
+        setTimeout(() => {
+            if (this.settings.enableWebSocket) {
+                logger.info(`Попытка переподключения WebSocket #${this.websocketReconnectAttempts}`);
+                this.state.connectionStatus = CONNECTION_STATUS.RECONNECTING;
+                this.updateConnectionStatus();
+                this.connectWebSocket();
+            }
+        }, delay);
+    }
+
+    /**
+     * Обработка WebSocket сообщений
+     */
+    handleWebSocketMessage(data) {
+        const { type, payload } = data;
+
+        switch (type) {
+            case WEBSOCKET_EVENTS.SCAN_UPDATE:
+                this.emit('scanUpdate', payload);
+                break;
+
+            case WEBSOCKET_EVENTS.DEVICE_DISCOVERED:
+                this.emit('deviceDiscovered', payload);
+                this.showNotification(`Обнаружено новое устройство: ${payload.ip}`, NOTIFICATION_TYPES.INFO);
+                break;
+
+            case WEBSOCKET_EVENTS.VULNERABILITY_FOUND:
+                this.emit('vulnerabilityFound', payload);
+                this.showNotification(`Найдена уязвимость: ${payload.title}`, NOTIFICATION_TYPES.WARNING);
+                break;
+
+            case WEBSOCKET_EVENTS.SYSTEM_ALERT:
+                this.emit('systemAlert', payload);
+                this.showNotification(payload.message, NOTIFICATION_TYPES.ERROR);
+                break;
+
+            default:
+                logger.debug('Неизвестный тип WebSocket сообщения:', type);
+        }
     }
 
     /**
      * Настройка sidebar
      */
     setupSidebar() {
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.getElementById('app-sidebar');
+        const sidebar = document.querySelector('.sidebar');
+        const toggleBtn = document.querySelector('.sidebar-toggle');
 
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
                 this.toggleSidebar();
             });
         }
 
-        // Восстановить состояние sidebar
-        const savedState = Storage.get('sidebarCollapsed', false);
-        if (savedState) {
-            this.state.sidebarCollapsed = true;
-            addClass(sidebar, 'collapsed');
+        // Автоскрытие на мобильных
+        if (window.innerWidth <= 768) {
+            this.collapseSidebar();
         }
-    }
-
-    /**
-     * Переключение sidebar
-     */
-    toggleSidebar() {
-        const sidebar = document.getElementById('app-sidebar');
-        const app = document.getElementById('app');
-
-        this.state.sidebarCollapsed = !this.state.sidebarCollapsed;
-
-        if (this.state.sidebarCollapsed) {
-            addClass(sidebar, 'collapsed');
-            addClass(app, 'sidebar-collapsed');
-        } else {
-            removeClass(sidebar, 'collapsed');
-            removeClass(app, 'sidebar-collapsed');
-        }
-
-        // Сохранить состояние
-        Storage.set('sidebarCollapsed', this.state.sidebarCollapsed);
     }
 
     /**
      * Настройка header элементов
      */
     setupHeader() {
-        // Theme toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                this.toggleTheme();
-            });
-        }
-
-        // User menu
-        const userAvatar = document.getElementById('user-avatar');
-        const userDropdown = document.getElementById('user-dropdown');
-
-        if (userAvatar && userDropdown) {
-            userAvatar.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleClass(userDropdown, 'show');
-            });
-
-            // Закрытие при клике вне меню
-            document.addEventListener('click', () => {
-                removeClass(userDropdown, 'show');
-            });
-
-            // Обработка действий меню
-            userDropdown.addEventListener('click', (e) => {
-                const action = e.target.closest('[data-action]')?.dataset.action;
-                if (action) {
-                    this.handleUserAction(action);
-                }
-            });
-        }
-
-        // Notification bell
-        const notificationBell = document.getElementById('notification-bell');
-        if (notificationBell) {
-            notificationBell.addEventListener('click', () => {
+        // Кнопка уведомлений
+        const notificationBtn = document.querySelector('.notification-btn');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', () => {
                 this.toggleNotificationPanel();
             });
         }
 
-        // Connection status
-        this.updateConnectionStatus();
+        // Кнопка смены темы
+        const themeBtn = document.querySelector('.theme-btn');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                this.toggleTheme();
+            });
+        }
+
+        // Кнопка пользователя
+        const userBtn = document.querySelector('.user-btn');
+        if (userBtn) {
+            userBtn.addEventListener('click', () => {
+                this.showUserMenu();
+            });
+        }
     }
 
     /**
@@ -547,211 +767,209 @@ class IPRoastEnterpriseApp {
      */
     setupSearch() {
         const searchInput = document.querySelector('.search-input');
-        const searchSuggestions = document.getElementById('search-suggestions');
-
         if (searchInput) {
-            searchInput.addEventListener('input', debounce(async (e) => {
-                const query = e.target.value.trim();
-                if (query.length > 2) {
-                    await this.performSearch(query);
-                } else {
-                    searchSuggestions.style.display = 'none';
-                }
-            }, 300));
+            const debouncedSearch = debounce((query) => {
+                this.performSearch(query);
+            }, 300);
 
-            // Обработка Enter
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    this.executeSearch(searchInput.value);
-                }
+            searchInput.addEventListener('input', (e) => {
+                debouncedSearch(e.target.value);
             });
         }
     }
 
     /**
-     * Выполнение поиска
+     * Настройка модальных окон
      */
-    async performSearch(query) {
-        try {
-            // Здесь будет интеграция с API поиска
-            const suggestions = [
-                { type: 'ip', value: '192.168.1.1', label: 'Router-01' },
-                { type: 'device', value: 'server-01', label: 'Server-01 (Ubuntu)' },
-                { type: 'cve', value: 'CVE-2023-1234', label: 'Critical RCE vulnerability' }
-            ];
+    setupModals() {
+        // Закрытие модалов по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeModals();
+            }
+        });
 
-            this.showSearchSuggestions(suggestions);
-        } catch (error) {
-            console.error('Ошибка поиска:', error);
-        }
-    }
-
-    /**
-     * Показ предложений поиска
-     */
-    showSearchSuggestions(suggestions) {
-        const searchSuggestions = document.getElementById('search-suggestions');
-
-        if (suggestions.length === 0) {
-            searchSuggestions.style.display = 'none';
-            return;
-        }
-
-        const suggestionsHTML = suggestions.map(item => `
-            <div class="search-suggestion" data-type="${item.type}" data-value="${item.value}">
-                <i class="fas fa-${this.getSearchIcon(item.type)}"></i>
-                <span class="suggestion-label">${item.label}</span>
-                <span class="suggestion-value">${item.value}</span>
-            </div>
-        `).join('');
-
-        searchSuggestions.innerHTML = suggestionsHTML;
-        searchSuggestions.style.display = 'block';
-
-        // Обработка клика по предложению
-        searchSuggestions.addEventListener('click', (e) => {
-            const suggestion = e.target.closest('.search-suggestion');
-            if (suggestion) {
-                this.selectSearchSuggestion(suggestion.dataset.type, suggestion.dataset.value);
+        // Закрытие модалов по клику вне
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                this.closeModals();
             }
         });
     }
 
     /**
-     * Получение иконки для типа поиска
+     * Переключение вкладок
      */
-    getSearchIcon(type) {
-        const icons = {
-            'ip': 'globe',
-            'device': 'server',
-            'cve': 'exclamation-triangle',
-            'port': 'door-open',
-            'user': 'user'
-        };
-        return icons[type] || 'search';
+    switchTab(tabId) {
+        if (this.state.currentTab === tabId) return;
+
+        try {
+            // Скрыть текущую вкладку
+            const currentTab = document.querySelector('.tab-content.active');
+            if (currentTab) {
+                removeClass(currentTab, 'active');
+            }
+
+            // Показать новую вкладку
+            const newTab = document.querySelector(`#${tabId}-container`);
+            if (newTab) {
+                addClass(newTab, 'active');
+                this.state.currentTab = tabId;
+
+                // Обновить навигацию
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    removeClass(item, 'active');
+                });
+
+                const activeNavItem = document.querySelector(`[data-tab="${tabId}"]`);
+                if (activeNavItem) {
+                    addClass(activeNavItem, 'active');
+                }
+
+                // Сохранить в storage
+                Storage.set(STORAGE_KEYS.CURRENT_TAB, tabId);
+
+                // Загрузить модуль если нужно
+                if (!this.state.loadedModules.has(tabId) && tabId !== 'dashboard') {
+                    this.loadModule(tabId).catch(error => {
+                        logger.error(`Ошибка загрузки модуля ${tabId}:`, error);
+                    });
+                }
+
+                // Эмитировать событие
+                this.emit('tabChanged', { from: this.state.currentTab, to: tabId });
+
+                logger.debug(`Переключение на вкладку: ${tabId}`);
+            }
+        } catch (error) {
+            logger.error('Ошибка переключения вкладки:', error);
+        }
     }
 
     /**
-     * Переключение темы
+     * Переключение sidebar
      */
-    toggleTheme() {
-        const themes = [THEMES.DARK, THEMES.LIGHT, THEMES.CYBERPUNK];
-        const currentIndex = themes.indexOf(this.settings.theme);
-        const nextIndex = (currentIndex + 1) % themes.length;
-        const newTheme = themes[nextIndex];
+    toggleSidebar() {
+        this.state.sidebarCollapsed = !this.state.sidebarCollapsed;
 
-        this.setTheme(newTheme);
-    }
-
-    /**
-     * Установка темы
-     */
-    setTheme(theme) {
-        this.settings.theme = theme;
-        document.documentElement.setAttribute('data-theme', theme);
-
-        // Обновить иконку
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            const icon = themeToggle.querySelector('i');
-            const themeIcons = {
-                [THEMES.LIGHT]: 'fas fa-sun',
-                [THEMES.DARK]: 'fas fa-moon',
-                [THEMES.CYBERPUNK]: 'fas fa-magic'
-            };
-            icon.className = themeIcons[theme] || 'fas fa-palette';
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            toggleClass(sidebar, 'collapsed');
         }
 
-        // Сохранить настройки
-        this.saveSettings();
+        // Сохранить состояние
+        this.settings.sidebarCollapsed = this.state.sidebarCollapsed;
+        Storage.set(STORAGE_KEYS.SETTINGS, this.settings);
 
-        this.showNotification(`Тема изменена на "${theme}"`, NOTIFICATION_TYPES.INFO);
+        this.emit('sidebarToggled', this.state.sidebarCollapsed);
     }
 
     /**
-     * Система уведомлений
+     * Свернуть sidebar
      */
-    initializeNotificationSystem() {
-        // Создать контейнер если его нет
-        let container = document.getElementById('notifications-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'notifications-container';
-            container.className = 'notifications-container';
-            document.body.appendChild(container);
+    collapseSidebar() {
+        this.state.sidebarCollapsed = true;
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            addClass(sidebar, 'collapsed');
         }
+    }
 
-        this.components.notifications = container;
+    /**
+     * Развернуть sidebar
+     */
+    expandSidebar() {
+        this.state.sidebarCollapsed = false;
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            removeClass(sidebar, 'collapsed');
+        }
     }
 
     /**
      * Показать уведомление
      */
     showNotification(message, type = NOTIFICATION_TYPES.INFO, duration = 5000) {
+        const container = this.components.notifications;
+        if (!container) return;
+
         const notification = document.createElement('div');
+        const id = generateUUID();
         notification.className = `notification notification-${type}`;
+        notification.dataset.id = id;
+
         notification.innerHTML = `
-            <div class="notification-content">
-                <i class="notification-icon fas ${this.getNotificationIcon(type)}"></i>
-                <div class="notification-body">
-                    <div class="notification-message">${message}</div>
-                    <div class="notification-time">${formatDate(new Date(), 'HH:mm:ss')}</div>
-                </div>
-                <button class="notification-close" title="Закрыть">
-                    <i class="fas fa-times"></i>
-                </button>
+            <div class="notification-icon">
+                <i class="fas ${this.getNotificationIcon(type)}"></i>
             </div>
+            <div class="notification-content">
+                <div class="notification-message">${message}</div>
+                <div class="notification-time">${formatDate(new Date(), 'HH:mm:ss')}</div>
+            </div>
+            <button class="notification-close" type="button">
+                <i class="fas fa-times"></i>
+            </button>
         `;
 
         // Обработчик закрытия
         const closeBtn = notification.querySelector('.notification-close');
         closeBtn.addEventListener('click', () => {
-            this.removeNotification(notification);
+            this.hideNotification(id);
         });
 
-        // Добавить в контейнер
-        this.components.notifications.appendChild(notification);
+        // Показать уведомление
+        container.appendChild(notification);
+        setTimeout(() => addClass(notification, 'notification-show'), 10);
 
-        // Анимация появления
-        setTimeout(() => addClass(notification, 'show'), 10);
-
-        // Автоматическое удаление
+        // Автоскрытие
         if (duration > 0) {
-            setTimeout(() => {
-                this.removeNotification(notification);
-            }, duration);
+            this.timeouts.set(id, setTimeout(() => {
+                this.hideNotification(id);
+            }, duration));
         }
 
-        // Добавить в состояние
+        // Добавить в историю
         this.state.notifications.unshift({
-            id: generateUUID(),
+            id,
             message,
             type,
             timestamp: new Date(),
             read: false
         });
 
-        // Обновить счетчик
-        this.updateNotificationCounter();
-
         // Ограничить количество
-        this.limitNotifications();
+        if (this.state.notifications.length > this.settings.maxNotifications) {
+            this.state.notifications = this.state.notifications.slice(0, this.settings.maxNotifications);
+        }
+
+        this.state.unreadCount++;
+        this.updateNotificationBadge();
+
+        this.emit('notificationShown', { id, message, type });
     }
 
     /**
-     * Удаление уведомления
+     * Скрыть уведомление
      */
-    removeNotification(notificationElement) {
-        addClass(notificationElement, 'removing');
-        setTimeout(() => {
-            if (notificationElement.parentNode) {
-                notificationElement.parentNode.removeChild(notificationElement);
-            }
-        }, ANIMATION_DURATION.NORMAL);
+    hideNotification(id) {
+        const notification = document.querySelector(`[data-id="${id}"]`);
+        if (notification) {
+            removeClass(notification, 'notification-show');
+            addClass(notification, 'notification-hide');
+            setTimeout(() => notification.remove(), 300);
+        }
+
+        // Очистить таймер
+        if (this.timeouts.has(id)) {
+            clearTimeout(this.timeouts.get(id));
+            this.timeouts.delete(id);
+        }
+
+        this.emit('notificationHidden', { id });
     }
 
     /**
-     * Получение иконки уведомления
+     * Получить иконку для уведомления
      */
     getNotificationIcon(type) {
         const icons = {
@@ -764,249 +982,349 @@ class IPRoastEnterpriseApp {
     }
 
     /**
-     * Настройка горячих клавиш
+     * Обновить индикатор уведомлений
      */
-    setupHotkeys() {
-        document.addEventListener('keydown', (e) => {
-            const key = this.getHotkeyString(e);
-            const handler = this.hotkeys.get(key);
-
-            if (handler) {
-                e.preventDefault();
-                handler();
+    updateNotificationBadge() {
+        const badge = document.querySelector('.notification-badge');
+        if (badge) {
+            if (this.state.unreadCount > 0) {
+                badge.textContent = this.state.unreadCount > 99 ? '99+' : this.state.unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
             }
+        }
+    }
+
+    /**
+     * Переключение темы
+     */
+    toggleTheme() {
+        const currentTheme = this.settings.theme;
+        const newTheme = currentTheme === THEMES.LIGHT ? THEMES.DARK : THEMES.LIGHT;
+        this.applyTheme(newTheme);
+    }
+
+    /**
+     * Применение темы
+     */
+    applyTheme(theme) {
+        this.settings.theme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // Сохранить настройки
+        Storage.set(STORAGE_KEYS.SETTINGS, this.settings);
+        Storage.set(STORAGE_KEYS.THEME, theme);
+
+        this.emit('themeChanged', theme);
+        logger.debug(`Тема изменена на: ${theme}`);
+    }
+
+    /**
+     * Установка языка
+     */
+    setLanguage(language) {
+        this.settings.language = language;
+        document.documentElement.lang = language;
+
+        // Сохранить настройки
+        Storage.set(STORAGE_KEYS.SETTINGS, this.settings);
+        Storage.set(STORAGE_KEYS.LANGUAGE, language);
+
+        this.emit('languageChanged', language);
+        logger.debug(`Язык изменен на: ${language}`);
+    }
+
+    /**
+     * Обновление статуса подключения
+     */
+    updateConnectionStatus() {
+        const statusElement = document.querySelector('.connection-status');
+        const indicatorElement = document.querySelector('.status-indicator');
+        const textElement = document.querySelector('.status-text');
+
+        if (statusElement && indicatorElement && textElement) {
+            // Обновить индикатор
+            indicatorElement.className = `status-indicator status-${this.state.connectionStatus}`;
+
+            // Обновить текст
+            const statusTexts = {
+                [CONNECTION_STATUS.CONNECTED]: 'Подключено',
+                [CONNECTION_STATUS.DISCONNECTED]: 'Отключено',
+                [CONNECTION_STATUS.CONNECTING]: 'Подключение...',
+                [CONNECTION_STATUS.RECONNECTING]: 'Переподключение...',
+                [CONNECTION_STATUS.ERROR]: 'Ошибка'
+            };
+
+            textElement.textContent = statusTexts[this.state.connectionStatus] || 'Неизвестно';
+        }
+    }
+
+    /**
+     * Обновление прогресса загрузки
+     */
+    updateLoadingProgress(progress, message) {
+        const progressBar = document.querySelector('.loading-progress');
+        const progressText = document.querySelector('.loading-text');
+
+        if (progressBar) {
+            progressBar.style.width = `${progress}%`;
+        }
+
+        if (progressText) {
+            progressText.textContent = message;
+        }
+
+        logger.debug(`Loading progress: ${progress}% - ${message}`);
+    }
+
+    /**
+     * Скрыть экран загрузки
+     */
+    hideLoadingScreen() {
+        const loadingScreen = document.querySelector('.loading-screen');
+        if (loadingScreen) {
+            addClass(loadingScreen, 'loading-screen--hidden');
+            setTimeout(() => loadingScreen.remove(), 500);
+        }
+    }
+
+    /**
+     * Запуск автообновления
+     */
+    startAutoRefresh() {
+        if (this.intervals.has('autoRefresh')) return;
+
+        const interval = setInterval(() => {
+            this.refreshCurrentModule();
+        }, this.settings.refreshInterval);
+
+        this.intervals.set('autoRefresh', interval);
+        logger.debug('Автообновление запущено');
+    }
+
+    /**
+     * Остановка автообновления
+     */
+    stopAutoRefresh() {
+        if (this.intervals.has('autoRefresh')) {
+            clearInterval(this.intervals.get('autoRefresh'));
+            this.intervals.delete('autoRefresh');
+            logger.debug('Автообновление остановлено');
+        }
+    }
+
+    /**
+     * Обновление текущего модуля
+     */
+    refreshCurrentModule() {
+        const currentModule = this.modules.get(this.state.currentTab);
+        if (currentModule && typeof currentModule.refresh === 'function') {
+            currentModule.refresh();
+            logger.debug(`Модуль ${this.state.currentTab} обновлен`);
+        }
+    }
+
+    /**
+     * Запуск мониторинга активности
+     */
+    startActivityMonitoring() {
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+
+        const updateActivity = debounce(() => {
+            this.state.lastActivity = new Date();
+        }, 1000);
+
+        events.forEach(event => {
+            document.addEventListener(event, updateActivity, true);
         });
     }
 
     /**
-     * Получение строки горячей клавиши
+     * Запуск системы уведомлений
      */
-    getHotkeyString(e) {
-        const parts = [];
-        if (e.ctrlKey) parts.push('Ctrl');
-        if (e.shiftKey) parts.push('Shift');
-        if (e.altKey) parts.push('Alt');
-        parts.push(e.key);
-        return parts.join('+');
-    }
-
-    /**
-     * Применение пользовательских настроек
-     */
-    async applyUserSettings() {
-        // Применить тему
-        this.setTheme(this.settings.theme);
-
-        // Восстановить состояние sidebar
-        if (this.settings.sidebarCollapsed) {
-            this.toggleSidebar();
-        }
-
-        // Настроить автообновление
-        if (this.settings.autoRefresh) {
-            this.startAutoRefresh();
-        }
-
-        console.log('⚙️ Настройки применены');
-    }
-
-    /**
-     * Запуск фоновых сервисов
-     */
-    async startServices() {
-        // Запуск мониторинга подключения
-        this.startConnectionMonitoring();
-
-        // Запуск отслеживания активности
-        this.startActivityTracking();
-
-        // Запуск периодических задач
-        this.startPeriodicTasks();
-
-        console.log('⚡ Фоновые сервисы запущены');
-    }
-
-    /**
-     * Финализация загрузки
-     */
-    async finalizeBoot() {
-        // Обработка URL хэша
-        this.handleUrlHash();
-
-        // Инициализация WebSocket если включен
-        if (this.settings.enableWebSocket) {
-            // WebSocket инициализация будет в dashboard контроллере
-        }
-
-        // Загрузка начальных данных
-        await this.loadInitialData();
-
-        console.log('🎯 Загрузка завершена');
-    }
-
-    /**
-     * Загрузка начальных данных
-     */
-    async loadInitialData() {
-        try {
-            // Получить профиль пользователя
-            const profile = await IPRoastAPI.auth.getProfile();
-            if (profile && profile.success) {
-                this.state.user = { ...this.state.user, ...profile.data };
-                this.updateUserDisplay();
+    startNotificationSystem() {
+        // Запрос разрешения на уведомления
+        if (this.settings.enableNotifications && 'Notification' in window) {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission();
             }
-
-            // Получить системный статус
-            const status = await IPRoastAPI.system.getSystemStatus();
-            if (status && status.success) {
-                this.updateSystemStatus(status.data);
-            }
-
-        } catch (error) {
-            console.warn('Не удалось загрузить начальные данные:', error);
-            // Не критично, продолжаем работу
         }
     }
 
     /**
-     * Утилиты для загрузки
+     * Очистка старых данных
      */
-    updateLoadingProgress(percent, text) {
-        const progressBar = document.getElementById('loading-progress-bar');
-        const progressText = document.getElementById('loading-progress-text');
+    cleanupOldData() {
+        // Очистка старых уведомлений
+        const cutoffDate = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 часа
+        this.state.notifications = this.state.notifications.filter(
+            notification => notification.timestamp > cutoffDate
+        );
 
-        if (progressBar) {
-            progressBar.style.width = `${percent}%`;
-        }
-
-        if (progressText) {
-            progressText.textContent = text;
-        }
-    }
-
-    hideLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const app = document.getElementById('app');
-
-        if (loadingScreen) {
-            addClass(loadingScreen, 'hidden');
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 500);
-        }
-
-        if (app) {
-            app.style.display = 'flex';
+        // Очистка кэша API
+        if (this.api && typeof this.api.clearCache === 'function') {
+            this.api.clearCache();
         }
     }
 
     /**
-     * Вспомогательные методы
+     * Обработка критических ошибок
      */
-    getModuleTitle(moduleId) {
-        const titles = {
-            'dashboard': 'Панель управления',
-            'scanner': 'Сканирование сети',
-            'attack-constructor': 'Конструктор атак',
-            'network-topology': 'Топология сети',
-            'reports': 'Отчеты и аналитика',
-            'settings': 'Настройки системы'
-        };
-        return titles[moduleId] || moduleId;
-    }
-
-    showModuleLoading(container) {
-        container.innerHTML = `
-            <div class="module-loading">
-                <div class="loading-spinner">
-                    <div class="spinner-ring"></div>
-                </div>
-                <p>Загрузка модуля...</p>
-            </div>
-        `;
-    }
-
-    showModuleError(container, message) {
-        container.innerHTML = `
-            <div class="module-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Ошибка загрузки модуля</h3>
-                <p>${message}</p>
-                <button class="btn btn-primary" onclick="location.reload()">
-                    Перезагрузить страницу
-                </button>
-            </div>
-        `;
-    }
-
     handleCriticalError(error) {
-        const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-            loadingScreen.innerHTML = `
-                <div class="loading-content">
-                    <div class="error-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <h2>Ошибка запуска приложения</h2>
+        logger.fatal('Критическая ошибка приложения:', error);
+
+        // Показать экран ошибки
+        document.body.innerHTML = `
+            <div class="critical-error">
+                <div class="critical-error__content">
+                    <h1>❌ Критическая ошибка</h1>
                     <p>Не удалось инициализировать IP Roast Enterprise</p>
-                    <div class="error-details">
-                        <code>${error.message}</code>
-                    </div>
-                    <button onclick="location.reload()" class="btn btn-primary">
-                        Перезагрузить страницу
+                    <pre>${error.message}</pre>
+                    <button onclick="location.reload()" class="btn btn--primary">
+                        Перезагрузить приложение
                     </button>
                 </div>
-                <div class="loading-footer">
-                    <span>Если проблема повторяется, обратитесь к администратору</span>
-                </div>
-            `;
+            </div>
+        `;
+
+        this.emit('criticalError', error);
+    }
+
+    /**
+     * Обработка ошибок
+     */
+    handleError(error, context = 'Unknown') {
+        const appError = handleError(error, context);
+        logger.error(`Error in ${context}:`, appError);
+        this.emit('error', appError);
+        return appError;
+    }
+
+    /**
+     * Выполнение поиска
+     */
+    performSearch(query) {
+        if (!query.trim()) return;
+
+        logger.debug(`Поиск: ${query}`);
+        this.emit('search', { query });
+
+        // Здесь можно добавить логику поиска
+    }
+
+    /**
+     * Показать диалог помощи
+     */
+    showHelpDialog() {
+        const modal = new Modal('help-modal', {
+            title: 'Горячие клавиши',
+            content: this.getHelpContent()
+        });
+
+        modal.addButton('Закрыть', 'secondary', () => modal.close());
+        modal.open();
+    }
+
+    /**
+     * Получить содержимое помощи
+     */
+    getHelpContent() {
+        const shortcuts = [
+            ['Ctrl+1', 'Панель управления'],
+            ['Ctrl+2', 'Модуль сканирования'],
+            ['Ctrl+3', 'Конструктор атак'],
+            ['Ctrl+4', 'Топология сети'],
+            ['Ctrl+5', 'Отчеты'],
+            ['Ctrl+6', 'Настройки'],
+            ['Ctrl+Shift+R', 'Обновить модуль'],
+            ['Ctrl+/', 'Показать помощь'],
+            ['Escape', 'Закрыть модальные окна']
+        ];
+
+        return `
+            <div class="help-shortcuts">
+                ${shortcuts.map(([key, desc]) => `
+                    <div class="shortcut-item">
+                        <kbd>${key}</kbd>
+                        <span>${desc}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    /**
+     * Закрыть модальные окна
+     */
+    closeModals() {
+        document.querySelectorAll('.modal--open').forEach(modal => {
+            removeClass(modal, 'modal--open');
+        });
+    }
+
+    /**
+     * Переключение панели уведомлений
+     */
+    toggleNotificationPanel() {
+        // Здесь можно добавить логику панели уведомлений
+        logger.debug('Toggle notification panel');
+    }
+
+    /**
+     * Показать меню пользователя
+     */
+    showUserMenu() {
+        // Здесь можно добавить логику меню пользователя
+        logger.debug('Show user menu');
+    }
+
+    /**
+     * Уничтожение приложения
+     */
+    destroy() {
+        // Очистка интервалов
+        this.intervals.forEach(interval => clearInterval(interval));
+        this.intervals.clear();
+
+        // Очистка таймеров
+        this.timeouts.forEach(timeout => clearTimeout(timeout));
+        this.timeouts.clear();
+
+        // Закрытие WebSocket
+        if (this.websocket) {
+            this.websocket.close();
         }
-    }
 
-    updateUrlHash(tab) {
-        if (history.pushState) {
-            history.pushState(null, null, `#${tab}`);
-        }
-    }
+        // Уничтожение модулей
+        this.modules.forEach(module => {
+            if (typeof module.destroy === 'function') {
+                module.destroy();
+            }
+        });
+        this.modules.clear();
 
-    handleUrlHash() {
-        const hash = window.location.hash.substr(1);
-        if (hash && document.querySelector(`#${hash}-container`)) {
-            this.switchTab(hash);
-        }
-    }
+        // Очистка событий
+        this.removeAllListeners();
 
-    saveSettings() {
-        Storage.set('ipRoastSettings', this.settings);
+        logger.info('🗑️ Приложение уничтожено');
     }
-
-    // Заглушки для методов, которые будут реализованы
-    startAutoRefresh() { console.log('🔄 Автообновление запущено'); }
-    startConnectionMonitoring() { console.log('📶 Мониторинг подключения запущен'); }
-    startActivityTracking() { console.log('👤 Отслеживание активности запущено'); }
-    startPeriodicTasks() { console.log('⏰ Периодические задачи запущены'); }
-    updateUserDisplay() { console.log('👤 Отображение пользователя обновлено'); }
-    updateSystemStatus(status) { console.log('💡 Статус системы обновлен:', status); }
-    updateConnectionStatus() { console.log('📶 Статус подключения обновлен'); }
-    updateNotificationCounter() { console.log('🔔 Счетчик уведомлений обновлен'); }
-    limitNotifications() { console.log('📝 Ограничение уведомлений применено'); }
-    toggleNotificationPanel() { console.log('🔔 Панель уведомлений переключена'); }
-    handleUserAction(action) { console.log('👤 Действие пользователя:', action); }
-    selectSearchSuggestion(type, value) { console.log('🔍 Выбрано предложение:', type, value); }
-    executeSearch(query) { console.log('🔍 Выполнен поиск:', query); }
-    refreshCurrentModule() { console.log('🔄 Обновление текущего модуля'); }
-    showHelpDialog() { console.log('❓ Показ справки'); }
-    closeModals() { console.log('❌ Закрытие модальных окон'); }
-    refreshTopology() { console.log('🗺️ Обновление топологии'); }
-    startTopologyDiscovery() { console.log('🔍 Запуск обнаружения топологии'); }
-    setupEventSystem() { console.log('📡 Система событий настроена'); }
-    setupErrorHandlers() { console.log('⚠️ Обработчики ошибок настроены'); }
 }
 
-// Инициализация приложения после загрузки DOM
+// Автоматическая инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
     window.ipRoastApp = new IPRoastEnterpriseApp();
+
+    // Глобальный доступ для отладки
+    if (process?.env?.NODE_ENV === 'development') {
+        window.IPRoast = {
+            app: window.ipRoastApp,
+            logger,
+            Storage,
+            IPRoastAPI
+        };
+    }
 });
 
-// Экспорт для использования в других модулях
-export { IPRoastEnterpriseApp };
+// Экспорт для модульных систем
+export default IPRoastEnterpriseApp;

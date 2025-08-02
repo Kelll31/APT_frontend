@@ -772,67 +772,34 @@ select.form-control {
     src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
 }
 
-/**
- * IP Roast Frontend - CSS Variables
- * Централизованная система дизайн-токенов для корпоративной платформы кибербезопасности
- * Версия: Lite 1.0
- */
-
+/* END PERPLEXITY DESIGN SYSTEM */
 :root {
-    /* ===============================
-   * ЦВЕТОВАЯ ПАЛИТРА - ПРИМИТИВЫ
-   * =============================== */
-
-    /* Базовые цвета */
+    /* Primitive Color Tokens */
     --color-white: rgba(255, 255, 255, 1);
     --color-black: rgba(0, 0, 0, 1);
-
-    /* Светлые тона */
     --color-cream-50: rgba(252, 252, 249, 1);
     --color-cream-100: rgba(255, 255, 253, 1);
     --color-gray-200: rgba(245, 245, 245, 1);
     --color-gray-300: rgba(167, 169, 169, 1);
     --color-gray-400: rgba(119, 124, 124, 1);
-
-    /* Средние тона */
     --color-slate-500: rgba(98, 108, 113, 1);
     --color-brown-600: rgba(94, 82, 64, 1);
-
-    /* Темные тона */
     --color-charcoal-700: rgba(31, 33, 33, 1);
     --color-charcoal-800: rgba(38, 40, 40, 1);
     --color-slate-900: rgba(19, 52, 59, 1);
-
-    /* Акцентные цвета - Teal (Основной бренд) */
     --color-teal-300: rgba(50, 184, 198, 1);
     --color-teal-400: rgba(45, 166, 178, 1);
     --color-teal-500: rgba(33, 128, 141, 1);
     --color-teal-600: rgba(29, 116, 128, 1);
     --color-teal-700: rgba(26, 104, 115, 1);
     --color-teal-800: rgba(41, 150, 161, 1);
-
-    /* Статусные цвета - Красный (Ошибки/Угрозы) */
     --color-red-400: rgba(255, 84, 89, 1);
     --color-red-500: rgba(192, 21, 47, 1);
-
-    /* Статусные цвета - Оранжевый (Предупреждения) */
     --color-orange-400: rgba(230, 129, 97, 1);
     --color-orange-500: rgba(168, 75, 47, 1);
 
-    /* Дополнительные цвета для визуализации данных */
-    --color-blue-500: rgba(59, 130, 246, 1);
-    --color-green-500: rgba(34, 197, 94, 1);
-    --color-purple-500: rgba(147, 51, 234, 1);
-    --color-yellow-500: rgba(245, 158, 11, 1);
-    --color-pink-500: rgba(236, 72, 153, 1);
-    --color-cyan-500: rgba(6, 182, 212, 1);
-
-    /* ===============================
-   * RGB ВЕРСИИ ДЛЯ OPACITY
-   * =============================== */
-
+    /* RGB versions for opacity control */
     --color-brown-600-rgb: 94, 82, 64;
-    --color-teal-300-rgb: 50, 184, 198;
     --color-teal-500-rgb: 33, 128, 141;
     --color-slate-900-rgb: 19, 52, 59;
     --color-slate-500-rgb: 98, 108, 113;
@@ -840,89 +807,66 @@ select.form-control {
     --color-red-400-rgb: 255, 84, 89;
     --color-orange-500-rgb: 168, 75, 47;
     --color-orange-400-rgb: 230, 129, 97;
-    --color-gray-400-rgb: 119, 124, 124;
-    --color-gray-300-rgb: 167, 169, 169;
-    --color-gray-200-rgb: 245, 245, 245;
 
-    /* ===============================
-   * СЕМАНТИЧЕСКИЕ ЦВЕТА (Light Mode по умолчанию)
-   * =============================== */
+    /* Background color tokens (Light Mode) */
+    --color-bg-1: rgba(59, 130, 246, 0.08);
+    /* Light blue */
+    --color-bg-2: rgba(245, 158, 11, 0.08);
+    /* Light yellow */
+    --color-bg-3: rgba(34, 197, 94, 0.08);
+    /* Light green */
+    --color-bg-4: rgba(239, 68, 68, 0.08);
+    /* Light red */
+    --color-bg-5: rgba(147, 51, 234, 0.08);
+    /* Light purple */
+    --color-bg-6: rgba(249, 115, 22, 0.08);
+    /* Light orange */
+    --color-bg-7: rgba(236, 72, 153, 0.08);
+    /* Light pink */
+    --color-bg-8: rgba(6, 182, 212, 0.08);
+    /* Light cyan */
 
-    /* Основные поверхности */
+    /* Semantic Color Tokens (Light Mode) */
     --color-background: var(--color-cream-50);
     --color-surface: var(--color-cream-100);
-    --color-surface-elevated: var(--color-white);
-
-    /* Текст */
     --color-text: var(--color-slate-900);
     --color-text-secondary: var(--color-slate-500);
-    --color-text-muted: var(--color-gray-400);
-    --color-text-inverse: var(--color-white);
-
-    /* Интерактивные элементы */
     --color-primary: var(--color-teal-500);
     --color-primary-hover: var(--color-teal-600);
     --color-primary-active: var(--color-teal-700);
-    --color-primary-light: var(--color-teal-300);
-
-    /* Вторичные элементы */
     --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
     --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
     --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
-
-    /* Границы */
     --color-border: rgba(var(--color-brown-600-rgb), 0.2);
-    --color-border-light: rgba(var(--color-brown-600-rgb), 0.1);
-    --color-border-strong: rgba(var(--color-brown-600-rgb), 0.3);
-
-    /* Статусные цвета */
-    --color-success: var(--color-teal-500);
-    --color-error: var(--color-red-500);
-    --color-warning: var(--color-orange-500);
-    --color-info: var(--color-slate-500);
-
-    /* Фон кнопок */
     --color-btn-primary-text: var(--color-cream-50);
-    --color-btn-secondary-text: var(--color-text);
-
-    /* Карточки */
     --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
     --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
-
-    /* Фокус */
+    --color-error: var(--color-red-500);
+    --color-success: var(--color-teal-500);
+    --color-warning: var(--color-orange-500);
+    --color-info: var(--color-slate-500);
     --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+    --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
 
-    /* ===============================
-   * ЦВЕТОВЫЕ ФОНЫ ДЛЯ ВИЗУАЛИЗАЦИИ
-   * =============================== */
+    /* Common style patterns */
+    --focus-ring: 0 0 0 3px var(--color-focus-ring);
+    --focus-outline: 2px solid var(--color-primary);
+    --status-bg-opacity: 0.15;
+    --status-border-opacity: 0.25;
+    --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 
-    --color-bg-1: rgba(59, 130, 246, 0.08);
-    /* Синий */
-    --color-bg-2: rgba(245, 158, 11, 0.08);
-    /* Жёлтый */
-    --color-bg-3: rgba(34, 197, 94, 0.08);
-    /* Зелёный */
-    --color-bg-4: rgba(239, 68, 68, 0.08);
-    /* Красный */
-    --color-bg-5: rgba(147, 51, 234, 0.08);
-    /* Фиолетовый */
-    --color-bg-6: rgba(249, 115, 22, 0.08);
-    /* Оранжевый */
-    --color-bg-7: rgba(236, 72, 153, 0.08);
-    /* Розовый */
-    --color-bg-8: rgba(6, 182, 212, 0.08);
-    /* Циан */
+    /* RGB versions for opacity control */
+    --color-success-rgb: 33, 128, 141;
+    --color-error-rgb: 192, 21, 47;
+    --color-warning-rgb: 168, 75, 47;
+    --color-info-rgb: 98, 108, 113;
 
-    /* ===============================
-   * ТИПОГРАФИЯ
-   * =============================== */
-
-    /* Семейства шрифтов */
-    --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    --font-family-display: "FKGroteskNeue", var(--font-family-base);
-
-    /* Размеры шрифтов */
+    /* Typography */
+    --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
+        BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
+        Monaco, Consolas, monospace;
     --font-size-xs: 11px;
     --font-size-sm: 12px;
     --font-size-base: 14px;
@@ -932,30 +876,15 @@ select.form-control {
     --font-size-2xl: 20px;
     --font-size-3xl: 24px;
     --font-size-4xl: 30px;
-    --font-size-5xl: 48px;
-
-    /* Веса шрифтов */
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 550;
     --font-weight-bold: 600;
-    --font-weight-extrabold: 800;
-
-    /* Высота строк */
     --line-height-tight: 1.2;
     --line-height-normal: 1.5;
-    --line-height-relaxed: 1.75;
-
-    /* Межбуквенные интервалы */
     --letter-spacing-tight: -0.01em;
-    --letter-spacing-normal: 0;
-    --letter-spacing-wide: 0.025em;
 
-    /* ===============================
-   * ОТСТУПЫ И РАЗМЕРЫ
-   * =============================== */
-
-    /* Базовые отступы */
+    /* Spacing */
     --space-0: 0;
     --space-1: 1px;
     --space-2: 2px;
@@ -968,133 +897,34 @@ select.form-control {
     --space-20: 20px;
     --space-24: 24px;
     --space-32: 32px;
-    --space-40: 40px;
-    --space-48: 48px;
-    --space-64: 64px;
-    --space-80: 80px;
-    --space-96: 96px;
 
-    /* ===============================
-   * РАДИУСЫ СКРУГЛЕНИЯ
-   * =============================== */
-
-    --radius-none: 0;
-    --radius-xs: 2px;
+    /* Border Radius */
     --radius-sm: 6px;
     --radius-base: 8px;
     --radius-md: 10px;
     --radius-lg: 12px;
-    --radius-xl: 16px;
-    --radius-2xl: 24px;
     --radius-full: 9999px;
 
-    /* ===============================
-   * ТЕНИ
-   * =============================== */
-
+    /* Shadows */
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-    --shadow-glow: 0 0 20px rgba(var(--color-primary-rgb), 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
+        0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04),
+        0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.03);
 
-    /* Внутренние тени */
-    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.03);
-
-    /* ===============================
-   * АНИМАЦИИ И ПЕРЕХОДЫ
-   * =============================== */
-
-    /* Длительности */
-    --duration-instant: 0ms;
+    /* Animation */
     --duration-fast: 150ms;
     --duration-normal: 250ms;
-    --duration-slow: 350ms;
-    --duration-slower: 500ms;
-
-    /* Функции плавности */
-    --ease-linear: linear;
     --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-emphasized: cubic-bezier(0.2, 0.0, 0, 1);
-    --ease-decelerated: cubic-bezier(0.0, 0.0, 0.2, 1);
-    --ease-accelerated: cubic-bezier(0.4, 0.0, 1, 1);
-    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    /* ===============================
-   * МАКЕТНЫЕ ПАРАМЕТРЫ
-   * =============================== */
-
-    /* Контейнеры */
-    --container-xs: 480px;
+    /* Layout */
     --container-sm: 640px;
     --container-md: 768px;
     --container-lg: 1024px;
     --container-xl: 1280px;
-    --container-2xl: 1536px;
-
-    /* Высоты */
-    --height-header: 72px;
-    --height-sidebar: 280px;
-    --height-footer: 64px;
-
-    /* Z-индексы */
-    --z-dropdown: 1000;
-    --z-sticky: 1020;
-    --z-fixed: 1030;
-    --z-modal-backdrop: 1040;
-    --z-modal: 1050;
-    --z-popover: 1060;
-    --z-tooltip: 1070;
-
-    /* ===============================
-   * СПЕЦИФИЧНЫЕ ДЛЯ CYBERSECURITY
-   * =============================== */
-
-    /* Цвета статусов безопасности */
-    --color-threat-critical: var(--color-red-500);
-    --color-threat-high: var(--color-orange-500);
-    --color-threat-medium: var(--color-yellow-500);
-    --color-threat-low: var(--color-teal-500);
-    --color-threat-info: var(--color-slate-500);
-
-    /* Цвета для сетевых состояний */
-    --color-network-online: var(--color-teal-500);
-    --color-network-offline: var(--color-red-500);
-    --color-network-scanning: var(--color-orange-500);
-    --color-network-unknown: var(--color-gray-400);
-
-    /* Градиенты для киберинтерфейса */
-    --gradient-primary: linear-gradient(135deg, var(--color-teal-400), var(--color-teal-600));
-    --gradient-danger: linear-gradient(135deg, var(--color-red-400), var(--color-red-500));
-    --gradient-warning: linear-gradient(135deg, var(--color-orange-400), var(--color-orange-500));
-    --gradient-success: linear-gradient(135deg, var(--color-teal-300), var(--color-teal-600));
-    --gradient-cyber: linear-gradient(135deg, var(--color-charcoal-700), var(--color-slate-900));
-
-    /* ===============================
-   * ОБЩИЕ ПАТТЕРНЫ
-   * =============================== */
-
-    /* Фокус */
-    --focus-ring: 0 0 0 3px var(--color-focus-ring);
-    --focus-outline: 2px solid var(--color-primary);
-
-    /* Прозрачности для статусов */
-    --status-bg-opacity: 0.15;
-    --status-border-opacity: 0.25;
-
-    /* Иконки стрелок для select */
-    --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
-
-    /* RGB версии для статусных цветов */
-    --color-success-rgb: 33, 128, 141;
-    --color-error-rgb: 192, 21, 47;
-    --color-warning-rgb: 168, 75, 47;
-    --color-info-rgb: 98, 108, 113;
 }
 
 /* Dark mode colors */
@@ -1127,21 +957,15 @@ select.form-control {
         /* Semantic Color Tokens (Dark Mode) */
         --color-background: var(--color-charcoal-700);
         --color-surface: var(--color-charcoal-800);
-        --color-surface-elevated: var(--color-charcoal-800);
         --color-text: var(--color-gray-200);
         --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
-        --color-text-muted: var(--color-gray-400);
-        --color-text-inverse: var(--color-slate-900);
         --color-primary: var(--color-teal-300);
         --color-primary-hover: var(--color-teal-400);
         --color-primary-active: var(--color-teal-800);
-        --color-primary-light: var(--color-teal-300);
         --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
         --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
         --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
         --color-border: rgba(var(--color-gray-400-rgb), 0.3);
-        --color-border-light: rgba(var(--color-gray-400-rgb), 0.15);
-        --color-border-strong: rgba(var(--color-gray-400-rgb), 0.4);
         --color-error: var(--color-red-400);
         --color-success: var(--color-teal-300);
         --color-warning: var(--color-orange-400);
@@ -1150,19 +974,24 @@ select.form-control {
         --color-btn-primary-text: var(--color-slate-900);
         --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
         --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
-        --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+        --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+        --color-border-secondary: rgba(var(--color-gray-400-rgb), 0.2);
         --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
+
+        /* Common style patterns - updated for dark mode */
+        --focus-ring: 0 0 0 3px var(--color-focus-ring);
+        --focus-outline: 2px solid var(--color-primary);
+        --status-bg-opacity: 0.15;
+        --status-border-opacity: 0.25;
+        --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 
         /* RGB versions for dark mode */
         --color-success-rgb: var(--color-teal-300-rgb);
         --color-error-rgb: var(--color-red-400-rgb);
         --color-warning-rgb: var(--color-orange-400-rgb);
         --color-info-rgb: var(--color-gray-300-rgb);
-
-        /* Update cybersecurity specific colors for dark mode */
-        --color-threat-low: var(--color-teal-300);
-        --color-threat-info: var(--color-gray-300);
-        --color-network-online: var(--color-teal-300);
     }
 }
 
@@ -1195,21 +1024,15 @@ select.form-control {
     /* Semantic Color Tokens (Dark Mode) */
     --color-background: var(--color-charcoal-700);
     --color-surface: var(--color-charcoal-800);
-    --color-surface-elevated: var(--color-charcoal-800);
     --color-text: var(--color-gray-200);
     --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
-    --color-text-muted: var(--color-gray-400);
-    --color-text-inverse: var(--color-slate-900);
     --color-primary: var(--color-teal-300);
     --color-primary-hover: var(--color-teal-400);
     --color-primary-active: var(--color-teal-800);
-    --color-primary-light: var(--color-teal-300);
     --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
     --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
     --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
     --color-border: rgba(var(--color-gray-400-rgb), 0.3);
-    --color-border-light: rgba(var(--color-gray-400-rgb), 0.15);
-    --color-border-strong: rgba(var(--color-gray-400-rgb), 0.4);
     --color-error: var(--color-red-400);
     --color-success: var(--color-teal-300);
     --color-warning: var(--color-orange-400);
@@ -1218,19 +1041,24 @@ select.form-control {
     --color-btn-primary-text: var(--color-slate-900);
     --color-card-border: rgba(var(--color-gray-400-rgb), 0.15);
     --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
-    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    --color-border-secondary: rgba(var(--color-gray-400-rgb), 0.2);
     --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
+
+    /* Common style patterns - updated for dark mode */
+    --focus-ring: 0 0 0 3px var(--color-focus-ring);
+    --focus-outline: 2px solid var(--color-primary);
+    --status-bg-opacity: 0.15;
+    --status-border-opacity: 0.25;
+    --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 
     /* RGB versions for dark mode */
     --color-success-rgb: var(--color-teal-300-rgb);
     --color-error-rgb: var(--color-red-400-rgb);
     --color-warning-rgb: var(--color-orange-400-rgb);
     --color-info-rgb: var(--color-gray-300-rgb);
-
-    /* Update cybersecurity specific colors for dark mode */
-    --color-threat-low: var(--color-teal-300);
-    --color-threat-info: var(--color-gray-300);
-    --color-network-online: var(--color-teal-300);
 }
 
 [data-color-scheme="light"] {
@@ -1242,21 +1070,16 @@ select.form-control {
     /* Semantic Color Tokens (Light Mode) */
     --color-background: var(--color-cream-50);
     --color-surface: var(--color-cream-100);
-    --color-surface-elevated: var(--color-white);
     --color-text: var(--color-slate-900);
     --color-text-secondary: var(--color-slate-500);
-    --color-text-muted: var(--color-gray-400);
-    --color-text-inverse: var(--color-white);
     --color-primary: var(--color-teal-500);
     --color-primary-hover: var(--color-teal-600);
     --color-primary-active: var(--color-teal-700);
-    --color-primary-light: var(--color-teal-300);
     --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
     --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
     --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
     --color-border: rgba(var(--color-brown-600-rgb), 0.2);
-    --color-border-light: rgba(var(--color-brown-600-rgb), 0.1);
-    --color-border-strong: rgba(var(--color-brown-600-rgb), 0.3);
+    --color-btn-primary-text: var(--color-cream-50);
     --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
     --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
     --color-error: var(--color-red-500);
@@ -1264,56 +1087,113 @@ select.form-control {
     --color-warning: var(--color-orange-500);
     --color-info: var(--color-slate-500);
     --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
-    --color-btn-primary-text: var(--color-cream-50);
-    --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
 
     /* RGB versions for light mode */
     --color-success-rgb: var(--color-teal-500-rgb);
     --color-error-rgb: var(--color-red-500-rgb);
     --color-warning-rgb: var(--color-orange-500-rgb);
     --color-info-rgb: var(--color-slate-500-rgb);
-
-    /* Update cybersecurity specific colors for light mode */
-    --color-threat-low: var(--color-teal-500);
-    --color-threat-info: var(--color-slate-500);
-    --color-network-online: var(--color-teal-500);
 }
 
-/* Mobile Portrait Responsive Breakpoint */
-@media (max-width: 480px) {
-    :root {
-        /* Adjust spacing for mobile */
-        --space-16: 12px;
-        --space-20: 16px;
-        --space-24: 20px;
-        --space-32: 24px;
-        --space-40: 32px;
-        --space-48: 40px;
-        --space-64: 48px;
+@font-face {
+    font-family: 'FKGroteskNeue';
+    src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+    font-display: swap;
+}
 
-        /* Adjust font sizes for mobile readability */
-        --font-size-xs: 11px;
-        --font-size-sm: 12px;
-        --font-size-base: 14px;
-        --font-size-md: 14px;
-        --font-size-lg: 16px;
-        --font-size-xl: 18px;
-        --font-size-2xl: 20px;
-        --font-size-3xl: 22px;
-        --font-size-4xl: 26px;
-        --font-size-5xl: 32px;
+/* Status utility classes */
+.status--success {
+    background-color: rgba(var(--color-success-rgb), var(--status-bg-opacity));
+    color: var(--color-success);
+    border: 1px solid rgba(var(--color-success-rgb), var(--status-border-opacity));
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-6) var(--space-12);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+}
 
-        /* Adjust container padding for mobile */
-        --container-xs: 100%;
+.status--error {
+    background-color: rgba(var(--color-error-rgb), var(--status-bg-opacity));
+    color: var(--color-error);
+    border: 1px solid rgba(var(--color-error-rgb), var(--status-border-opacity));
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-6) var(--space-12);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+}
 
-        /* Adjust heights for mobile */
-        --height-header: 56px;
-        --height-sidebar: 240px;
+.status--warning {
+    background-color: rgba(var(--color-warning-rgb), var(--status-bg-opacity));
+    color: var(--color-warning);
+    border: 1px solid rgba(var(--color-warning-rgb), var(--status-border-opacity));
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-6) var(--space-12);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+}
 
-        /* Smaller border radius for mobile */
-        --radius-base: 6px;
-        --radius-md: 8px;
-        --radius-lg: 10px;
-        --radius-xl: 12px;
+.status--info {
+    background-color: rgba(var(--color-info-rgb), var(--status-bg-opacity));
+    color: var(--color-info);
+    border: 1px solid rgba(var(--color-info-rgb), var(--status-border-opacity));
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-6) var(--space-12);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+}
+
+/* Container layout */
+.container {
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: var(--space-16);
+    padding-left: var(--space-16);
+}
+
+@media (min-width: 480px) {
+    .container {
+        padding-right: var(--space-20);
+        padding-left: var(--space-20);
+    }
+
+    .status--success,
+    .status--error,
+    .status--warning,
+    .status--info {
+        font-size: var(--font-size-base);
+        padding: var(--space-8) var(--space-16);
+    }
+}
+
+@media (min-width: 640px) {
+    .container {
+        max-width: var(--container-sm);
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: var(--container-md);
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: var(--container-lg);
+    }
+}
+
+@media (min-width: 1280px) {
+    .container {
+        max-width: var(--container-xl);
     }
 }

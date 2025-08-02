@@ -3208,30 +3208,6 @@ export class Dropdown {
 // ЭКСПОРТ ВСЕХ КОМПОНЕНТОВ
 // ===========================================
 
-export {
-    // Базовые компоненты
-    Button,
-    Input,
-    Select,
-
-    // Индикаторы
-    Spinner,
-    ProgressBar,
-    Toast,
-
-    // Layout
-    Card,
-
-    // Навигация
-    TabView,
-
-    // Расширенные
-    DataTable,
-
-    // Утилитарные
-    Tooltip,
-    Dropdown
-};
 
 // Статические методы для удобства
 export const Components = {
