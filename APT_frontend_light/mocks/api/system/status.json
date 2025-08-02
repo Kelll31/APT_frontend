@@ -1,0 +1,10 @@
+{
+    "success": true,
+    "data": {
+        "apiServer": "running",
+        "database": "connected",
+        "uptime": "48h23m",
+        "version": "4.0.1",
+        "lastRestart": "2025-01-31T12:00:00Z"
+    }
+}

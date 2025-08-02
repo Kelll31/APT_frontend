@@ -1,0 +1,22 @@
+{
+    "success": true,
+    "data": {
+        "modules": [
+            {
+                "id": "mod-sqlinj",
+                "name": "SQL Injection",
+                "description": "Exploit SQL injection vulnerabilities"
+            },
+            {
+                "id": "mod-rce",
+                "name": "Remote Code Exec",
+                "description": "Launch RCE attacks via known CVEs"
+            },
+            {
+                "id": "mod-phish",
+                "name": "Phishing Kit",
+                "description": "Generate phishing emails/pages"
+            }
+        ]
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "success": true,
+    "data": {
+        "recentScans": [
+            {
+                "id": 2,
+                "name": "Port Scan - Critical Servers",
+                "status": "running",
+                "progress": 65,
+                "startTime": "2025-02-02T11:30:00Z"
+            },
+            {
+                "id": 1,
+                "name": "Network Discovery Scan",
+                "status": "completed",
+                "progress": 100,
+                "startTime": "2025-02-02T10:00:00Z"
+            }
+        ]
+    }
+}

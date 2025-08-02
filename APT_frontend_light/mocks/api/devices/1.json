@@ -1,0 +1,28 @@
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "ip": "192.168.1.1",
+        "mac": "00:11:22:33:44:55",
+        "hostname": "router.local",
+        "type": "router",
+        "vendor": "Cisco",
+        "os": "IOS 15.1",
+        "status": "active",
+        "lastSeen": "2025-02-02T12:00:00Z",
+        "openPorts": [
+            22,
+            80,
+            443
+        ],
+        "vulnerabilities": [
+            {
+                "cveId": "CVE-2023-1234",
+                "severity": "critical",
+                "description": "Remote code exec in Apache"
+            }
+        ],
+        "riskLevel": "medium",
+        "location": "Data Center A"
+    }
+}

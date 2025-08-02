@@ -1,0 +1,22 @@
+{
+    "success": true,
+    "data": {
+        "logs": [
+            {
+                "timestamp": "2025-02-02T12:00:00Z",
+                "level": "info",
+                "message": "Daily backup completed."
+            },
+            {
+                "timestamp": "2025-02-02T11:45:00Z",
+                "level": "warning",
+                "message": "High CPU usage detected on node 192.168.1.2."
+            },
+            {
+                "timestamp": "2025-02-02T10:15:00Z",
+                "level": "error",
+                "message": "Failed to apply patch CVE-2023-1234 on server-01."
+            }
+        ]
+    }
+}

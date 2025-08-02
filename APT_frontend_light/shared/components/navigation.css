@@ -1,0 +1,113 @@
+/**
+ * navigation.css — Стили навигационной панели
+ * Версия: Enterprise 1.0
+ * Зависимости:
+ *   - styles/variables.css
+ *   - styles/global.css
+ *   - styles/themes.css
+ */
+
+.nav {
+    display: flex;
+    align-items: center;
+    background: var(--color-surface-elevated);
+    border-bottom: 1px solid var(--color-card-border-inner);
+    padding: 0 var(--space-16);
+}
+
+.nav__brand {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-right: auto;
+    text-decoration: none;
+}
+
+.nav__list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: var(--space-16);
+}
+
+.nav__item {
+    position: relative;
+}
+
+.nav__link {
+    display: inline-block;
+    padding: var(--space-12) var(--space-8);
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-standard),
+        border-bottom var(--duration-fast) var(--ease-standard);
+}
+
+.nav__link:hover,
+.nav__link--active {
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
+}
+
+/* Выпадающее меню */
+.nav__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    display: none;
+    min-width: 160px;
+    z-index: var(--z-popover);
+}
+
+.nav__item:hover .nav__dropdown {
+    display: block;
+}
+
+.nav__dropdown-item {
+    padding: var(--space-8) var(--space-12);
+    color: var(--color-text);
+    white-space: nowrap;
+    transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.nav__dropdown-item:hover {
+    background: var(--color-secondary-hover);
+}
+
+/* Гамбургер для мобильных */
+.nav__toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: var(--font-size-xl);
+    cursor: pointer;
+    color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+    .nav__list {
+        display: none;
+        flex-direction: column;
+        background: var(--color-surface);
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 200px;
+        border: 1px solid var(--color-card-border);
+        border-radius: var(--radius-sm);
+    }
+
+    .nav__toggle {
+        display: block;
+    }
+
+    .nav__list--open {
+        display: flex;
+    }
+}

@@ -1,0 +1,134 @@
+/**
+ * scan-results.css — Энтерпрайз-стили для отображения результатов сканирования
+ * Версия: Enterprise 1.0
+ * Зависимости:
+ *   - styles/variables.css
+ *   - styles/themes.css
+ *   - styles/global.css
+ *   - scanner/port-scanner.css
+ */
+
+/* Контейнер результатов */
+.scan-results {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+/* Заголовок секции */
+.scan-results__header {
+    padding: var(--space-16) var(--space-20);
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+/* Список записей результатов */
+.scan-results__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Элемент списка */
+.scan-results__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-12) var(--space-20);
+    border-bottom: 1px solid var(--color-card-border-inner);
+    transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.scan-results__item:hover {
+    background: var(--color-secondary-hover);
+}
+
+/* Информация об элементе */
+.scan-results__info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+}
+
+.scan-results__icon {
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+}
+
+.scan-results__text {
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+}
+
+/* Статус элемента */
+.scan-results__status {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.scan-results__status--success {
+    color: var(--color-success);
+}
+
+.scan-results__status--failure {
+    color: var(--color-error);
+}
+
+/* Пагинация результатов */
+.scan-results__pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-16);
+    background: var(--color-surface-elevated);
+}
+
+.scan-results__page-btn {
+    margin: 0 var(--space-8);
+    padding: var(--space-6) var(--space-12);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.scan-results__page-btn:hover:not(:disabled) {
+    background: var(--color-secondary);
+    color: var(--color-text);
+}
+
+.scan-results__page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Пустое состояние */
+.scan-results__empty {
+    padding: var(--space-32);
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .scan-results__item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-8);
+    }
+
+    .scan-results__pagination {
+        flex-wrap: wrap;
+        gap: var(--space-8);
+    }
+}

@@ -1,0 +1,48 @@
+{
+    "success": true,
+    "data": {
+        "devices": {
+            "total": 156,
+            "active": 142,
+            "inactive": 14,
+            "new_today": 3
+        },
+        "scans": {
+            "total": 42,
+            "running": 2,
+            "completed": 38,
+            "failed": 2
+        },
+        "vulnerabilities": {
+            "total": 89,
+            "critical": 5,
+            "high": 18,
+            "medium": 31,
+            "low": 35
+        },
+        "activity": [
+            {
+                "timestamp": "2025-08-02T10:00:00Z",
+                "type": "scan_completed",
+                "count": 3
+            },
+            {
+                "timestamp": "2025-08-02T11:00:00Z",
+                "type": "vulnerability_found",
+                "count": 7
+            },
+            {
+                "timestamp": "2025-08-02T12:00:00Z",
+                "type": "device_discovered",
+                "count": 2
+            }
+        ],
+        "trends": {
+            "devices_trend": "+5.2%",
+            "scans_trend": "+12.8%",
+            "vulnerabilities_trend": "-3.1%"
+        },
+        "system_status": "healthy",
+        "last_scan": "2025-08-02T12:30:00Z"
+    }
+}

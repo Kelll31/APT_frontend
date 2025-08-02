@@ -2049,3 +2049,5 @@ window.AttackModuleConstructor = AttackModuleConstructor;
 
 // Global instance reference for inline event handlers
 window.attackConstructor = null;
+
+export { AttackModuleConstructor };

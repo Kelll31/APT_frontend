@@ -1,0 +1,163 @@
+/**
+ * port-scanner.css — Энтерпрайз-стили для компонента "Порт-сканер"
+ * Версия: Enterprise 1.0
+ * Зависимости:
+ *   - styles/variables.css
+ *   - styles/themes.css
+ *   - styles/global.css
+ */
+
+/* Основной контейнер сканера */
+.port-scanner {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+/* Заголовок */
+.port-scanner__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-16) var(--space-20);
+    background: rgba(var(--color-secondary-rgb), var(--status-bg-opacity));
+    border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+.port-scanner__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.port-scanner__controls {
+    display: flex;
+    gap: var(--space-8);
+}
+
+/* Список результатов */
+.port-scanner__results {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-20);
+}
+
+.port-scanner__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.port-scanner__table th,
+.port-scanner__table td {
+    padding: var(--space-12);
+    border: 1px solid var(--color-border);
+}
+
+.port-scanner__table th {
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
+    text-align: left;
+}
+
+.port-scanner__table tbody tr:nth-child(even) {
+    background: rgba(var(--color-primary-rgb), var(--status-bg-opacity));
+}
+
+/* Индикаторы статуса */
+.port-scanner__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.port-scanner__status--open {
+    background: rgba(var(--color-success-rgb), var(--status-bg-opacity));
+    color: var(--color-success);
+}
+
+.port-scanner__status--closed {
+    background: rgba(var(--color-error-rgb), var(--status-bg-opacity));
+    color: var(--color-error);
+}
+
+.port-scanner__status--filtered {
+    background: rgba(var(--color-warning-rgb), var(--status-bg-opacity));
+    color: var(--color-warning);
+}
+
+/* Пагинация */
+.port-scanner__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-16) var(--space-20);
+    background: var(--color-surface-elevated);
+    border-top: 1px solid var(--color-card-border-inner);
+}
+
+.port-scanner__pagination-btn {
+    padding: var(--space-6) var(--space-12);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.port-scanner__pagination-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.port-scanner__pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Empty state */
+.port-scanner__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-32);
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+.port-scanner__empty-icon {
+    font-size: 48px;
+    margin-bottom: var(--space-16);
+}
+
+.port-scanner__empty-text {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .port-scanner__header,
+    .port-scanner__pagination {
+        flex-direction: column;
+        gap: var(--space-12);
+    }
+
+    .port-scanner__table th,
+    .port-scanner__table td {
+        padding: var(--space-8);
+    }
+}

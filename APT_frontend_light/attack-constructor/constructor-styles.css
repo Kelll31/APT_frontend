@@ -1,0 +1,40 @@
+/**
+ * constructor-styles.css — Стили элементов конструктора (блоки, соединители)
+ * Версия: Enterprise 1.0
+ * Зависимости:
+ *   - styles/variables.css
+ */
+
+.constructor-block {
+    position: relative;
+    padding: var(--space-12);
+    background: var(--color-surface-elevated);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    cursor: move;
+    transition: box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.constructor-block:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.constructor-block__title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+    margin-bottom: var(--space-8);
+}
+
+.constructor-connector {
+    stroke: var(--color-primary);
+    stroke-width: 2;
+    fill: none;
+}
+
+/* Выделение */
+.constructor-block--selected {
+    border-color: var(--color-warning);
+    box-shadow: 0 0 0 3px rgba(var(--color-warning-rgb), 0.5);
+}

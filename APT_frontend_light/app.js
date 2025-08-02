@@ -1,1119 +1,1012 @@
-// IP Roast Pro - Энтерпрайз платформа кибербезопасности
-class IPRoastPro {
-    constructor() {
-        this.currentPage = 'dashboard';
-        this.charts = {};
-        this.scanningInterval = null;
-        this.moduleBuilder = null;
-        this.selectedModule = null;
-        this.workflow = [];
-        this.connectionLines = [];
-        this.settings = {};
-        this.notifications = [];
+/**
+ * IP Roast Enterprise 4.0 - Main Application Controller
+ * Полный контроллер приложения с поддержкой всех модулей
+ * Версия: Enterprise 4.0.0
+ */
 
-        // Данные приложения на русском языке
-        this.stats = {
-            activeScans: 3,
-            discoveredHosts: 47,
-            openPorts: 156,
-            vulnerabilities: 8
+// Import core utilities
+import { IPRoastAPI } from './shared/utils/api.js';
+import { NOTIFICATION_TYPES, THEMES, DEFAULT_UI_SETTINGS, ANIMATION_DURATION } from './shared/utils/constants.js';
+import { formatDate, timeAgo, debounce, Storage, generateUUID, addClass, removeClass, toggleClass } from './shared/utils/helpers.js';
+
+// Import shared components
+import { NavigationComponent } from './shared/components/navigation.js';
+import { Modal, ConfirmModal } from './shared/components/modals.js';
+import { Button, Spinner } from './shared/components/common.js';
+
+// Import module controllers
+import { DashboardController } from './dashboard/dashboard.js';
+
+/**
+ * Главный класс Enterprise приложения IP Roast
+ */
+class IPRoastEnterpriseApp {
+    constructor() {
+        // Информация о приложении
+        this.version = '4.0.0';
+        this.buildDate = '2024-12-15';
+        this.edition = 'Enterprise';
+
+        // Состояние приложения
+        this.state = {
+            isInitialized: false,
+            currentTab: 'dashboard',
+            isLoading: true,
+            sidebarCollapsed: false,
+
+            // Пользователь
+            user: {
+                name: 'Администратор',
+                role: 'Security Analyst',
+                permissions: ['admin', 'scan', 'report', 'attack', 'settings'],
+                avatar: null
+            },
+
+            // Подключение
+            connectionStatus: 'connected',
+            lastActivity: new Date(),
+
+            // Уведомления
+            notifications: [],
+            unreadCount: 0
         };
 
-        this.networkDevices = [
-            {
-                id: 1,
-                ip: "192.168.1.1",
-                hostname: "router.local",
-                status: "active",
-                ports: [22, 80, 443],
-                os: "Linux",
-                vendor: "Cisco",
-                risk: "low",
-                lastSeen: "2025-01-15 10:30:00",
-                services: {
-                    22: "OpenSSH 7.6",
-                    80: "Apache httpd 2.4.41",
-                    443: "SSL/TLS"
-                }
-            },
-            {
-                id: 2,
-                ip: "192.168.1.10",
-                hostname: "workstation-01",
-                status: "active",
-                ports: [135, 139, 445],
-                os: "Windows 10",
-                vendor: "Microsoft",
-                risk: "medium",
-                lastSeen: "2025-01-15 10:28:00",
-                services: {
-                    135: "Microsoft RPC",
-                    139: "NetBIOS Session",
-                    445: "Microsoft SMB"
-                }
-            },
-            {
-                id: 3,
-                ip: "192.168.1.15",
-                hostname: "server-db",
-                status: "active",
-                ports: [3306, 22, 80],
-                os: "Ubuntu",
-                vendor: "Canonical",
-                risk: "high",
-                lastSeen: "2025-01-15 10:25:00",
-                services: {
-                    3306: "MySQL 5.7.32",
-                    22: "OpenSSH 7.6",
-                    80: "nginx 1.18.0"
-                }
-            }
-        ];
+        // Контроллеры модулей
+        this.modules = new Map();
+        this.loadedModules = new Set();
 
-        this.attackModules = [
-            {
-                category: "Разведка",
-                modules: [
-                    {
-                        id: "recon_port_scan",
-                        name: "Сканер портов",
-                        description: "Сканирование портов целевых хостов",
-                        icon: "fas fa-search",
-                        params: {
-                            ports: "1-65535",
-                            timeout: 1000,
-                            threads: 100
-                        }
-                    },
-                    {
-                        id: "recon_service_enum",
-                        name: "Перечисление сервисов",
-                        description: "Идентификация запущенных сервисов",
-                        icon: "fas fa-list",
-                        params: {
-                            intensity: 4,
-                            version_detection: true
-                        }
-                    },
-                    {
-                        id: "recon_dns_lookup",
-                        name: "DNS запросы",
-                        description: "Разрешение имен хостов",
-                        icon: "fas fa-globe",
-                        params: {
-                            record_types: ["A", "AAAA", "MX", "NS"],
-                            recursive: true
-                        }
-                    }
-                ]
-            },
-            {
-                category: "Эксплуатация",
-                modules: [
-                    {
-                        id: "exploit_ssh_brute",
-                        name: "Брутфорс SSH",
-                        description: "Подбор SSH учетных данных",
-                        icon: "fas fa-key",
-                        params: {
-                            wordlist: "common_passwords.txt",
-                            threads: 10,
-                            delay: 100
-                        }
-                    },
-                    {
-                        id: "exploit_web_vuln",
-                        name: "Веб-уязвимости",
-                        description: "Эксплуатация веб-уязвимостей",
-                        icon: "fas fa-bug",
-                        params: {
-                            scan_types: ["xss", "sqli", "lfi"],
-                            deep_scan: false
-                        }
-                    },
-                    {
-                        id: "exploit_buffer_overflow",
-                        name: "Переполнение буфера",
-                        description: "Выполнение атак переполнения буфера",
-                        icon: "fas fa-bomb",
-                        params: {
-                            payload_type: "shellcode",
-                            architecture: "x86_64"
-                        }
-                    }
-                ]
-            },
-            {
-                category: "Пост-эксплуатация",
-                modules: [
-                    {
-                        id: "post_file_collect",
-                        name: "Сбор файлов",
-                        description: "Сбор конфиденциальных файлов",
-                        icon: "fas fa-file",
-                        params: {
-                            file_types: [".txt", ".doc", ".pdf"],
-                            max_size: "10MB"
-                        }
-                    },
-                    {
-                        id: "post_privilege_esc",
-                        name: "Повышение привилегий",
-                        description: "Повышение привилегий в системе",
-                        icon: "fas fa-arrow-up",
-                        params: {
-                            method: "auto",
-                            verify_success: true
-                        }
-                    },
-                    {
-                        id: "post_persistence",
-                        name: "Закрепление",
-                        description: "Поддержание доступа к системе",
-                        icon: "fas fa-anchor",
-                        params: {
-                            persistence_type: "service",
-                            stealth_mode: true
-                        }
-                    }
-                ]
-            }
-        ];
+        // Таймеры и интервалы
+        this.intervals = new Map();
 
-        this.reports = [
-            {
-                id: 1,
-                name: "Оценка сетевой безопасности",
-                date: "2025-01-15",
-                type: "Сканирование уязвимостей",
-                status: "Завершен",
-                criticalIssues: 2,
-                size: "2.4 MB"
-            },
-            {
-                id: 2,
-                name: "Отчет тестирования на проникновение",
-                date: "2025-01-12",
-                type: "Пентест",
-                status: "Завершен",
-                criticalIssues: 5,
-                size: "4.1 MB"
-            },
-            {
-                id: 3,
-                name: "Анализ соответствия требованиям",
-                date: "2025-01-10",
-                type: "Комплаенс",
-                status: "В процессе",
-                criticalIssues: 0,
-                size: "1.8 MB"
-            }
-        ];
+        // Настройки приложения
+        this.settings = {
+            theme: THEMES.DARK,
+            autoRefresh: true,
+            refreshInterval: 30000,
+            enableNotifications: true,
+            enableWebSocket: true,
+            enableSounds: false,
+            maxNotifications: 50,
+            language: 'ru',
+            timezone: 'Europe/Moscow',
+            ...Storage.get('ipRoastSettings', {})
+        };
 
-        this.workflowTemplates = [
-            {
-                id: 'basic_recon',
-                name: 'Базовая разведка',
-                description: 'Стандартное обнаружение и перечисление сети',
-                modules: ['recon_port_scan', 'recon_service_enum', 'recon_dns_lookup'],
-                estimatedTime: "15 минут"
-            },
-            {
-                id: 'web_attack',
-                name: 'Атака на веб-приложение',
-                description: 'Комплексное тестирование безопасности веб-приложений',
-                modules: ['recon_port_scan', 'exploit_web_vuln', 'post_file_collect'],
-                estimatedTime: "45 минут"
-            },
-            {
-                id: 'privilege_escalation',
-                name: 'Цепочка повышения привилегий',
-                description: 'Получение повышенных привилегий и поддержание доступа',
-                modules: ['exploit_ssh_brute', 'post_privilege_esc', 'post_persistence'],
-                estimatedTime: "30 минут"
-            }
-        ];
+        // Компоненты UI
+        this.components = {
+            navigation: null,
+            sidebar: null,
+            modals: new Map(),
+            notifications: null
+        };
 
-        this.activityFeed = [
-            {
-                type: 'info',
-                title: 'Новое устройство обнаружено',
-                time: '2 минуты назад',
-                icon: 'fas fa-plus-circle',
-                details: '192.168.1.25 добавлен в список хостов'
-            },
-            {
-                type: 'warning',
-                title: 'Обнаружено подозрительное сканирование портов',
-                time: '5 минут назад',
-                icon: 'fas fa-exclamation-triangle',
-                details: 'Источник: 192.168.1.100'
-            },
-            {
-                type: 'error',
-                title: 'Найдена критическая уязвимость',
-                time: '10 минут назад',
-                icon: 'fas fa-bug',
-                details: 'CVE-2024-1234 на 192.168.1.15'
-            },
-            {
-                type: 'info',
-                title: 'Сканирование завершено успешно',
-                time: '15 минут назад',
-                icon: 'fas fa-check-circle',
-                details: 'Обработано 47 хостов, найдено 8 уязвимостей'
-            }
-        ];
+        // Горячие клавиши
+        this.hotkeys = new Map([
+            ['Ctrl+1', () => this.switchTab('dashboard')],
+            ['Ctrl+2', () => this.switchTab('scanner')],
+            ['Ctrl+3', () => this.switchTab('attack-constructor')],
+            ['Ctrl+4', () => this.switchTab('network-topology')],
+            ['Ctrl+5', () => this.switchTab('reports')],
+            ['Ctrl+6', () => this.switchTab('settings')],
+            ['Ctrl+Shift+R', () => this.refreshCurrentModule()],
+            ['Ctrl+/', () => this.showHelpDialog()],
+            ['Escape', () => this.closeModals()]
+        ]);
 
+        console.log(`🚀 Инициализация IP Roast ${this.edition} ${this.version}`);
         this.init();
     }
 
-    init() {
-        this.setupNavigation();
-        this.setupDashboard();
-        this.setupNetworkRecon();
-        this.setupAttackModules();
-        this.setupReports();
-        this.setupSettings();
-        this.loadDashboard();
-        this.hideLoadingOverlay();
-        this.setupEventListeners();
-        this.loadSettings();
+    /**
+     * Главная инициализация приложения
+     */
+    async init() {
+        try {
+            // Показываем прогресс загрузки
+            this.updateLoadingProgress(5, 'Инициализация ядра...');
+
+            // Инициализация основных систем
+            await this.initializeCore();
+            this.updateLoadingProgress(15, 'Настройка интерфейса...');
+
+            // Настройка UI компонентов
+            await this.setupUI();
+            this.updateLoadingProgress(25, 'Загрузка модулей...');
+
+            // Инициализация модулей
+            await this.initializeModules();
+            this.updateLoadingProgress(60, 'Применение настроек...');
+
+            // Применение пользовательских настроек
+            await this.applyUserSettings();
+            this.updateLoadingProgress(80, 'Запуск сервисов...');
+
+            // Запуск фоновых сервисов
+            await this.startServices();
+            this.updateLoadingProgress(95, 'Завершение загрузки...');
+
+            // Финализация
+            await this.finalizeBoot();
+            this.updateLoadingProgress(100, 'Готово!');
+
+            // Скрыть экран загрузки
+            setTimeout(() => {
+                this.hideLoadingScreen();
+                this.state.isInitialized = true;
+                this.showNotification('IP Roast Enterprise успешно загружен', NOTIFICATION_TYPES.SUCCESS);
+                console.log('✅ IP Roast Enterprise инициализирован');
+            }, 800);
+
+        } catch (error) {
+            console.error('❌ Критическая ошибка инициализации:', error);
+            this.handleCriticalError(error);
+        }
     }
 
-    hideLoadingOverlay() {
-        setTimeout(() => {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.classList.add('hidden');
+    /**
+     * Инициализация основных систем
+     */
+    async initializeCore() {
+        // Инициализация системы уведомлений
+        this.initializeNotificationSystem();
+
+        // Настройка обработчиков ошибок
+        this.setupErrorHandlers();
+
+        // Инициализация системы событий
+        this.setupEventSystem();
+
+        // Настройка горячих клавиш
+        this.setupHotkeys();
+
+        console.log('🔧 Ядро системы инициализировано');
+    }
+
+    /**
+     * Настройка пользовательского интерфейса
+     */
+    async setupUI() {
+        // Инициализация навигации
+        this.components.navigation = new NavigationComponent({
+            container: '#nav-menu',
+            onNavigate: (tab) => this.switchTab(tab)
+        });
+
+        // Настройка sidebar
+        this.setupSidebar();
+
+        // Настройка header элементов
+        this.setupHeader();
+
+        // Настройка поиска
+        this.setupSearch();
+
+        console.log('🎨 Пользовательский интерфейс настроен');
+    }
+
+    /**
+     * Инициализация всех модулей
+     */
+    async initializeModules() {
+        try {
+            // 1. Dashboard (основной модуль, загружается сразу)
+            console.log('📊 Инициализация Dashboard...');
+            const dashboardController = new DashboardController({
+                container: '#dashboard-container .tab-content-inner',
+                autoRefresh: this.settings.autoRefresh,
+                refreshInterval: this.settings.refreshInterval,
+                enableWebSocket: this.settings.enableWebSocket
+            });
+            this.modules.set('dashboard', dashboardController);
+            this.loadedModules.add('dashboard');
+
+            // 2. Остальные модули загружаем по требованию, но подготавливаем заглушки
+            await this.prepareModuleStubs();
+
+            console.log('📦 Модули инициализированы');
+
+        } catch (error) {
+            console.error('❌ Ошибка инициализации модулей:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Подготовка заглушек модулей
+     */
+    async prepareModuleStubs() {
+        const moduleStubs = [
+            'scanner',
+            'attack-constructor',
+            'network-topology',
+            'reports',
+            'settings'
+        ];
+
+        moduleStubs.forEach(moduleId => {
+            const container = document.querySelector(`#${moduleId}-container .tab-content-inner`);
+            if (container && container.querySelector('.module-placeholder')) {
+                // Добавляем интерактивности к placeholder
+                const placeholder = container.querySelector('.module-placeholder');
+                placeholder.style.cursor = 'pointer';
+                placeholder.addEventListener('click', () => {
+                    this.loadModule(moduleId);
+                });
             }
-        }, 2000);
-    }
-
-    // Система навигации
-    setupNavigation() {
-        const navItems = document.querySelectorAll('.nav-item');
-        const actionCards = document.querySelectorAll('.action-card');
-
-        navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const page = item.getAttribute('data-page');
-                this.navigateToPage(page);
-            });
-        });
-
-        actionCards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                const page = card.getAttribute('data-page');
-                if (page) {
-                    this.navigateToPage(page);
-                }
-            });
         });
     }
 
-    navigateToPage(pageId) {
-        // Скрыть все страницы
-        document.querySelectorAll('.page').forEach(page => {
-            page.classList.remove('active');
-        });
+    /**
+     * Динамическая загрузка модуля
+     */
+    async loadModule(moduleId) {
+        if (this.loadedModules.has(moduleId)) {
+            return this.modules.get(moduleId);
+        }
 
-        // Показать выбранную страницу
-        const targetPage = document.getElementById(pageId);
-        if (targetPage) {
-            targetPage.classList.add('active');
+        const container = document.querySelector(`#${moduleId}-container .tab-content-inner`);
+        if (!container) return null;
+
+        try {
+            // Показать спиннер загрузки
+            this.showModuleLoading(container);
+
+            let moduleController = null;
+
+            switch (moduleId) {
+                case 'scanner':
+                    const { ScannerController } = await import('./scanner/scanner.js');
+                    moduleController = new ScannerController({
+                        container: `#${moduleId}-container .tab-content-inner`
+                    });
+                    break;
+
+                case 'attack-constructor':
+                    const { AttackModuleConstructor } = await import('./attack-constructor/AttackModuleConstructor.js');
+                    moduleController = new AttackModuleConstructor({
+                        container: `#${moduleId}-container .tab-content-inner`
+                    });
+                    break;
+
+                case 'network-topology':
+                    await this.loadNetworkTopologyModule(container);
+                    break;
+
+                case 'reports':
+                    const { ReportsController } = await import('./reports/reports.js');
+                    moduleController = new ReportsController({
+                        container: `#${moduleId}-container .tab-content-inner`
+                    });
+                    break;
+
+                case 'settings':
+                    const { SettingsController } = await import('./settings/settings.js');
+                    moduleController = new SettingsController(
+                        `#${moduleId}-container .tab-content-inner`
+                    );
+                    break;
+            }
+
+            if (moduleController) {
+                this.modules.set(moduleId, moduleController);
+                this.loadedModules.add(moduleId);
+                console.log(`✅ Модуль ${moduleId} загружен`);
+
+                this.showNotification(
+                    `Модуль "${this.getModuleTitle(moduleId)}" загружен`,
+                    NOTIFICATION_TYPES.INFO
+                );
+            }
+
+            return moduleController;
+
+        } catch (error) {
+            console.error(`❌ Ошибка загрузки модуля ${moduleId}:`, error);
+            this.showModuleError(container, error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Загрузка модуля топологии сети
+     */
+    async loadNetworkTopologyModule(container) {
+        container.innerHTML = `
+            <div class="network-topology-module">
+                <div class="topology-header">
+                    <h2>
+                        <i class="fas fa-project-diagram"></i>
+                        Топология сети
+                    </h2>
+                    <div class="topology-controls">
+                        <button class="btn btn-primary" onclick="window.ipRoastApp.refreshTopology()">
+                            <i class="fas fa-sync-alt"></i>
+                            Обновить карту
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="topology-filters">
+                    <div class="filter-group">
+                        <label>Тип устройства:</label>
+                        <select class="filter-select">
+                            <option value="all">Все устройства</option>
+                            <option value="router">Маршрутизаторы</option>
+                            <option value="switch">Коммутаторы</option>
+                            <option value="server">Серверы</option>
+                            <option value="workstation">Рабочие станции</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Статус:</label>
+                        <select class="filter-select">
+                            <option value="all">Все статусы</option>
+                            <option value="active">Активные</option>
+                            <option value="inactive">Неактивные</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="topology-content">
+                    <div class="network-map" id="network-map">
+                        <div class="map-placeholder">
+                            <i class="fas fa-sitemap"></i>
+                            <h3>Карта сети</h3>
+                            <p>Визуализация топологии сети и подключенных устройств</p>
+                            <button class="btn btn-secondary" onclick="window.ipRoastApp.startTopologyDiscovery()">
+                                Запустить обнаружение
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="device-list" id="device-list">
+                        <h3>Обнаруженные устройства</h3>
+                        <div class="devices-grid">
+                            <div class="device-card">
+                                <div class="device-icon">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div class="device-info">
+                                    <div class="device-name">Router-01</div>
+                                    <div class="device-ip">192.168.1.1</div>
+                                </div>
+                                <div class="device-status active">Активен</div>
+                            </div>
+                            
+                            <div class="device-card">
+                                <div class="device-icon">
+                                    <i class="fas fa-desktop"></i>
+                                </div>
+                                <div class="device-info">
+                                    <div class="device-name">Workstation-01</div>
+                                    <div class="device-ip">192.168.1.100</div>
+                                </div>
+                                <div class="device-status active">Активен</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="topology-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Активных устройств</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Подсетей</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Доступность сети</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Переключение между вкладками
+     */
+    async switchTab(tabId) {
+        if (this.state.currentTab === tabId) return;
+
+        console.log(`🔄 Переключение на вкладку: ${tabId}`);
+
+        // Скрыть текущий контент
+        const currentTab = document.querySelector('.tab-content.active');
+        if (currentTab) {
+            removeClass(currentTab, 'active');
         }
 
         // Обновить навигацию
         document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
+            removeClass(item, 'active');
         });
 
-        const activeNavItem = document.querySelector(`[data-page="${pageId}"]`);
-        if (activeNavItem && activeNavItem.classList.contains('nav-item')) {
-            activeNavItem.classList.add('active');
+        const navItem = document.querySelector(`[data-tab="${tabId}"]`);
+        if (navItem) {
+            addClass(navItem, 'active');
         }
 
-        this.currentPage = pageId;
+        // Показать новый контент
+        const newTab = document.querySelector(`#${tabId}-container`);
+        if (newTab) {
+            addClass(newTab, 'active');
 
-        // Загрузить контент страницы
-        switch (pageId) {
-            case 'dashboard':
-                this.loadDashboard();
-                break;
-            case 'network-recon':
-                this.loadNetworkRecon();
-                break;
-            case 'attack-modules':
-                this.loadAttackModules();
-                break;
-            case 'reports':
-                this.loadReports();
-                break;
-            case 'settings':
-                this.loadSettings();
-                break;
-        }
-    }
-
-    // Реализация панели управления
-    setupDashboard() {
-        // Настройка графиков и статистики
-        this.setupCharts();
-    }
-
-    setupCharts() {
-        // Создание графиков с Chart.js
-        if (typeof Chart !== 'undefined') {
-            const ctx = document.getElementById('activity-chart');
-            if (ctx) {
-                this.charts.activity = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
-                        datasets: [
-                            {
-                                label: 'Сканирования',
-                                data: [12, 19, 3, 5, 2, 3],
-                                borderColor: 'rgba(50, 184, 198, 1)',
-                                backgroundColor: 'rgba(50, 184, 198, 0.1)',
-                                tension: 0.4
-                            },
-                            {
-                                label: 'Обнаружения',
-                                data: [2, 3, 20, 5, 1, 4],
-                                borderColor: 'rgba(16, 185, 129, 1)',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                tension: 0.4
-                            },
-                            {
-                                label: 'Уязвимости',
-                                data: [1, 2, 1, 3, 5, 2],
-                                borderColor: 'rgba(255, 84, 89, 1)',
-                                backgroundColor: 'rgba(255, 84, 89, 0.1)',
-                                tension: 0.4
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    color: '#f5f5f5',
-                                    usePointStyle: true
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: '#f5f5f5'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: '#f5f5f5'
-                                }
-                            }
-                        }
-                    }
-                });
+            // Загрузить модуль если еще не загружен
+            if (!this.loadedModules.has(tabId)) {
+                await this.loadModule(tabId);
             }
         }
+
+        this.state.currentTab = tabId;
+
+        // Обновить title страницы
+        document.title = `${this.getModuleTitle(tabId)} - IP Roast Enterprise`;
+
+        // Сохранить в истории
+        this.updateUrlHash(tabId);
     }
 
-    loadDashboard() {
-        this.updateDashboardStats();
-        this.loadActivityFeed();
-        this.animateStatCards();
+    /**
+     * Настройка sidebar
+     */
+    setupSidebar() {
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('app-sidebar');
 
-        // Запуск обновления в реальном времени
-        this.startRealTimeUpdates();
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                this.toggleSidebar();
+            });
+        }
+
+        // Восстановить состояние sidebar
+        const savedState = Storage.get('sidebarCollapsed', false);
+        if (savedState) {
+            this.state.sidebarCollapsed = true;
+            addClass(sidebar, 'collapsed');
+        }
     }
 
-    updateDashboardStats() {
-        document.getElementById('active-scans').textContent = this.stats.activeScans;
-        document.getElementById('discovered-hosts').textContent = this.stats.discoveredHosts;
-        document.getElementById('open-ports').textContent = this.stats.openPorts;
-        document.getElementById('vulnerabilities').textContent = this.stats.vulnerabilities;
+    /**
+     * Переключение sidebar
+     */
+    toggleSidebar() {
+        const sidebar = document.getElementById('app-sidebar');
+        const app = document.getElementById('app');
+
+        this.state.sidebarCollapsed = !this.state.sidebarCollapsed;
+
+        if (this.state.sidebarCollapsed) {
+            addClass(sidebar, 'collapsed');
+            addClass(app, 'sidebar-collapsed');
+        } else {
+            removeClass(sidebar, 'collapsed');
+            removeClass(app, 'sidebar-collapsed');
+        }
+
+        // Сохранить состояние
+        Storage.set('sidebarCollapsed', this.state.sidebarCollapsed);
     }
 
-    loadActivityFeed() {
-        const activityList = document.getElementById('activity-list');
-        if (!activityList) return;
+    /**
+     * Настройка header элементов
+     */
+    setupHeader() {
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                this.toggleTheme();
+            });
+        }
 
-        activityList.innerHTML = '';
+        // User menu
+        const userAvatar = document.getElementById('user-avatar');
+        const userDropdown = document.getElementById('user-dropdown');
 
-        this.activityFeed.forEach((activity, index) => {
-            const item = document.createElement('div');
-            item.className = 'activity-item slide-in';
-            item.style.animationDelay = `${index * 0.1}s`;
+        if (userAvatar && userDropdown) {
+            userAvatar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleClass(userDropdown, 'show');
+            });
 
-            item.innerHTML = `
-                <div class="activity-icon ${activity.type}">
-                    <i class="${activity.icon}"></i>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">${activity.title}</div>
-                    <div class="activity-time">${activity.time}</div>
-                    ${activity.details ? `<div class="activity-details">${activity.details}</div>` : ''}
-                </div>
-            `;
+            // Закрытие при клике вне меню
+            document.addEventListener('click', () => {
+                removeClass(userDropdown, 'show');
+            });
 
-            activityList.appendChild(item);
-        });
+            // Обработка действий меню
+            userDropdown.addEventListener('click', (e) => {
+                const action = e.target.closest('[data-action]')?.dataset.action;
+                if (action) {
+                    this.handleUserAction(action);
+                }
+            });
+        }
+
+        // Notification bell
+        const notificationBell = document.getElementById('notification-bell');
+        if (notificationBell) {
+            notificationBell.addEventListener('click', () => {
+                this.toggleNotificationPanel();
+            });
+        }
+
+        // Connection status
+        this.updateConnectionStatus();
     }
 
-    animateStatCards() {
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
-            card.classList.add('slide-in');
-        });
-    }
+    /**
+     * Настройка поиска
+     */
+    setupSearch() {
+        const searchInput = document.querySelector('.search-input');
+        const searchSuggestions = document.getElementById('search-suggestions');
 
-    // Сетевая разведка
-    setupNetworkRecon() {
-        const startScanBtn = document.getElementById('start-scan-btn');
-        if (startScanBtn) {
-            startScanBtn.addEventListener('click', () => {
-                this.startNetworkScan();
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(async (e) => {
+                const query = e.target.value.trim();
+                if (query.length > 2) {
+                    await this.performSearch(query);
+                } else {
+                    searchSuggestions.style.display = 'none';
+                }
+            }, 300));
+
+            // Обработка Enter
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    this.executeSearch(searchInput.value);
+                }
             });
         }
     }
 
-    loadNetworkRecon() {
-        this.loadDiscoveredDevices();
-    }
+    /**
+     * Выполнение поиска
+     */
+    async performSearch(query) {
+        try {
+            // Здесь будет интеграция с API поиска
+            const suggestions = [
+                { type: 'ip', value: '192.168.1.1', label: 'Router-01' },
+                { type: 'device', value: 'server-01', label: 'Server-01 (Ubuntu)' },
+                { type: 'cve', value: 'CVE-2023-1234', label: 'Critical RCE vulnerability' }
+            ];
 
-    loadDiscoveredDevices() {
-        const deviceList = document.getElementById('device-list');
-        if (!deviceList) return;
-
-        deviceList.innerHTML = '';
-
-        this.networkDevices.forEach(device => {
-            const deviceItem = document.createElement('div');
-            deviceItem.className = 'device-item';
-
-            const riskBadge = this.getRiskBadge(device.risk);
-            const servicesList = Object.entries(device.services || {})
-                .map(([port, service]) => `<span class="service-tag">${port}: ${service}</span>`)
-                .join('');
-
-            deviceItem.innerHTML = `
-                <div class="device-header">
-                    <div class="device-info">
-                        <h4>${device.ip}</h4>
-                        <span class="device-hostname">${device.hostname}</span>
-                    </div>
-                    <div class="device-status">
-                        ${riskBadge}
-                        <span class="status-indicator ${device.status}"></span>
-                    </div>
-                </div>
-                <div class="device-details">
-                    <div class="device-detail">
-                        <strong>ОС:</strong> ${device.os}
-                    </div>
-                    <div class="device-detail">
-                        <strong>Вендор:</strong> ${device.vendor}
-                    </div>
-                    <div class="device-detail">
-                        <strong>Последний раз виден:</strong> ${device.lastSeen}
-                    </div>
-                    <div class="device-services">
-                        <strong>Сервисы:</strong>
-                        <div class="services-list">${servicesList}</div>
-                    </div>
-                </div>
-            `;
-
-            deviceList.appendChild(deviceItem);
-        });
-    }
-
-    getRiskBadge(risk) {
-        const badges = {
-            low: '<span class="badge badge--success">Низкий</span>',
-            medium: '<span class="badge badge--warning">Средний</span>',
-            high: '<span class="badge badge--error">Высокий</span>',
-            critical: '<span class="badge badge--error">Критический</span>'
-        };
-        return badges[risk] || badges.low;
-    }
-
-    startNetworkScan() {
-        const progressContainer = document.getElementById('scan-progress');
-        const startBtn = document.getElementById('start-scan-btn');
-
-        if (progressContainer) {
-            progressContainer.classList.remove('hidden');
-        }
-
-        if (startBtn) {
-            startBtn.classList.add('btn--loading');
-            startBtn.disabled = true;
-        }
-
-        // Симуляция процесса сканирования
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += Math.random() * 15;
-
-            if (progress >= 100) {
-                progress = 100;
-                clearInterval(interval);
-                this.completeScan();
-            }
-
-            this.updateScanProgress(progress);
-        }, 500);
-
-        this.scanningInterval = interval;
-    }
-
-    updateScanProgress(progress) {
-        const progressFill = document.getElementById('progress-fill');
-        const progressPercentage = document.getElementById('scan-percentage');
-        const scannedPorts = document.getElementById('scanned-ports');
-        const foundHosts = document.getElementById('found-hosts');
-        const detectedServices = document.getElementById('detected-services');
-
-        if (progressFill) {
-            progressFill.style.width = `${progress}%`;
-        }
-
-        if (progressPercentage) {
-            progressPercentage.textContent = `${Math.round(progress)}%`;
-        }
-
-        if (scannedPorts) {
-            scannedPorts.textContent = Math.round(progress * 2.5);
-        }
-
-        if (foundHosts) {
-            foundHosts.textContent = Math.round(progress * 0.5);
-        }
-
-        if (detectedServices) {
-            detectedServices.textContent = Math.round(progress * 0.3);
+            this.showSearchSuggestions(suggestions);
+        } catch (error) {
+            console.error('Ошибка поиска:', error);
         }
     }
 
-    completeScan() {
-        const startBtn = document.getElementById('start-scan-btn');
+    /**
+     * Показ предложений поиска
+     */
+    showSearchSuggestions(suggestions) {
+        const searchSuggestions = document.getElementById('search-suggestions');
 
-        if (startBtn) {
-            startBtn.classList.remove('btn--loading');
-            startBtn.disabled = false;
+        if (suggestions.length === 0) {
+            searchSuggestions.style.display = 'none';
+            return;
         }
 
-        // Показать уведомление об успешном завершении
-        this.showToast('Сканирование завершено успешно', 'success');
-
-        // Обновить список устройств
-        this.loadDiscoveredDevices();
-    }
-
-    // Модули атак
-    setupAttackModules() {
-        this.setupModuleBuilder();
-    }
-
-    setupModuleBuilder() {
-        const moduleCategories = document.getElementById('module-categories');
-        if (!moduleCategories) return;
-
-        moduleCategories.innerHTML = '';
-
-        this.attackModules.forEach(category => {
-            const categoryDiv = document.createElement('div');
-            categoryDiv.className = 'module-category';
-
-            categoryDiv.innerHTML = `
-                <div class="category-header">${category.category}</div>
-                <div class="module-list" id="modules-${category.category.toLowerCase()}">
-                    ${category.modules.map(module => `
-                        <div class="module-item" data-module-id="${module.id}" draggable="true">
-                            <div class="module-icon">
-                                <i class="${module.icon}"></i>
-                            </div>
-                            <div class="module-info">
-                                <div class="module-name">${module.name}</div>
-                                <div class="module-description">${module.description}</div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-            moduleCategories.appendChild(categoryDiv);
-        });
-
-        // Настройка drag & drop
-        this.setupDragAndDrop();
-    }
-
-    setupDragAndDrop() {
-        const moduleItems = document.querySelectorAll('.module-item');
-        const canvas = document.getElementById('workflow-canvas');
-
-        moduleItems.forEach(item => {
-            item.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', item.dataset.moduleId);
-            });
-        });
-
-        if (canvas) {
-            canvas.addEventListener('dragover', (e) => {
-                e.preventDefault();
-            });
-
-            canvas.addEventListener('drop', (e) => {
-                e.preventDefault();
-                const moduleId = e.dataTransfer.getData('text/plain');
-                this.addModuleToWorkflow(moduleId, e.offsetX, e.offsetY);
-            });
-        }
-    }
-
-    addModuleToWorkflow(moduleId, x, y) {
-        const module = this.findModuleById(moduleId);
-        if (!module) return;
-
-        const canvas = document.getElementById('workflow-canvas');
-        const placeholder = canvas.querySelector('.canvas-placeholder');
-
-        if (placeholder) {
-            placeholder.style.display = 'none';
-        }
-
-        const moduleElement = document.createElement('div');
-        moduleElement.className = 'workflow-module';
-        moduleElement.dataset.moduleId = moduleId;
-        moduleElement.style.left = `${x - 50}px`;
-        moduleElement.style.top = `${y - 25}px`;
-
-        moduleElement.innerHTML = `
-            <div class="workflow-module-header">
-                <i class="${module.icon}"></i>
-                <span>${module.name}</span>
-                <button class="remove-module" onclick="this.parentElement.parentElement.remove()">×</button>
+        const suggestionsHTML = suggestions.map(item => `
+            <div class="search-suggestion" data-type="${item.type}" data-value="${item.value}">
+                <i class="fas fa-${this.getSearchIcon(item.type)}"></i>
+                <span class="suggestion-label">${item.label}</span>
+                <span class="suggestion-value">${item.value}</span>
             </div>
-            <div class="workflow-module-body">
-                <div class="module-ports">
-                    <div class="input-port"></div>
-                    <div class="output-port"></div>
+        `).join('');
+
+        searchSuggestions.innerHTML = suggestionsHTML;
+        searchSuggestions.style.display = 'block';
+
+        // Обработка клика по предложению
+        searchSuggestions.addEventListener('click', (e) => {
+            const suggestion = e.target.closest('.search-suggestion');
+            if (suggestion) {
+                this.selectSearchSuggestion(suggestion.dataset.type, suggestion.dataset.value);
+            }
+        });
+    }
+
+    /**
+     * Получение иконки для типа поиска
+     */
+    getSearchIcon(type) {
+        const icons = {
+            'ip': 'globe',
+            'device': 'server',
+            'cve': 'exclamation-triangle',
+            'port': 'door-open',
+            'user': 'user'
+        };
+        return icons[type] || 'search';
+    }
+
+    /**
+     * Переключение темы
+     */
+    toggleTheme() {
+        const themes = [THEMES.DARK, THEMES.LIGHT, THEMES.CYBERPUNK];
+        const currentIndex = themes.indexOf(this.settings.theme);
+        const nextIndex = (currentIndex + 1) % themes.length;
+        const newTheme = themes[nextIndex];
+
+        this.setTheme(newTheme);
+    }
+
+    /**
+     * Установка темы
+     */
+    setTheme(theme) {
+        this.settings.theme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // Обновить иконку
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const icon = themeToggle.querySelector('i');
+            const themeIcons = {
+                [THEMES.LIGHT]: 'fas fa-sun',
+                [THEMES.DARK]: 'fas fa-moon',
+                [THEMES.CYBERPUNK]: 'fas fa-magic'
+            };
+            icon.className = themeIcons[theme] || 'fas fa-palette';
+        }
+
+        // Сохранить настройки
+        this.saveSettings();
+
+        this.showNotification(`Тема изменена на "${theme}"`, NOTIFICATION_TYPES.INFO);
+    }
+
+    /**
+     * Система уведомлений
+     */
+    initializeNotificationSystem() {
+        // Создать контейнер если его нет
+        let container = document.getElementById('notifications-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notifications-container';
+            container.className = 'notifications-container';
+            document.body.appendChild(container);
+        }
+
+        this.components.notifications = container;
+    }
+
+    /**
+     * Показать уведомление
+     */
+    showNotification(message, type = NOTIFICATION_TYPES.INFO, duration = 5000) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="notification-icon fas ${this.getNotificationIcon(type)}"></i>
+                <div class="notification-body">
+                    <div class="notification-message">${message}</div>
+                    <div class="notification-time">${formatDate(new Date(), 'HH:mm:ss')}</div>
                 </div>
+                <button class="notification-close" title="Закрыть">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         `;
 
-        canvas.appendChild(moduleElement);
-
-        // Добавить в массив workflow
-        this.workflow.push({
-            id: moduleId,
-            x: x,
-            y: y,
-            module: module
+        // Обработчик закрытия
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            this.removeNotification(notification);
         });
-    }
 
-    findModuleById(moduleId) {
-        for (const category of this.attackModules) {
-            const module = category.modules.find(m => m.id === moduleId);
-            if (module) return module;
-        }
-        return null;
-    }
+        // Добавить в контейнер
+        this.components.notifications.appendChild(notification);
 
-    loadAttackModules() {
-        this.setupModuleBuilder();
-        this.loadWorkflowTemplates();
-    }
+        // Анимация появления
+        setTimeout(() => addClass(notification, 'show'), 10);
 
-    loadWorkflowTemplates() {
-        const templateGrid = document.getElementById('template-grid');
-        if (!templateGrid) return;
-
-        templateGrid.innerHTML = '';
-
-        this.workflowTemplates.forEach(template => {
-            const templateCard = document.createElement('div');
-            templateCard.className = 'template-card';
-
-            templateCard.innerHTML = `
-                <div class="template-header">
-                    <h4>${template.name}</h4>
-                    <span class="template-time">${template.estimatedTime}</span>
-                </div>
-                <div class="template-description">
-                    ${template.description}
-                </div>
-                <div class="template-modules">
-                    <strong>Модули:</strong> ${template.modules.length}
-                </div>
-                <div class="template-actions">
-                    <button class="btn btn--outline btn--sm" onclick="window.ipRoastPro.loadTemplate('${template.id}')">
-                        Загрузить
-                    </button>
-                </div>
-            `;
-
-            templateGrid.appendChild(templateCard);
-        });
-    }
-
-    loadTemplate(templateId) {
-        const template = this.workflowTemplates.find(t => t.id === templateId);
-        if (!template) return;
-
-        // Очистить текущий workflow
-        this.clearWorkflow();
-
-        // Добавить модули из шаблона
-        template.modules.forEach((moduleId, index) => {
+        // Автоматическое удаление
+        if (duration > 0) {
             setTimeout(() => {
-                this.addModuleToWorkflow(moduleId, 100 + index * 150, 100);
-            }, index * 200);
-        });
-
-        this.showToast(`Шаблон "${template.name}" загружен`, 'success');
-    }
-
-    clearWorkflow() {
-        const canvas = document.getElementById('workflow-canvas');
-        const modules = canvas.querySelectorAll('.workflow-module');
-        modules.forEach(module => module.remove());
-
-        const placeholder = canvas.querySelector('.canvas-placeholder');
-        if (placeholder) {
-            placeholder.style.display = 'block';
+                this.removeNotification(notification);
+            }, duration);
         }
 
-        this.workflow = [];
+        // Добавить в состояние
+        this.state.notifications.unshift({
+            id: generateUUID(),
+            message,
+            type,
+            timestamp: new Date(),
+            read: false
+        });
+
+        // Обновить счетчик
+        this.updateNotificationCounter();
+
+        // Ограничить количество
+        this.limitNotifications();
     }
 
-    // Отчеты
-    setupReports() {
-        // Настройка системы отчетов
+    /**
+     * Удаление уведомления
+     */
+    removeNotification(notificationElement) {
+        addClass(notificationElement, 'removing');
+        setTimeout(() => {
+            if (notificationElement.parentNode) {
+                notificationElement.parentNode.removeChild(notificationElement);
+            }
+        }, ANIMATION_DURATION.NORMAL);
     }
 
-    loadReports() {
-        this.loadGeneratedReports();
-        this.setupReportCharts();
+    /**
+     * Получение иконки уведомления
+     */
+    getNotificationIcon(type) {
+        const icons = {
+            [NOTIFICATION_TYPES.SUCCESS]: 'fa-check-circle',
+            [NOTIFICATION_TYPES.ERROR]: 'fa-exclamation-circle',
+            [NOTIFICATION_TYPES.WARNING]: 'fa-exclamation-triangle',
+            [NOTIFICATION_TYPES.INFO]: 'fa-info-circle'
+        };
+        return icons[type] || icons[NOTIFICATION_TYPES.INFO];
     }
 
-    loadGeneratedReports() {
-        const reportsContainer = document.getElementById('generated-reports');
-        if (!reportsContainer) return;
+    /**
+     * Настройка горячих клавиш
+     */
+    setupHotkeys() {
+        document.addEventListener('keydown', (e) => {
+            const key = this.getHotkeyString(e);
+            const handler = this.hotkeys.get(key);
 
-        reportsContainer.innerHTML = '';
+            if (handler) {
+                e.preventDefault();
+                handler();
+            }
+        });
+    }
 
-        this.reports.forEach(report => {
-            const reportItem = document.createElement('div');
-            reportItem.className = 'report-item';
+    /**
+     * Получение строки горячей клавиши
+     */
+    getHotkeyString(e) {
+        const parts = [];
+        if (e.ctrlKey) parts.push('Ctrl');
+        if (e.shiftKey) parts.push('Shift');
+        if (e.altKey) parts.push('Alt');
+        parts.push(e.key);
+        return parts.join('+');
+    }
 
-            const statusBadge = this.getStatusBadge(report.status);
+    /**
+     * Применение пользовательских настроек
+     */
+    async applyUserSettings() {
+        // Применить тему
+        this.setTheme(this.settings.theme);
 
-            reportItem.innerHTML = `
-                <div class="report-header">
-                    <h4>${report.name}</h4>
-                    ${statusBadge}
+        // Восстановить состояние sidebar
+        if (this.settings.sidebarCollapsed) {
+            this.toggleSidebar();
+        }
+
+        // Настроить автообновление
+        if (this.settings.autoRefresh) {
+            this.startAutoRefresh();
+        }
+
+        console.log('⚙️ Настройки применены');
+    }
+
+    /**
+     * Запуск фоновых сервисов
+     */
+    async startServices() {
+        // Запуск мониторинга подключения
+        this.startConnectionMonitoring();
+
+        // Запуск отслеживания активности
+        this.startActivityTracking();
+
+        // Запуск периодических задач
+        this.startPeriodicTasks();
+
+        console.log('⚡ Фоновые сервисы запущены');
+    }
+
+    /**
+     * Финализация загрузки
+     */
+    async finalizeBoot() {
+        // Обработка URL хэша
+        this.handleUrlHash();
+
+        // Инициализация WebSocket если включен
+        if (this.settings.enableWebSocket) {
+            // WebSocket инициализация будет в dashboard контроллере
+        }
+
+        // Загрузка начальных данных
+        await this.loadInitialData();
+
+        console.log('🎯 Загрузка завершена');
+    }
+
+    /**
+     * Загрузка начальных данных
+     */
+    async loadInitialData() {
+        try {
+            // Получить профиль пользователя
+            const profile = await IPRoastAPI.auth.getProfile();
+            if (profile && profile.success) {
+                this.state.user = { ...this.state.user, ...profile.data };
+                this.updateUserDisplay();
+            }
+
+            // Получить системный статус
+            const status = await IPRoastAPI.system.getSystemStatus();
+            if (status && status.success) {
+                this.updateSystemStatus(status.data);
+            }
+
+        } catch (error) {
+            console.warn('Не удалось загрузить начальные данные:', error);
+            // Не критично, продолжаем работу
+        }
+    }
+
+    /**
+     * Утилиты для загрузки
+     */
+    updateLoadingProgress(percent, text) {
+        const progressBar = document.getElementById('loading-progress-bar');
+        const progressText = document.getElementById('loading-progress-text');
+
+        if (progressBar) {
+            progressBar.style.width = `${percent}%`;
+        }
+
+        if (progressText) {
+            progressText.textContent = text;
+        }
+    }
+
+    hideLoadingScreen() {
+        const loadingScreen = document.getElementById('loading-screen');
+        const app = document.getElementById('app');
+
+        if (loadingScreen) {
+            addClass(loadingScreen, 'hidden');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }
+
+        if (app) {
+            app.style.display = 'flex';
+        }
+    }
+
+    /**
+     * Вспомогательные методы
+     */
+    getModuleTitle(moduleId) {
+        const titles = {
+            'dashboard': 'Панель управления',
+            'scanner': 'Сканирование сети',
+            'attack-constructor': 'Конструктор атак',
+            'network-topology': 'Топология сети',
+            'reports': 'Отчеты и аналитика',
+            'settings': 'Настройки системы'
+        };
+        return titles[moduleId] || moduleId;
+    }
+
+    showModuleLoading(container) {
+        container.innerHTML = `
+            <div class="module-loading">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
                 </div>
-                <div class="report-meta">
-                    <span><i class="fas fa-calendar"></i> ${report.date}</span>
-                    <span><i class="fas fa-tag"></i> ${report.type}</span>
-                    <span><i class="fas fa-file"></i> ${report.size}</span>
-                </div>
-                <div class="report-stats">
-                    <span class="critical-issues">
+                <p>Загрузка модуля...</p>
+            </div>
+        `;
+    }
+
+    showModuleError(container, message) {
+        container.innerHTML = `
+            <div class="module-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Ошибка загрузки модуля</h3>
+                <p>${message}</p>
+                <button class="btn btn-primary" onclick="location.reload()">
+                    Перезагрузить страницу
+                </button>
+            </div>
+        `;
+    }
+
+    handleCriticalError(error) {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            loadingScreen.innerHTML = `
+                <div class="loading-content">
+                    <div class="error-icon">
                         <i class="fas fa-exclamation-triangle"></i>
-                        ${report.criticalIssues} критических проблем
-                    </span>
+                    </div>
+                    <h2>Ошибка запуска приложения</h2>
+                    <p>Не удалось инициализировать IP Roast Enterprise</p>
+                    <div class="error-details">
+                        <code>${error.message}</code>
+                    </div>
+                    <button onclick="location.reload()" class="btn btn-primary">
+                        Перезагрузить страницу
+                    </button>
                 </div>
-                <div class="report-actions">
-                    <button class="btn btn--outline btn--sm">
-                        <i class="fas fa-eye"></i> Просмотр
-                    </button>
-                    <button class="btn btn--outline btn--sm">
-                        <i class="fas fa-download"></i> Скачать
-                    </button>
+                <div class="loading-footer">
+                    <span>Если проблема повторяется, обратитесь к администратору</span>
                 </div>
             `;
-
-            reportsContainer.appendChild(reportItem);
-        });
-    }
-
-    getStatusBadge(status) {
-        const badges = {
-            'Завершен': '<span class="badge badge--success">Завершен</span>',
-            'В процессе': '<span class="badge badge--warning">В процессе</span>',
-            'Ошибка': '<span class="badge badge--error">Ошибка</span>'
-        };
-        return badges[status] || badges['В процессе'];
-    }
-
-    setupReportCharts() {
-        // Настройка графиков для отчетов
-        if (typeof Chart !== 'undefined') {
-            this.setupThreatDistributionChart();
-            this.setupSecurityScoreChart();
         }
     }
 
-    setupThreatDistributionChart() {
-        const ctx = document.getElementById('threat-distribution-chart');
-        if (!ctx) return;
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Критические', 'Высокие', 'Средние', 'Низкие'],
-                datasets: [{
-                    data: [8, 15, 23, 12],
-                    backgroundColor: [
-                        'rgba(255, 84, 89, 0.8)',
-                        'rgba(230, 129, 97, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(16, 185, 129, 0.8)'
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#1f2121'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#f5f5f5',
-                            usePointStyle: true
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    setupSecurityScoreChart() {
-        const ctx = document.getElementById('security-score-chart');
-        if (!ctx) return;
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
-                datasets: [{
-                    label: 'Оценка безопасности',
-                    data: [65, 72, 68, 75, 82, 78],
-                    borderColor: 'rgba(50, 184, 198, 1)',
-                    backgroundColor: 'rgba(50, 184, 198, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#f5f5f5'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#f5f5f5'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Настройки
-    setupSettings() {
-        const settingsNavItems = document.querySelectorAll('.settings-nav-item');
-
-        settingsNavItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const section = item.dataset.section;
-                this.showSettingsSection(section);
-
-                // Обновить активный элемент навигации
-                settingsNavItems.forEach(navItem => navItem.classList.remove('active'));
-                item.classList.add('active');
-            });
-        });
-    }
-
-    showSettingsSection(sectionId) {
-        // Скрыть все секции
-        document.querySelectorAll('.settings-section').forEach(section => {
-            section.classList.remove('active');
-        });
-
-        // Показать выбранную секцию
-        const targetSection = document.getElementById(`${sectionId}-settings`);
-        if (targetSection) {
-            targetSection.classList.add('active');
+    updateUrlHash(tab) {
+        if (history.pushState) {
+            history.pushState(null, null, `#${tab}`);
         }
     }
 
-    loadSettings() {
-        // Загрузка сохраненных настроек
-        const saved = localStorage.getItem('ipRoastSettings');
-        if (saved) {
-            this.settings = JSON.parse(saved);
+    handleUrlHash() {
+        const hash = window.location.hash.substr(1);
+        if (hash && document.querySelector(`#${hash}-container`)) {
+            this.switchTab(hash);
         }
     }
 
     saveSettings() {
-        localStorage.setItem('ipRoastSettings', JSON.stringify(this.settings));
-        this.showToast('Настройки сохранены', 'success');
+        Storage.set('ipRoastSettings', this.settings);
     }
 
-    // Обработчики событий
-    setupEventListeners() {
-        // Горячие клавиши
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey) {
-                switch (e.key) {
-                    case 's':
-                        e.preventDefault();
-                        this.saveSettings();
-                        break;
-                    case 'f':
-                        e.preventDefault();
-                        this.focusSearch();
-                        break;
-                }
-            }
-        });
-
-        // Обработка кликов по уведомлениям
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('notification-badge')) {
-                this.showNotificationsPanel();
-            }
-        });
-    }
-
-    focusSearch() {
-        const searchInput = document.querySelector('.search-modules');
-        if (searchInput) {
-            searchInput.focus();
-        }
-    }
-
-    // Система уведомлений
-    showToast(message, type = 'info', duration = 5000) {
-        const toast = document.createElement('div');
-        toast.className = `toast toast--${type}`;
-
-        const iconMap = {
-            success: 'fas fa-check-circle',
-            error: 'fas fa-exclamation-circle',
-            warning: 'fas fa-exclamation-triangle',
-            info: 'fas fa-info-circle'
-        };
-
-        toast.innerHTML = `
-            <div class="toast-content">
-                <i class="${iconMap[type]}"></i>
-                <span>${message}</span>
-            </div>
-            <button class="toast-close">&times;</button>
-        `;
-
-        const container = document.getElementById('toast-container');
-        if (container) {
-            container.appendChild(toast);
-
-            // Автоматическое удаление
-            setTimeout(() => {
-                toast.remove();
-            }, duration);
-
-            // Удаление по клику
-            toast.querySelector('.toast-close').addEventListener('click', () => {
-                toast.remove();
-            });
-        }
-    }
-
-    showNotificationsPanel() {
-        // Показать панель уведомлений
-        this.showToast('Панель уведомлений (в разработке)', 'info');
-    }
-
-    // Обновления в реальном времени
-    startRealTimeUpdates() {
-        setInterval(() => {
-            this.updateRealTimeData();
-        }, 30000); // Обновление каждые 30 секунд
-    }
-
-    updateRealTimeData() {
-        if (this.currentPage === 'dashboard') {
-            // Небольшие случайные изменения в статистике
-            this.stats.activeScans += Math.floor(Math.random() * 3) - 1;
-            this.stats.discoveredHosts += Math.floor(Math.random() * 2);
-            this.stats.openPorts += Math.floor(Math.random() * 5) - 2;
-            this.stats.vulnerabilities += Math.floor(Math.random() * 2) - 1;
-
-            // Обеспечить минимальные значения
-            this.stats.activeScans = Math.max(0, this.stats.activeScans);
-            this.stats.vulnerabilities = Math.max(0, this.stats.vulnerabilities);
-
-            this.updateDashboardStats();
-        }
-    }
-
-    // API для внешнего использования
-    getAPI() {
-        return {
-            navigateToPage: (page) => this.navigateToPage(page),
-            startScan: () => this.startNetworkScan(),
-            showToast: (message, type, duration) => this.showToast(message, type, duration),
-            getCurrentPage: () => this.currentPage,
-            getStats: () => this.stats,
-            getDevices: () => this.networkDevices,
-            getReports: () => this.reports
-        };
-    }
+    // Заглушки для методов, которые будут реализованы
+    startAutoRefresh() { console.log('🔄 Автообновление запущено'); }
+    startConnectionMonitoring() { console.log('📶 Мониторинг подключения запущен'); }
+    startActivityTracking() { console.log('👤 Отслеживание активности запущено'); }
+    startPeriodicTasks() { console.log('⏰ Периодические задачи запущены'); }
+    updateUserDisplay() { console.log('👤 Отображение пользователя обновлено'); }
+    updateSystemStatus(status) { console.log('💡 Статус системы обновлен:', status); }
+    updateConnectionStatus() { console.log('📶 Статус подключения обновлен'); }
+    updateNotificationCounter() { console.log('🔔 Счетчик уведомлений обновлен'); }
+    limitNotifications() { console.log('📝 Ограничение уведомлений применено'); }
+    toggleNotificationPanel() { console.log('🔔 Панель уведомлений переключена'); }
+    handleUserAction(action) { console.log('👤 Действие пользователя:', action); }
+    selectSearchSuggestion(type, value) { console.log('🔍 Выбрано предложение:', type, value); }
+    executeSearch(query) { console.log('🔍 Выполнен поиск:', query); }
+    refreshCurrentModule() { console.log('🔄 Обновление текущего модуля'); }
+    showHelpDialog() { console.log('❓ Показ справки'); }
+    closeModals() { console.log('❌ Закрытие модальных окон'); }
+    refreshTopology() { console.log('🗺️ Обновление топологии'); }
+    startTopologyDiscovery() { console.log('🔍 Запуск обнаружения топологии'); }
+    setupEventSystem() { console.log('📡 Система событий настроена'); }
+    setupErrorHandlers() { console.log('⚠️ Обработчики ошибок настроены'); }
 }
 
-// Экспорт для использования в модулях
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = IPRoastPro;
-}
+// Инициализация приложения после загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+    window.ipRoastApp = new IPRoastEnterpriseApp();
+});
+
+// Экспорт для использования в других модулях
+export { IPRoastEnterpriseApp };

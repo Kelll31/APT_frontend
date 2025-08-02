@@ -1,0 +1,10 @@
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "status": "completed",
+        "progress": 100,
+        "startTime": "2025-02-02T10:00:00Z",
+        "endTime": "2025-02-02T10:15:00Z"
+    }
+}

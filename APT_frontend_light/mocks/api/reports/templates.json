@@ -1,0 +1,17 @@
+{
+    "success": true,
+    "data": {
+        "templates": [
+            {
+                "id": "tpl-weekly",
+                "name": "Weekly Overview",
+                "description": "Summary of weekly security stats"
+            },
+            {
+                "id": "tpl-compliance",
+                "name": "Compliance Audit",
+                "description": "Detailed compliance checklist"
+            }
+        ]
+    }
+}

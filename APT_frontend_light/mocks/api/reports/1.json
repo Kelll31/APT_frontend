@@ -1,0 +1,26 @@
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "name": "Weekly Security Report",
+        "generatedAt": "2025-02-01T18:00:00Z",
+        "sections": [
+            {
+                "title": "Executive Summary",
+                "content": "All systems healthy. 2 high vulnerabilities patched."
+            },
+            {
+                "title": "Top Vulnerabilities",
+                "content": [
+                    "CVE-2023-5678",
+                    "CVE-2023-1234"
+                ]
+            },
+            {
+                "title": "Scan Results",
+                "content": "25 devices scanned, 8 vulnerabilities found."
+            }
+        ],
+        "fileUrl": "/downloads/reports/1.pdf"
+    }
+}

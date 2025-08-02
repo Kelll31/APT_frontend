@@ -1,0 +1,24 @@
+{
+    "success": true,
+    "data": {
+        "templates": [
+            {
+                "id": "tpl-basic-scan",
+                "name": "Basic Recon Scan",
+                "steps": [
+                    "Ping Sweep",
+                    "Port Scan"
+                ]
+            },
+            {
+                "id": "tpl-deep-scan",
+                "name": "Deep Vulnerability Scan",
+                "steps": [
+                    "Nmap",
+                    "Nessus",
+                    "Manual Review"
+                ]
+            }
+        ]
+    }
+}

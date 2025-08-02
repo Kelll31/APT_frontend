@@ -1,0 +1,19 @@
+{
+    "success": true,
+    "data": {
+        "total": 247,
+        "active": 198,
+        "inactive": 49,
+        "byType": {
+            "router": 10,
+            "server": 35,
+            "workstation": 202
+        },
+        "riskLevels": {
+            "critical": 12,
+            "high": 35,
+            "medium": 87,
+            "low": 113
+        }
+    }
+}

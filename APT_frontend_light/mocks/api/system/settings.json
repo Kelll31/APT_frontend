@@ -1,0 +1,10 @@
+{
+    "success": true,
+    "data": {
+        "theme": "light",
+        "autoRefresh": true,
+        "refreshInterval": 30000,
+        "notificationsEnabled": true,
+        "sidebarCollapsed": false
+    }
+}

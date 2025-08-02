@@ -1,0 +1,121 @@
+/**
+ * common.css — Общие утилиты и базовые компоненты
+ * Версия: Enterprise 1.0
+ * Зависимости:
+ *   - styles/variables.css
+ *   - styles/global.css
+ *   - styles/themes.css
+ */
+
+.common {
+    box-sizing: border-box;
+    font-family: var(--font-family-base);
+    color: var(--color-text);
+}
+
+/* Сетка */
+.common__row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: calc(var(--space-16) * -0.5);
+}
+
+.common__col {
+    padding: calc(var(--space-16) * 0.5);
+    flex: 1 1 0;
+}
+
+/* Текст */
+.common__title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-8);
+}
+
+.common__text {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    margin-bottom: var(--space-16);
+}
+
+/* Кнопки */
+.common__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8) var(--space-16);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-base);
+    border: none;
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.common__btn--primary {
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
+}
+
+.common__btn--primary:hover {
+    background: var(--color-primary-hover);
+}
+
+.common__btn--secondary {
+    background: var(--color-secondary);
+    color: var(--color-text);
+}
+
+.common__btn--secondary:hover {
+    background: var(--color-secondary-hover);
+}
+
+/* Карточки */
+.common__card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow var(--duration-normal) var(--ease-standard);
+}
+
+.common__card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.common__card-header,
+.common__card-footer {
+    padding: var(--space-16);
+    border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+.common__card-body {
+    padding: var(--space-16);
+}
+
+/* Утилиты */
+.common__hidden {
+    display: none !important;
+}
+
+.common__flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.common__text-center {
+    text-align: center;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    .common__row {
+        flex-direction: column;
+    }
+
+    .common__col {
+        width: 100%;
+    }
+}
