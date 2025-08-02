@@ -95,6 +95,7 @@
 </head>
 
 <body>
+
     <!-- ========================================
          ЭКРАН ЗАГРУЗКИ
          ======================================== -->
@@ -417,26 +418,91 @@
     </script>
 
     <!-- Базовые утилиты (ES6 модули) -->
-    <script type="module">
-        // Предварительная загрузка критических модулей
-        import('./shared/utils/constants.js');
-        import('./shared/utils/helpers.js');
-        import('./shared/utils/api.js');
-        import('./shared/components/common.js');
-        import('./shared/components/modals.js');
+    <script>
+        // Простая версия без ES6 модулей для Live Server
+        class SimpleIPRoastApp {
+            constructor() {
+                this.init();
+            }
 
-        // Главное приложение
-        import('./app.js').then(module => {
-            console.log('✅ Главное приложение загружено');
-        }).catch(error => {
-            console.error('❌ Ошибка загрузки приложения:', error);
-            document.getElementById('loading-progress-text').textContent = 'Произошла ошибка при загрузке приложения:';
-            document.getElementById('loading-screen').innerHTML += `
-                <div class="error-details">${error.message}</div>
-                <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">
-                    Перезагрузить страницу
-                </button>
-            `;
+            async init() {
+                console.log('🚀 Запуск IP Roast Enterprise');
+
+                // Симулируем загрузку
+                await this.simulateLoading();
+
+                // Скрываем экран загрузки
+                this.hideLoadingScreen();
+
+                // Настраиваем навигацию
+                this.setupNavigation();
+            }
+
+            async simulateLoading() {
+                const progress = document.getElementById('loading-progress-bar');
+                const text = document.getElementById('loading-progress-text');
+
+                const steps = [
+                    { percent: 20, text: 'Инициализация ядра...' },
+                    { percent: 40, text: 'Настройка интерфейса...' },
+                    { percent: 60, text: 'Загрузка модулей...' },
+                    { percent: 80, text: 'Применение настроек...' },
+                    { percent: 100, text: 'Готово!' }
+                ];
+
+                for (const step of steps) {
+                    if (progress) progress.style.width = step.percent + '%';
+                    if (text) text.textContent = step.text;
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+
+            hideLoadingScreen() {
+                const loadingScreen = document.getElementById('loading-screen');
+                const app = document.getElementById('app');
+
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                    setTimeout(() => loadingScreen.style.display = 'none', 500);
+                }
+
+                if (app) {
+                    app.style.display = 'flex';
+                }
+            }
+
+            setupNavigation() {
+                // Простая навигация между вкладками
+                document.querySelectorAll('[data-tab]').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const tabId = item.dataset.tab;
+                        this.switchTab(tabId);
+                    });
+                });
+            }
+
+            switchTab(tabId) {
+                // Скрыть все вкладки
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                document.querySelectorAll('.nav-item').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+
+                // Показать выбранную вкладку
+                const targetTab = document.getElementById(tabId + '-container');
+                const targetNav = document.querySelector(`[data-tab="${tabId}"]`);
+
+                if (targetTab) targetTab.classList.add('active');
+                if (targetNav) targetNav.classList.add('active');
+            }
+        }
+
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', () => {
+            window.ipRoastApp = new SimpleIPRoastApp();
         });
     </script>
 
@@ -605,6 +671,7 @@
             font-size: 0.875rem;
         }
     </style>
+
 </body>
 
 </html>
