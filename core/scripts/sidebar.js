@@ -184,8 +184,27 @@ class SidebarManager {
         // Устанавливаем активную страницу
         this.setActivePage(pageId);
 
-        // Эмитируем событие навигации
+        // ИСПРАВЛЕНО: Множественные способы эмитирования события
+
+        // 1. Внутренняя система событий
         this.emit('navigate', pageId);
+
+        // 2. Глобальное событие DOM
+        const navEvent = new CustomEvent('sidebar-navigate', {
+            detail: { page: pageId, timestamp: Date.now() }
+        });
+        document.dispatchEvent(navEvent);
+
+        // 3. Прямой вызов PageLoader если доступен
+        if (window.pageLoader && typeof window.pageLoader.loadPage === 'function') {
+            console.log(`📞 Прямой вызов PageLoader для: ${pageId}`);
+            window.pageLoader.loadPage(pageId);
+        }
+
+        // 4. Глобальный callback если определен
+        if (window.onSidebarNavigate && typeof window.onSidebarNavigate === 'function') {
+            window.onSidebarNavigate(pageId);
+        }
 
         // На мобильных закрываем меню после клика
         if (this.state.isMobile && this.state.isOpen) {
@@ -382,9 +401,11 @@ class SidebarManager {
 
         console.log('💻 Сворачивание sidebar (десктопный режим)');
         this.state.isCollapsed = true;
-
-        if (this.elements.sidebar) {
-            this.elements.sidebar.classList.add('sidebar--collapsed');
+        this.elements.sidebar.classList.add('sidebar--collapsed');
+        // Убираем отступ основного контента
+        const main = document.querySelector('.main-content');
+        if (main) {
+            main.style.marginLeft = '70px';
         }
 
         this.saveState();
@@ -401,15 +422,17 @@ class SidebarManager {
 
         console.log('💻 Разворачивание sidebar (десктопный режим)');
         this.state.isCollapsed = false;
-
-        if (this.elements.sidebar) {
-            this.elements.sidebar.classList.remove('sidebar--collapsed');
+        this.elements.sidebar.classList.remove('sidebar--collapsed');
+        // Восстанавливаем отступ основного контента
+        const main = document.querySelector('.main-content');
+        if (main) {
+            main.style.marginLeft = getComputedStyle(document.documentElement)
+                .getPropertyValue('--sidebar-width') || '';
         }
 
         this.saveState();
         this.emit('collapsed', false);
     }
-
     /**
      * Обновление отображения
      */
@@ -668,13 +691,5 @@ class SidebarManager {
 
 // Экспорт
 window.SidebarManager = SidebarManager;
-
-// Автоинициализация (если нужна)
-document.addEventListener('DOMContentLoaded', () => {
-    if (!window.sidebarManager && !window.ipRoastApp) {
-        console.log('🔄 Автоинициализация SidebarManager');
-        window.sidebarManager = new SidebarManager();
-    }
-});
 
 console.log('✅ SidebarManager модуль загружен');

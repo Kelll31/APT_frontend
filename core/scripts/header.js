@@ -42,18 +42,19 @@ class HeaderManager {
      * Поиск DOM элементов
      */
     findElements() {
+        // Не ищем через header-container, напрямую ищем ID-шники
         this.elements.header = document.getElementById('main-header');
         this.elements.pageTitle = document.getElementById('page-title');
         this.elements.breadcrumb = document.getElementById('breadcrumb');
         this.elements.notificationsBtn = document.getElementById('notifications-btn');
         this.elements.fullscreenBtn = document.getElementById('fullscreen-btn');
         this.elements.userBtn = document.getElementById('user-btn');
+        this.elements.userMenu = document.getElementById('user-menu');
 
         if (!this.elements.header) {
-            console.error('❌ Header элементы не найдены');
+            console.error('❌ HeaderManager: элемент #main-header не найден');
             return;
         }
-
         console.log('🔍 Header элементы найдены');
     }
 

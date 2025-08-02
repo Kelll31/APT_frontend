@@ -1,326 +1,95 @@
-<!-- Sidebar Component для IP Roast Enterprise 4.0 -->
-<aside class="sidebar" id="sidebar" role="navigation" aria-label="Основная навигация">
-    <!-- Header sidebar -->
-    <header class="sidebar__header">
-        <a href="#dashboard" class="sidebar__brand" id="sidebar-brand">
-            <div class="sidebar__brand-icon" aria-hidden="true">IP</div>
+<!-- Sidebar component for IP Roast Enterprise 4.0 -->
+<nav id="sidebar" class="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar__header">
+        <a href="#dashboard" class="sidebar__brand">
+            <div class="sidebar__brand-icon">IP</div>
             <div class="sidebar__brand-text">
                 <div class="sidebar__brand-name">IP Roast</div>
                 <div class="sidebar__brand-version">Enterprise 4.0</div>
             </div>
         </a>
 
-        <!-- Мобильный toggle -->
-        <button class="sidebar__mobile-toggle" id="sidebar-mobile-toggle" aria-label="Переключить навигационное меню"
-            aria-expanded="false">
-            <span class="hamburger" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
+        <!-- Desktop Collapse Button -->
+        <button id="sidebar-collapse" class="sidebar__collapse-toggle" aria-label="Свернуть меню">
+            <span class="collapse-icon">‹</span>
         </button>
-    </header>
+    </div>
 
-    <!-- Основная навигация -->
-    <nav class="sidebar__nav" role="navigation">
-        <ul class="nav-menu" id="nav-menu" role="menubar">
-            <li class="nav-item active" data-page="dashboard" role="none">
-                <a href="#dashboard" class="nav-link" role="menuitem" data-tooltip="Панель управления" tabindex="0">
-                    <span class="nav-icon" aria-hidden="true">🏠</span>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar__nav">
+        <ul class="nav-list">
+            <li class="nav-item active" data-page="dashboard">
+                <a href="#dashboard" class="nav-link">
+                    <span class="nav-icon">📊</span>
                     <span class="nav-text">Панель управления</span>
                 </a>
             </li>
-
-            <li class="nav-item" data-page="scanner" role="none">
-                <a href="#scanner" class="nav-link" role="menuitem" data-tooltip="Модуль сканирования" tabindex="-1">
-                    <span class="nav-icon" aria-hidden="true">🔍</span>
+            <li class="nav-item" data-page="scanner">
+                <a href="#scanner" class="nav-link">
+                    <span class="nav-icon">🔍</span>
                     <span class="nav-text">Модуль сканирования</span>
-                    <span class="nav-badge" aria-label="2 активных сканирования">2</span>
                 </a>
             </li>
-
-            <li class="nav-item" data-page="attack-constructor" role="none">
-                <a href="#attack-constructor" class="nav-link" role="menuitem" data-tooltip="Конструктор атак"
-                    tabindex="-1">
-                    <span class="nav-icon" aria-hidden="true">⚔️</span>
+            <li class="nav-item" data-page="attack-constructor">
+                <a href="#attack-constructor" class="nav-link">
+                    <span class="nav-icon">⚔️</span>
                     <span class="nav-text">Конструктор атак</span>
                 </a>
             </li>
-
-            <li class="nav-item" data-page="network-topology" role="none">
-                <a href="#network-topology" class="nav-link" role="menuitem" data-tooltip="Топология сети"
-                    tabindex="-1">
-                    <span class="nav-icon" aria-hidden="true">🌐</span>
+            <li class="nav-item" data-page="network-topology">
+                <a href="#network-topology" class="nav-link">
+                    <span class="nav-icon">🌐</span>
                     <span class="nav-text">Топология сети</span>
                 </a>
             </li>
-
-            <li class="nav-item" data-page="reports" role="none">
-                <a href="#reports" class="nav-link" role="menuitem" data-tooltip="Отчеты и аналитика" tabindex="-1">
-                    <span class="nav-icon" aria-hidden="true">📊</span>
+            <li class="nav-item" data-page="reports">
+                <a href="#reports" class="nav-link">
+                    <span class="nav-icon">📋</span>
                     <span class="nav-text">Отчеты и аналитика</span>
-                    <span class="nav-badge" aria-label="5 новых отчетов">5</span>
                 </a>
             </li>
-
-            <li class="nav-item" data-page="settings" role="none">
-                <a href="#settings" class="nav-link" role="menuitem" data-tooltip="Настройки системы" tabindex="-1">
-                    <span class="nav-icon" aria-hidden="true">⚙️</span>
+            <li class="nav-item" data-page="settings">
+                <a href="#settings" class="nav-link">
+                    <span class="nav-icon">⚙️</span>
                     <span class="nav-text">Настройки системы</span>
                 </a>
             </li>
         </ul>
+    </div>
 
-        <!-- Дополнительные разделы -->
-        <div class="nav-section" role="group" aria-labelledby="tools-section">
-            <h3 class="nav-section-title" id="tools-section">Инструменты</h3>
-            <ul class="nav-menu" role="menubar">
-                <li class="nav-item" data-page="vulnerability-scanner" role="none">
-                    <a href="#vulnerability-scanner" class="nav-link" role="menuitem" data-tooltip="Сканер уязвимостей"
-                        tabindex="-1">
-                        <span class="nav-icon" aria-hidden="true">🛡️</span>
-                        <span class="nav-text">Сканер уязвимостей</span>
-                    </a>
-                </li>
-
-                <li class="nav-item" data-page="packet-analyzer" role="none">
-                    <a href="#packet-analyzer" class="nav-link" role="menuitem" data-tooltip="Анализатор пакетов"
-                        tabindex="-1">
-                        <span class="nav-icon" aria-hidden="true">📦</span>
-                        <span class="nav-text">Анализатор пакетов</span>
-                    </a>
-                </li>
-
-                <li class="nav-item" data-page="log-analyzer" role="none">
-                    <a href="#log-analyzer" class="nav-link" role="menuitem" data-tooltip="Анализатор логов"
-                        tabindex="-1">
-                        <span class="nav-icon" aria-hidden="true">📝</span>
-                        <span class="nav-text">Анализатор логов</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Раздел администрирования -->
-        <div class="nav-section" role="group" aria-labelledby="admin-section">
-            <h3 class="nav-section-title" id="admin-section">Администрирование</h3>
-            <ul class="nav-menu" role="menubar">
-                <li class="nav-item" data-page="user-management" role="none">
-                    <a href="#user-management" class="nav-link" role="menuitem" data-tooltip="Управление пользователями"
-                        tabindex="-1">
-                        <span class="nav-icon" aria-hidden="true">👥</span>
-                        <span class="nav-text">Пользователи</span>
-                    </a>
-                </li>
-
-                <li class="nav-item" data-page="system-logs" role="none">
-                    <a href="#system-logs" class="nav-link" role="menuitem" data-tooltip="Системные логи" tabindex="-1">
-                        <span class="nav-icon" aria-hidden="true">📋</span>
-                        <span class="nav-text">Системные логи</span>
-                        <span class="nav-badge warning" aria-label="3 предупреждения">3</span>
-                    </a>
-                </li>
-
-                <li class="nav-item" data-page="backup" role="none">
-                    <a href="#backup" class="nav-link" role="menuitem" data-tooltip="Резервное копирование"
-                        tabindex="-1">
-                        <span class="nav-icon" aria-hidden="true">💾</span>
-                        <span class="nav-text">Резервные копии</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Footer sidebar -->
-    <footer class="sidebar__footer">
-        <!-- Системный статус -->
-        <div class="system-status" id="system-status">
-            <h4 class="status-title">Статус системы</h4>
-
+    <!-- Sidebar Footer (System Status) -->
+    <div class="sidebar__footer">
+        <div class="system-status">
             <div class="status-item">
                 <span class="status-label">Система</span>
-                <span class="status-value status-healthy" role="status" aria-live="polite">OK</span>
+                <span class="status-value status-healthy">OK</span>
             </div>
-
             <div class="status-item">
                 <span class="status-label">Сеть</span>
-                <span class="status-value status-healthy" role="status" aria-live="polite">Connected</span>
+                <span class="status-value status-healthy">Connected</span>
             </div>
-
             <div class="status-item">
                 <span class="status-label">Безопасность</span>
-                <span class="status-value status-healthy" role="status" aria-live="polite">Protected</span>
-            </div>
-
-            <div class="status-item">
-                <span class="status-label">База данных</span>
-                <span class="status-value status-healthy" role="status" aria-live="polite">Active</span>
-            </div>
-
-            <div class="status-item">
-                <span class="status-label">Память</span>
-                <span class="status-value status-warning" role="status" aria-live="polite">75%</span>
+                <span class="status-value status-healthy">Protected</span>
             </div>
         </div>
+    </div>
+</nav>
 
-        <!-- Быстрые действия -->
-        <div class="quick-actions">
-            <button class="quick-action-btn" id="emergency-stop" aria-label="Аварийная остановка"
-                title="Остановить все активные процессы">
-                <span class="action-icon">🛑</span>
-                <span class="action-text">Экстренная остановка</span>
-            </button>
-
-            <button class="quick-action-btn" id="system-health" aria-label="Проверка здоровья системы"
-                title="Запустить диагностику">
-                <span class="action-icon">🔧</span>
-                <span class="action-text">Диагностика</span>
-            </button>
-        </div>
-
-        <!-- Информация о версии -->
-        <div class="version-info">
-            <div class="version-details">
-                <span class="version-label">Версия:</span>
-                <span class="version-number">4.0.0</span>
-            </div>
-            <div class="version-details">
-                <span class="version-label">Сборка:</span>
-                <span class="version-build">2024.01.15</span>
-            </div>
-            <div class="version-details">
-                <span class="version-label">Время работы:</span>
-                <span class="version-uptime" id="system-uptime">2d 14h 32m</span>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Кнопка сворачивания (круглая) -->
-    <button class="sidebar__collapse-toggle" id="sidebar-collapse" aria-label="Свернуть боковую панель"
-        title="Свернуть меню (Ctrl+B)">
-        <span class="collapse-icon" aria-hidden="true">«</span>
-    </button>
-</aside>
-
-<!-- Кнопка разворачивания (показывается когда sidebar свернут) -->
-<button class="sidebar__expand-toggle" id="sidebar-expand" aria-label="Развернуть боковую панель"
-    title="Развернуть меню (Ctrl+B)" style="display: none;">
-    <span class="expand-icon" aria-hidden="true">»</span>
+<!-- Sidebar Expand Button (appears when collapsed) -->
+<button id="sidebar-expand" class="sidebar__expand-toggle" aria-label="Развернуть меню">
+    <span class="expand-icon">›</span>
 </button>
 
-<!-- Overlay для мобильных устройств -->
-<div class="sidebar__overlay" id="sidebar-overlay" aria-hidden="true"></div>
+<!-- Sidebar Overlay (mobile) -->
+<div id="sidebar-overlay" class="sidebar__overlay"></div>
 
-<!-- Контекстное меню для навигационных элементов -->
-<div class="nav-context-menu" id="nav-context-menu" role="menu" aria-label="Контекстное меню навигации" hidden>
-    <div class="context-menu-item" role="menuitem" tabindex="0" data-action="open-new-tab">
-        <span class="menu-icon">🔗</span>
-        <span class="menu-text">Открыть в новой вкладке</span>
+<!-- Mobile Toggle -->
+<button id="sidebar-mobile-toggle" class="sidebar__mobile-toggle" aria-label="Открыть меню">
+    <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
     </div>
-
-    <div class="context-menu-item" role="menuitem" tabindex="0" data-action="add-bookmark">
-        <span class="menu-icon">⭐</span>
-        <span class="menu-text">Добавить в закладки</span>
-    </div>
-
-    <div class="context-menu-divider"></div>
-
-    <div class="context-menu-item" role="menuitem" tabindex="0" data-action="pin-to-top">
-        <span class="menu-icon">📌</span>
-        <span class="menu-text">Закрепить сверху</span>
-    </div>
-
-    <div class="context-menu-item" role="menuitem" tabindex="0" data-action="hide-from-menu">
-        <span class="menu-icon">👁️</span>
-        <span class="menu-text">Скрыть из меню</span>
-    </div>
-</div>
-
-<!-- Мини-индикатор активности (показывается в свернутом состоянии) -->
-<div class="activity-indicator" id="activity-indicator" aria-live="polite" aria-label="Индикатор активности системы"
-    hidden>
-    <div class="indicator-item">
-        <span class="indicator-icon">📊</span>
-        <span class="indicator-value" id="cpu-usage">45%</span>
-    </div>
-
-    <div class="indicator-item">
-        <span class="indicator-icon">💾</span>
-        <span class="indicator-value" id="memory-usage">78%</span>
-    </div>
-
-    <div class="indicator-item">
-        <span class="indicator-icon">🌐</span>
-        <span class="indicator-value" id="network-status">OK</span>
-    </div>
-</div>
-
-<!-- Уведомления sidebar (для важных событий) -->
-<div class="sidebar-notifications" id="sidebar-notifications" role="alert" aria-live="assertive" hidden>
-    <div class="sidebar-notification critical">
-        <div class="notification-icon">🚨</div>
-        <div class="notification-content">
-            <div class="notification-title">Критическая уязвимость</div>
-            <div class="notification-message">Обнаружена уязвимость высокого уровня</div>
-        </div>
-        <button class="notification-close" aria-label="Закрыть уведомление">×</button>
-    </div>
-</div>
-
-<!-- Панель быстрых фильтров (показывается при наведении/клике) -->
-<div class="quick-filters-panel" id="quick-filters" role="complementary" aria-label="Панель быстрых фильтров" hidden>
-    <div class="filters-header">
-        <h3 class="filters-title">Быстрые фильтры</h3>
-        <button class="filters-close" aria-label="Закрыть панель фильтров">×</button>
-    </div>
-
-    <div class="filters-body">
-        <div class="filter-group">
-            <div class="filter-label">Статус:</div>
-            <div class="filter-options">
-                <label class="filter-option">
-                    <input type="checkbox" checked>
-                    <span class="option-text">Активные</span>
-                    <span class="option-count">12</span>
-                </label>
-                <label class="filter-option">
-                    <input type="checkbox">
-                    <span class="option-text">Завершенные</span>
-                    <span class="option-count">45</span>
-                </label>
-                <label class="filter-option">
-                    <input type="checkbox">
-                    <span class="option-text">Ошибки</span>
-                    <span class="option-count">3</span>
-                </label>
-            </div>
-        </div>
-
-        <div class="filter-group">
-            <div class="filter-label">Приоритет:</div>
-            <div class="filter-options">
-                <label class="filter-option">
-                    <input type="checkbox" checked>
-                    <span class="option-text">Высокий</span>
-                    <span class="option-count">8</span>
-                </label>
-                <label class="filter-option">
-                    <input type="checkbox" checked>
-                    <span class="option-text">Средний</span>
-                    <span class="option-count">24</span>
-                </label>
-                <label class="filter-option">
-                    <input type="checkbox">
-                    <span class="option-text">Низкий</span>
-                    <span class="option-count">15</span>
-                </label>
-            </div>
-        </div>
-    </div>
-
-    <div class="filters-footer">
-        <button class="filter-btn secondary">Сбросить</button>
-        <button class="filter-btn primary">Применить</button>
-    </div>
-</div>
+</button>

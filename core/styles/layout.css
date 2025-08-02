@@ -767,23 +767,12 @@ select.form-control {
     border: 1px solid var(--color-border-secondary);
 }
 
-@font-face {
-    font-family: 'FKGroteskNeue';
-    src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
-}
-
-/* END PERPLEXITY DESIGN SYSTEM */
-/* =============================================================================
-   LAYOUT.CSS - Основная компоновка приложения
-   ============================================================================= */
 
 /* Основные CSS переменные для адаптивной связи sidebar-header */
 :root {
     --sidebar-width: 280px;
     --sidebar-width-collapsed: 64px;
     --header-height: 64px;
-    --transition-duration: var(--duration-normal);
-    --transition-easing: var(--ease-standard);
 
     /* Z-index слои */
     --z-sidebar: 1000;
@@ -820,7 +809,280 @@ body {
     overflow-x: hidden;
 }
 
-/* Экран загрузки */
+/* =============================================================================
+   APP LAYOUT STRUCTURE
+============================================================================= */
+
+/* Основное приложение */
+.app {
+    display: flex;
+    height: 100vh;
+    position: relative;
+}
+
+/* =============================================================================
+   SIDEBAR POSITIONING
+============================================================================= */
+
+/* Sidebar - фиксированное позиционирование */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-card-border);
+    display: flex;
+    flex-direction: column;
+    z-index: var(--z-sidebar);
+    transition: width var(--duration-normal) var(--ease-standard),
+        transform var(--duration-normal) var(--ease-standard);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Свернутое состояние sidebar */
+.sidebar--collapsed {
+    width: var(--sidebar-width-collapsed);
+}
+
+.sidebar--collapsed ~ .main-content {
+  margin-left: 70px !important;
+}
+/* =============================================================================
+   MAIN CONTENT AREA
+============================================================================= */
+
+/* Основной контент с отступом под sidebar */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: var(--sidebar-width);
+    transition: margin-left var(--duration-normal) var(--ease-standard);
+    position: relative;
+    min-height: 100vh;
+    background: var(--color-background);
+}
+
+/* Когда sidebar свернут - уменьшаем отступ */
+.sidebar--collapsed~.main-content {
+    margin-left: 0; 
+}
+
+/* =============================================================================
+   HEADER POSITIONING
+============================================================================= */
+
+/* Header - липкое позиционирование в main-content */
+.main-header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: var(--header-height);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-card-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-24);
+    z-index: var(--z-header);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    transition: all var(--duration-normal) var(--ease-standard);
+}
+
+/* =============================================================================
+   PAGE CONTAINER
+============================================================================= */
+
+/* Контейнер страниц - занимает оставшееся место под header */
+.page-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    padding: var(--space-16);
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    flex: 1;
+    width: 100%;
+    overflow: auto;
+    position: relative;
+    scroll-behavior: smooth;
+}
+
+/* Стили для скроллбара */
+.page-content::-webkit-scrollbar {
+    width: var(--space-8);
+}
+
+.page-content::-webkit-scrollbar-track {
+    background: var(--color-secondary);
+}
+
+.page-content::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+}
+
+.page-content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   MOBILE PORTRAIT LAYOUT (480px)
+============================================================================= */
+
+@media (max-width: 480px) {
+
+    /* На мобильных портретных sidebar выдвигается поверх контента */
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: var(--z-overlay);
+        box-shadow: var(--shadow-lg);
+        width: calc(100vw - var(--space-32));
+        max-width: var(--sidebar-width);
+    }
+
+    .sidebar--open {
+        transform: translateX(0);
+    }
+
+    /* Main content занимает всю ширину на мобильных */
+    .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar--collapsed~.main-content {
+        margin-left: 0;
+    }
+
+    /* Header компактнее на мобильных портретных */
+    .main-header {
+        height: 48px;
+        padding: 0 var(--space-12);
+    }
+
+    .page-container {
+        padding: var(--space-8);
+    }
+
+    /* Toast уведомления адаптируются под мобильные */
+    .toast-container {
+        top: var(--space-12);
+        right: var(--space-12);
+        left: var(--space-12);
+    }
+
+    .toast {
+        max-width: none;
+        margin-bottom: var(--space-8);
+    }
+}
+
+/* =============================================================================
+   TABLET LAYOUT (768px)
+============================================================================= */
+
+@media (max-width: 768px) {
+
+    /* На планшетах sidebar выдвигается поверх контента */
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: var(--z-overlay);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar--open {
+        transform: translateX(0);
+    }
+
+    /* Main content занимает всю ширину на планшетах */
+    .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar--collapsed~.main-content {
+        margin-left: 0;
+    }
+
+    .main-header {
+        height: 52px;
+        padding: 0 var(--space-12);
+    }
+
+    .page-container {
+        padding: var(--space-8);
+    }
+}
+
+/* =============================================================================
+   DESKTOP SMALL (1024px)
+============================================================================= */
+
+@media (max-width: 1024px) {
+
+    /* На небольших десктопах sidebar выдвигается поверх контента */
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: var(--z-overlay);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar--open {
+        transform: translateX(0);
+    }
+
+    /* Main content занимает всю ширину */
+    .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar--collapsed~.main-content {
+        margin-left: 0;
+    }
+
+    /* Header меньше на небольших экранах */
+    .main-header {
+        height: 56px;
+        padding: 0 var(--space-16);
+    }
+
+    .page-container {
+        padding: var(--space-12);
+    }
+}
+
+/* =============================================================================
+   SIDEBAR OVERLAY (MOBILE)
+============================================================================= */
+
+.sidebar__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(var(--color-slate-900-rgb), 0.5);
+    z-index: calc(var(--z-sidebar) - 1);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--duration-normal) var(--ease-standard),
+        visibility var(--duration-normal) var(--ease-standard);
+}
+
+.sidebar__overlay--visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =============================================================================
+   LOADING SCREEN
+============================================================================= */
+
 .loading-screen {
     position: fixed;
     top: 0;
@@ -832,8 +1094,8 @@ body {
     align-items: center;
     justify-content: center;
     z-index: var(--z-loading);
-    transition: opacity var(--transition-duration) var(--transition-easing),
-        visibility var(--transition-duration) var(--transition-easing);
+    transition: opacity var(--duration-normal) var(--ease-standard),
+        visibility var(--duration-normal) var(--ease-standard);
 }
 
 .loading-screen.hidden {
@@ -912,7 +1174,7 @@ body {
     height: 100%;
     background: var(--color-primary);
     border-radius: var(--radius-full);
-    transition: width var(--transition-duration) var(--transition-easing);
+    transition: width var(--duration-normal) var(--ease-standard);
     width: 0%;
 }
 
@@ -921,49 +1183,10 @@ body {
     color: var(--color-text-secondary);
 }
 
-/* Основное приложение */
-.app {
-    display: flex;
-    height: 100vh;
-    position: relative;
-}
+/* =============================================================================
+   PAGE LOADING
+============================================================================= */
 
-.app-loading {
-    overflow: hidden;
-}
-
-/* Основной контент */
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin-left: var(--sidebar-width);
-    transition: margin-left var(--transition-duration) var(--transition-easing);
-    position: relative;
-    overflow: hidden;
-}
-
-/* Адаптивная связь - когда sidebar свернут */
-.sidebar--collapsed~.main-content {
-    margin-left: var(--sidebar-width-collapsed);
-}
-
-/* Контейнер страниц */
-.page-container {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    background: var(--color-background);
-}
-
-.page-content {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    overflow: auto;
-}
-
-/* Загрузка страницы */
 .page-loading {
     position: absolute;
     top: 0;
@@ -978,8 +1201,8 @@ body {
     z-index: 10;
     opacity: 0;
     visibility: hidden;
-    transition: opacity var(--transition-duration) var(--transition-easing),
-        visibility var(--transition-duration) var(--transition-easing);
+    transition: opacity var(--duration-normal) var(--ease-standard),
+        visibility var(--duration-normal) var(--ease-standard);
 }
 
 .page-loading.active {
@@ -1012,8 +1235,11 @@ body {
     color: var(--color-text-secondary);
 }
 
-/* Уведомления */
-.notifications-container {
+/* =============================================================================
+   NOTIFICATIONS
+============================================================================= */
+
+.toast-container {
     position: fixed;
     top: var(--space-20);
     right: var(--space-20);
@@ -1021,7 +1247,7 @@ body {
     pointer-events: none;
 }
 
-.notification {
+.toast {
     background: var(--color-surface);
     border: 1px solid var(--color-card-border);
     border-radius: var(--radius-lg);
@@ -1031,492 +1257,48 @@ body {
     max-width: 400px;
     pointer-events: all;
     transform: translateX(100%);
-    transition: transform var(--transition-duration) var(--transition-easing);
+    transition: transform var(--duration-normal) var(--ease-standard);
 }
 
-.notification.show {
+.toast.show {
     transform: translateX(0);
 }
 
-.notification.success {
+.toast.success {
     border-left: var(--space-4) solid var(--color-success);
 }
 
-.notification.error {
+.toast.error {
     border-left: var(--space-4) solid var(--color-error);
 }
 
-.notification.warning {
+.toast.warning {
     border-left: var(--space-4) solid var(--color-warning);
 }
 
-.notification.info {
+.toast.info {
     border-left: var(--space-4) solid var(--color-info);
 }
 
-/* Модальные окна */
-.modal-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: var(--z-modal);
-    pointer-events: none;
-}
+/* =============================================================================
+   PRINT STYLES
+============================================================================= */
 
-.modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    transition: opacity var(--transition-duration) var(--transition-easing);
-    pointer-events: all;
-}
-
-.modal-overlay.active {
-    opacity: 1;
-}
-
-.modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    background: var(--color-surface);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    max-width: 90vw;
-    max-height: 90vh;
-    pointer-events: all;
-    transition: transform var(--transition-duration) var(--transition-easing);
-}
-
-.modal.active {
-    transform: translate(-50%, -50%) scale(1);
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .main-content {
-        margin-left: 0;
-    }
-
-    .sidebar--collapsed~.main-content {
-        margin-left: 0;
-    }
-}
-
-@media (max-width: 768px) {
-    .loading-container {
-        padding: var(--space-20);
-    }
-
-    .logo-icon {
-        width: 48px;
-        height: 48px;
-        font-size: var(--font-size-2xl);
-    }
-
-    .logo-text h1 {
-        font-size: var(--font-size-xl);
-    }
-
-    .notifications-container {
-        top: var(--space-12);
-        right: var(--space-12);
-        left: var(--space-12);
-    }
-
-    .notification {
-        max-width: none;
-    }
-}
-
-@media (max-width: 480px) {
-    .loading-container {
-        padding: var(--space-16);
-    }
-
-    .loading-logo {
-        flex-direction: column;
-        gap: var(--space-12);
-    }
-
-    .logo-icon {
-        width: 40px;
-        height: 40px;
-        font-size: var(--font-size-xl);
-    }
-
-    .logo-text {
-        text-align: center;
-    }
-
-    .logo-text h1 {
-        font-size: var(--font-size-lg);
-    }
-
-    .notifications-container {
-        top: var(--space-8);
-        right: var(--space-8);
-        left: var(--space-8);
-    }
-
-    .notification {
-        padding: var(--space-12);
-        margin-bottom: var(--space-8);
-    }
-
-    .loading-spinner {
-        width: var(--space-24);
-        height: var(--space-24);
-    }
-
-    .modal {
-        max-width: 95vw;
-        max-height: 95vh;
-    }
-}
-
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-
-    .loading-spinner {
-        animation: none;
-        border-top-color: var(--color-primary);
-    }
-}
-
-@media (prefers-contrast: high) {
-
-    .loading-screen,
-    .page-loading {
-        background: var(--color-background);
-        border: 2px solid var(--color-text);
-    }
-
-    .progress-bar {
-        border: 1px solid var(--color-text);
-    }
-
-    .notification {
-        border-width: 2px;
-    }
-}
-
-/* Focus management */
-.focus-trap {
-    position: fixed;
-    top: -1px;
-    left: -1px;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
-}
-
-:focus-visible {
-    outline: var(--focus-outline);
-    outline-offset: 2px;
-}
-
-/* Print styles */
 @media print {
 
-    .loading-screen,
     .sidebar,
-    .sidebar__expand-toggle,
     .sidebar__overlay,
-    .notifications-container,
-    .modal-container {
+    .main-header,
+    .loading-screen,
+    .toast-container {
         display: none !important;
     }
 
     .main-content {
         margin-left: 0 !important;
-        width: 100% !important;
     }
 
     .page-container {
-        overflow: visible !important;
-    }
-}
-
-
-/* =============================================================================
-   TOAST NOTIFICATIONS SYSTEM
-   ============================================================================= */
-
-.toast-container {
-    position: fixed;
-    top: var(--space-20);
-    right: var(--space-20);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-12);
-    pointer-events: none;
-    max-width: 400px;
-}
-
-.toast {
-    min-width: 320px;
-    max-width: 480px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-card-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    padding: var(--space-16);
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-12);
-    pointer-events: all;
-    transform: translateX(100%);
-    opacity: 0;
-    transition: all var(--duration-normal) var(--ease-standard);
-    position: relative;
-    overflow: hidden;
-}
-
-.toast.show {
-    transform: translateX(0);
-    opacity: 1;
-}
-
-.toast.success {
-    border-left: 4px solid var(--color-success);
-    background: var(--color-surface);
-}
-
-.toast.error {
-    border-left: 4px solid var(--color-error);
-    background: var(--color-surface);
-}
-
-.toast.warning {
-    border-left: 4px solid var(--color-warning);
-    background: var(--color-surface);
-}
-
-.toast.info {
-    border-left: 4px solid var(--color-info);
-    background: var(--color-surface);
-}
-
-.toast-icon {
-    font-size: var(--font-size-lg);
-    flex-shrink: 0;
-    margin-top: var(--space-2);
-    line-height: 1;
-}
-
-.toast.success .toast-icon {
-    color: var(--color-success);
-}
-
-.toast.error .toast-icon {
-    color: var(--color-error);
-}
-
-.toast.warning .toast-icon {
-    color: var(--color-warning);
-}
-
-.toast.info .toast-icon {
-    color: var(--color-info);
-}
-
-.toast-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.toast-title {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text);
-    margin: 0 0 var(--space-4) 0;
-    line-height: var(--line-height-tight);
-}
-
-.toast-message {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-    margin: 0;
-    word-break: break-word;
-    line-height: var(--line-height-normal);
-}
-
-.toast-close {
-    background: transparent;
-    border: none;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    padding: var(--space-4);
-    border-radius: var(--radius-base);
-    flex-shrink: 0;
-    transition: all var(--duration-fast) var(--ease-standard);
-    font-size: var(--font-size-sm);
-    line-height: 1;
-    margin-top: -2px;
-    margin-right: -4px;
-}
-
-.toast-close:hover {
-    background: var(--color-secondary);
-    color: var(--color-text);
-}
-
-/* Progress bar for auto-dismiss */
-.toast::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    background: var(--color-primary);
-    animation: toast-progress 5s linear;
-    width: 0;
-}
-
-@keyframes toast-progress {
-    from {
-        width: 100%;
-    }
-
-    to {
-        width: 0;
-    }
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-    .toast-container {
-        top: var(--space-12);
-        right: var(--space-12);
-        left: var(--space-12);
-        max-width: none;
-    }
-
-    .toast {
-        min-width: auto;
-        max-width: none;
-    }
-}
-
-@media (max-width: 480px) {
-    .toast-container {
-        top: var(--space-8);
-        right: var(--space-8);
-        left: var(--space-8);
-    }
-
-    .toast {
-        padding: var(--space-12);
-        margin-bottom: var(--space-8);
-    }
-
-    .toast-title {
-        font-size: var(--font-size-xs);
-    }
-
-    .toast-message {
-        font-size: var(--font-size-xs);
-    }
-}
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-    .toast {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
-            0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    }
-}
-
-[data-color-scheme="dark"] .toast {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
-        0 4px 6px -2px rgba(0, 0, 0, 0.1);
-}
-
-/* Animation variants */
-.toast.slide-in {
-    animation: slideInRight var(--duration-normal) var(--ease-standard);
-}
-
-.toast.fade-out {
-    animation: fadeOut var(--duration-normal) var(--ease-standard);
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    to {
-        opacity: 0;
-        transform: translateX(20px);
-    }
-}
-
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-    .toast {
-        transition: none;
-        animation: none;
-    }
-
-    .toast::after {
-        animation: none;
-    }
-}
-
-/* Focus management */
-.toast-close:focus-visible {
-    outline: var(--focus-outline);
-    outline-offset: 2px;
-}
-
-/* High contrast mode */
-@media (prefers-contrast: high) {
-    .toast {
-        border-width: 2px;
-    }
-
-    .toast.success {
-        border-left-width: 6px;
-    }
-
-    .toast.error {
-        border-left-width: 6px;
-    }
-
-    .toast.warning {
-        border-left-width: 6px;
-    }
-
-    .toast.info {
-        border-left-width: 6px;
+        padding: 0 !important;
     }
 }

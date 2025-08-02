@@ -4,8 +4,8 @@
  * Версия: Enterprise 4.0
  */
 
-import { IPRoastAPI } from '../../shared/utils/api.js';
-import { debounce, isValidIP, parsePortRange } from '../../shared/utils/helpers.js';
+import { IPRoastAPI } from '../../../shared/utils/api.js';
+import { debounce, isValidIP, parsePortRange } from '../../../shared/utils/helpers.js';
 import './scan-form.css';
 
 export class ScanForm {

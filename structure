@@ -44,19 +44,22 @@
 │   └── routes.js (0.0B)
 ├── core/
 │   ├── components/
-│   │   ├── header.html (0.0B)
-│   │   └── sidebar.html (0.0B)
+│   │   ├── header.html (1.6KB)
+│   │   └── sidebar.html (3.9KB)
 │   ├── scripts/
-│   │   ├── header.js (18.9KB)
-│   │   ├── main.js (24.1KB)
+│   │   ├── component-loader.js (14.4KB)
+│   │   ├── header.js (19.1KB)
+│   │   ├── main.js (19.8KB)
+│   │   ├── notifications.js (0.0B)
 │   │   ├── page-loader.js (20.1KB)
-│   │   └── sidebar.js (21.8KB)
+│   │   └── sidebar.js (22.0KB)
 │   ├── styles/
 │   │   ├── header.css (34.0KB)
-│   │   ├── layout.css (33.3KB)
+│   │   ├── layout.css (36.6KB)
 │   │   ├── main.css (36.2KB)
+│   │   ├── notifications.css (0.0B)
 │   │   └── sidebar.css (40.2KB)
-│   └── index.html (10.8KB)
+│   └── index.html (12.0KB)
 ├── dist/
 │   └── style.css (199.5KB)
 ├── legacy/

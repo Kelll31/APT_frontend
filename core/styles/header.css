@@ -767,11 +767,6 @@ select.form-control {
     border: 1px solid var(--color-border-secondary);
 }
 
-@font-face {
-    font-family: 'FKGroteskNeue';
-    src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
-}
-
 /* =============================================================================
    HEADER.CSS - Адаптивный header с связью с sidebar
    ============================================================================= */

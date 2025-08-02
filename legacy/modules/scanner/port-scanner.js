@@ -4,7 +4,7 @@
  * Версия: Enterprise 4.0
  */
 
-import { IPRoastAPI } from '../../shared/utils/api.js';
+import { IPRoastAPI } from '../../../shared/utils/api.js';
 import './port-scanner.css';
 
 export class PortScanner {

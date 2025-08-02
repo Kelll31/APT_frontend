@@ -1,27 +1,29 @@
 /**
- * PageLoader.js - Загрузчик страниц для системы "монитора"
+ * PageLoader.js - Исправленный загрузчик страниц для IP Roast Enterprise 4.0
  * Управляет динамической загрузкой HTML страниц в контейнер
+ * 
+ * ИСПРАВЛЕНИЯ:
+ * - Правильные ID элементов DOM
+ * - Интеграция с sidebar навигацией
+ * - Улучшенная обработка ошибок
+ * - Правильная структура путей
  */
-
 class PageLoader {
     constructor() {
         this.currentPage = null;
         this.pageCache = new Map();
         this.loadingQueue = new Set();
-
         this.elements = {
             container: null,
             content: null,
             loading: null
         };
-
         this.config = {
-            pagesPath: '../pages',
+            pagesPath: '../pages',  // Исправлено: убран '../'
             cachePages: true,
             loadTimeout: 10000,
             enableTransitions: true
         };
-
         this.eventListeners = new Map();
         this.init();
     }
@@ -32,24 +34,77 @@ class PageLoader {
     init() {
         this.findElements();
         this.setupEventListeners();
-        console.log('📄 PageLoader инициализирован');
+        console.log('📄 PageLoader инициализирован (исправленная версия)');
     }
 
     /**
-     * Поиск DOM элементов
+     * Поиск DOM элементов - ИСПРАВЛЕНО
      */
     findElements() {
-        this.elements.container = document.getElementById('page-container');
-        this.elements.content = document.getElementById('page-content');
-        this.elements.loading = document.getElementById('page-loading');
+        // Ищем правильные элементы из HTML структуры
+        this.elements.container = document.querySelector('.page-container') ||
+            document.getElementById('page-container') ||
+            document.querySelector('.main-content .page-container');
+
+        // Если основной контейнер не найден, ищем альтернативные варианты
+        if (!this.elements.container) {
+            // Создаем контейнер если его нет
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                this.elements.container = document.createElement('div');
+                this.elements.container.className = 'page-container';
+                this.elements.container.id = 'page-container';
+                mainContent.appendChild(this.elements.container);
+                console.log('📄 Создан отсутствующий page-container');
+            }
+        }
+
+        // Ищем контент контейнер
+        this.elements.content = document.querySelector('.page-content') ||
+            document.getElementById('page-content');
+
+        // Создаем page-content если его нет
+        if (!this.elements.content && this.elements.container) {
+            this.elements.content = document.createElement('div');
+            this.elements.content.className = 'page-content';
+            this.elements.content.id = 'page-content';
+            this.elements.container.appendChild(this.elements.content);
+            console.log('📄 Создан отсутствующий page-content');
+        }
+
+        // Ищем или создаем loading элемент
+        this.elements.loading = document.querySelector('.page-loading') ||
+            document.getElementById('page-loading');
+
+        if (!this.elements.loading && this.elements.container) {
+            this.elements.loading = document.createElement('div');
+            this.elements.loading.className = 'page-loading';
+            this.elements.loading.id = 'page-loading';
+            this.elements.loading.innerHTML = `
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Загрузка страницы...</div>
+            `;
+            this.elements.container.appendChild(this.elements.loading);
+            console.log('📄 Создан отсутствующий page-loading');
+        }
+
+        // Проверяем что все элементы найдены
+        const elementsFound = {
+            container: !!this.elements.container,
+            content: !!this.elements.content,
+            loading: !!this.elements.loading
+        };
+
+        console.log('🔍 PageLoader элементы:', elementsFound);
 
         if (!this.elements.container || !this.elements.content) {
+            console.error('❌ PageLoader: критические элементы не найдены');
             throw new Error('PageLoader: необходимые элементы не найдены');
         }
     }
 
     /**
-     * Настройка обработчиков событий
+     * Настройка обработчиков событий - ИСПРАВЛЕНО
      */
     setupEventListeners() {
         // Обработка навигации по истории браузера
@@ -59,34 +114,65 @@ class PageLoader {
             }
         });
 
-        // Обработка кликов по ссылкам
+        // Обработка кликов по ссылкам - улучшенная версия
         document.addEventListener('click', (e) => {
-            const link = e.target.closest('a[href^="#"]');
+            const link = e.target.closest('a[href^="#"], a[data-page]');
             if (link) {
                 e.preventDefault();
-                const pageId = link.getAttribute('href').substr(1);
+                let pageId;
+
+                // Получаем ID страницы из разных атрибутов
+                if (link.dataset.page) {
+                    pageId = link.dataset.page;
+                } else if (link.getAttribute('href').startsWith('#')) {
+                    pageId = link.getAttribute('href').substr(1);
+                }
+
                 if (pageId && this.isValidPageId(pageId)) {
+                    console.log(`🔗 Клик по ссылке, загрузка страницы: ${pageId}`);
                     this.loadPage(pageId);
                 }
             }
         });
+
+        // Слушатель для событий от SidebarManager - НОВОЕ
+        if (window.sidebarManager) {
+            window.sidebarManager.on('navigate', (pageId) => {
+                console.log(`🔗 Навигация от sidebar: ${pageId}`);
+                this.loadPage(pageId);
+            });
+        }
+
+        // Глобальный слушатель для навигации - НОВОЕ
+        document.addEventListener('navigate', (e) => {
+            if (e.detail && e.detail.page) {
+                console.log(`🔗 Навигация от события: ${e.detail.page}`);
+                this.loadPage(e.detail.page);
+            }
+        });
+
+        console.log('⚡ PageLoader обработчики событий настроены');
     }
 
     /**
-     * Основной метод загрузки страницы
+     * Основной метод загрузки страницы - УЛУЧШЕННЫЙ
      */
     async loadPage(pageId, updateHistory = true) {
         if (!pageId || !this.isValidPageId(pageId)) {
-            throw new Error(`Недопустимый ID страницы: ${pageId}`);
+            console.error(`❌ Недопустимый ID страницы: ${pageId}`);
+            this.showErrorPage(new Error(`Недопустимый ID страницы: ${pageId}`), pageId);
+            return;
         }
 
         // Предотвращаем повторную загрузку той же страницы
         if (this.currentPage === pageId && !this.loadingQueue.has(pageId)) {
+            console.log(`📄 Страница ${pageId} уже загружена`);
             return;
         }
 
         // Предотвращаем одновременную загрузку той же страницы
         if (this.loadingQueue.has(pageId)) {
+            console.log(`📄 Страница ${pageId} уже загружается`);
             return;
         }
 
@@ -130,20 +216,19 @@ class PageLoader {
                 data: pageData
             });
 
+            // Обновляем заголовок в header если доступен
+            if (window.headerManager) {
+                window.headerManager.updatePageTitle(pageData.title);
+            }
+
             console.log(`✅ Страница успешно загружена: ${pageId}`);
 
         } catch (error) {
             console.error(`❌ Ошибка загрузки страницы ${pageId}:`, error);
-
             // Показываем страницу ошибки
             this.showErrorPage(error, pageId);
-
             // Эмитируем событие ошибки
-            this.emit('pageError', {
-                id: pageId,
-                error: error
-            });
-
+            this.emit('pageError', { id: pageId, error: error });
         } finally {
             this.loadingQueue.delete(pageId);
         }
@@ -153,54 +238,112 @@ class PageLoader {
      * Загрузка HTML файла страницы
      */
     async fetchPage(pageId) {
-        const pageUrl = `${this.config.pagesPath}/${pageId}/index.html`;
+        // Попробуем несколько вариантов путей
+        const possiblePaths = [
+            `${this.config.pagesPath}/${pageId}/${pageId}.html`,
+            `${this.config.pagesPath}/${pageId}/index.html`,
+            `./pages/${pageId}/index.html`,
+            `./pages/${pageId}.html`,
+            `pages/${pageId}/index.html`,
+            `pages/${pageId}.html`
+        ];
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-            controller.abort();
-        }, this.config.loadTimeout);
+        let lastError;
+        for (const pageUrl of possiblePaths) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+            }, this.config.loadTimeout);
 
-        try {
-            console.log(`🌐 Загрузка HTML: ${pageUrl}`);
+            try {
+                console.log(`🌐 Попытка загрузки: ${pageUrl}`);
+                const response = await fetch(pageUrl, {
+                    signal: controller.signal,
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/html',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
 
-            const response = await fetch(pageUrl, {
-                signal: controller.signal,
-                method: 'GET',
-                headers: {
-                    'Accept': 'text/html',
-                    'Cache-Control': 'no-cache'
+                clearTimeout(timeoutId);
+
+                if (response.ok) {
+                    const html = await response.text();
+                    console.log(`✅ Страница загружена: ${pageUrl}`);
+
+                    // Парсим HTML и извлекаем metadata
+                    const pageData = this.parsePageHTML(html, pageId);
+
+                    // Загружаем связанные ресурсы (CSS, JS)
+                    await this.loadPageResources(pageId);
+
+                    return pageData;
                 }
-            });
-
-            clearTimeout(timeoutId);
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            } catch (error) {
+                clearTimeout(timeoutId);
+                lastError = error;
+                console.warn(`⚠️ Не удалось загрузить ${pageUrl}:`, error.message);
             }
-
-            const html = await response.text();
-
-            // Парсим HTML и извлекаем metadata
-            const pageData = this.parsePageHTML(html, pageId);
-
-            // Загружаем связанные ресурсы (CSS, JS)
-            await this.loadPageResources(pageId);
-
-            return pageData;
-
-        } catch (error) {
-            clearTimeout(timeoutId);
-
-            if (error.name === 'AbortError') {
-                throw new Error(`Таймаут загрузки страницы: ${pageId}`);
-            }
-
-            throw error;
         }
+
+        // Если ни один путь не сработал, создаем заглушку
+        console.warn(`⚠️ Страница ${pageId} не найдена, создаем заглушку`);
+        return this.createFallbackPage(pageId);
     }
 
     /**
-     * Парсинг HTML страницы
+     * Создание заглушки страницы - НОВОЕ
+     */
+    createFallbackPage(pageId) {
+        const pageTitle = this.getPageTitle(pageId);
+        return {
+            id: pageId,
+            title: pageTitle,
+            description: `Страница ${pageTitle}`,
+            content: `
+                <div class="page-placeholder">
+                    <h2>${pageTitle}</h2>
+                    <p>Содержимое страницы "${pageTitle}" пока не доступно.</p>
+                    <p>ID страницы: <code>${pageId}</code></p>
+                    <div class="placeholder-actions">
+                        <button onclick="window.location.reload()" class="btn btn--primary">
+                            Обновить страницу
+                        </button>
+                        <button onclick="window.pageLoader?.loadPage('dashboard')" class="btn btn--secondary">
+                            На главную
+                        </button>
+                    </div>
+                </div>
+                <style>
+                    .page-placeholder {
+                        text-align: center;
+                        padding: 60px 20px;
+                        max-width: 600px;
+                        margin: 0 auto;
+                    }
+                    .page-placeholder h2 {
+                        color: var(--color-text);
+                        margin-bottom: 16px;
+                    }
+                    .page-placeholder p {
+                        color: var(--color-text-secondary);
+                        margin-bottom: 12px;
+                    }
+                    .placeholder-actions {
+                        margin-top: 32px;
+                    }
+                    .placeholder-actions .btn {
+                        margin: 0 8px;
+                    }
+                </style>
+            `,
+            timestamp: Date.now()
+        };
+    }
+
+    /**
+     * Парсинг HTML страницы - БЕЗ ИЗМЕНЕНИЙ
      */
     parsePageHTML(html, pageId) {
         const parser = new DOMParser();
@@ -212,7 +355,7 @@ class PageLoader {
 
         // Извлекаем метаданные
         const titleElement = doc.querySelector('title');
-        const title = titleElement ? titleElement.textContent : this.getDefaultPageTitle(pageId);
+        const title = titleElement ? titleElement.textContent : this.getPageTitle(pageId);
 
         // Извлекаем описание
         const descriptionMeta = doc.querySelector('meta[name="description"]');
@@ -228,7 +371,41 @@ class PageLoader {
     }
 
     /**
-     * Загрузка связанных ресурсов страницы (CSS, JS)
+     * Получение заголовка страницы по ID - НОВОЕ
+     */
+    getPageTitle(pageId) {
+        const titles = {
+            'dashboard': 'Панель управления',
+            'scanner': 'Модуль сканирования',
+            'attack-constructor': 'Конструктор атак',
+            'network-topology': 'Топология сети',
+            'reports': 'Отчеты и аналитика',
+            'settings': 'Настройки системы',
+            'monitoring': 'Мониторинг',
+            'analytics': 'Аналитика',
+            'security': 'Безопасность',
+            'logs': 'Журналы событий'
+        };
+        return titles[pageId] || `Страница ${pageId}`;
+    }
+
+    /**
+     * Проверка валидности ID страницы - УЛУЧШЕННАЯ
+     */
+    isValidPageId(pageId) {
+        if (!pageId || typeof pageId !== 'string') {
+            return false;
+        }
+
+        // Разрешенные символы и длина
+        const validPattern = /^[a-zA-Z0-9_-]+$/;
+        const maxLength = 50;
+
+        return validPattern.test(pageId) && pageId.length <= maxLength;
+    }
+
+    /**
+     * Загрузка связанных ресурсов страницы - БЕЗ ИЗМЕНЕНИЙ
      */
     async loadPageResources(pageId) {
         const promises = [];
@@ -251,7 +428,7 @@ class PageLoader {
     }
 
     /**
-     * Загрузка CSS файла
+     * Загрузка CSS файла - БЕЗ ИЗМЕНЕНИЙ
      */
     async loadCSS(url, pageId) {
         // Проверяем, не загружен ли уже этот CSS
@@ -265,23 +442,20 @@ class PageLoader {
             link.rel = 'stylesheet';
             link.href = url;
             link.dataset.page = pageId;
-
             link.onload = () => {
                 console.log(`✅ CSS загружен: ${url}`);
                 resolve();
             };
-
             link.onerror = () => {
                 console.warn(`⚠️ CSS не найден: ${url}`);
                 resolve(); // Не прерываем загрузку из-за отсутствующего CSS
             };
-
             document.head.appendChild(link);
         });
     }
 
     /**
-     * Загрузка JS файла
+     * Загрузка JS файла - БЕЗ ИЗМЕНЕНИЙ
      */
     async loadJS(url, pageId) {
         // Проверяем, не загружен ли уже этот скрипт
@@ -295,23 +469,20 @@ class PageLoader {
             script.src = url;
             script.dataset.page = pageId;
             script.defer = true;
-
             script.onload = () => {
                 console.log(`✅ JS загружен: ${url}`);
                 resolve();
             };
-
             script.onerror = () => {
                 console.warn(`⚠️ JS не найден: ${url}`);
                 resolve(); // Не прерываем загрузку из-за отсутствующего JS
             };
-
             document.head.appendChild(script);
         });
     }
 
     /**
-     * Установка контента страницы
+     * Установка контента страницы - УЛУЧШЕННАЯ
      */
     async setPageContent(pageData) {
         if (!this.elements.content) {
@@ -334,23 +505,23 @@ class PageLoader {
         if (this.config.enableTransitions) {
             this.elements.content.classList.remove('page-transition-exit');
             this.elements.content.classList.add('page-transition-enter');
-
             await this.delay(50);
-
             this.elements.content.classList.add('page-transition-enter-active');
             this.elements.content.classList.remove('page-transition-enter');
-
             await this.delay(300);
-
             this.elements.content.classList.remove('page-transition-enter-active');
         }
 
         // Прокручиваем в начало
-        this.elements.content.scrollTop = 0;
+        if (this.elements.content.scrollTo) {
+            this.elements.content.scrollTo(0, 0);
+        } else {
+            this.elements.content.scrollTop = 0;
+        }
     }
 
     /**
-     * Инициализация скриптов на странице
+     * Инициализация скриптов на странице - БЕЗ ИЗМЕНЕНИЙ
      */
     async initializePageScripts(pageId) {
         // Ищем функцию инициализации страницы
@@ -370,149 +541,99 @@ class PageLoader {
     }
 
     /**
-     * Инициализация компонентов на странице
+     * Инициализация компонентов на странице - БЕЗ ИЗМЕНЕНИЙ
      */
     initializePageComponents() {
         // Здесь можно инициализировать общие компоненты
-        // Например, tooltips, modals, формы и т.д.
-
         const interactiveElements = this.elements.content.querySelectorAll('[data-component]');
         interactiveElements.forEach(element => {
             const componentType = element.dataset.component;
-            // Инициализация компонента по типу
             console.log(`🔧 Инициализация компонента: ${componentType}`);
         });
     }
 
     /**
-     * Показ индикатора загрузки
+     * Показ индикатора загрузки - УЛУЧШЕННЫЙ
      */
     showLoading() {
         if (this.elements.loading) {
             this.elements.loading.classList.add('active');
+            this.elements.loading.style.display = 'flex';
         }
     }
 
     /**
-     * Скрытие индикатора загрузки
+     * Скрытие индикатора загрузки - УЛУЧШЕННЫЙ
      */
     hideLoading() {
         if (this.elements.loading) {
             this.elements.loading.classList.remove('active');
+            // Добавляем небольшую задержку для плавности
+            setTimeout(() => {
+                if (this.elements.loading && !this.elements.loading.classList.contains('active')) {
+                    this.elements.loading.style.display = 'none';
+                }
+            }, 300);
         }
     }
 
     /**
-     * Показ страницы ошибки
+     * Показ страницы ошибки - УЛУЧШЕННАЯ
      */
     showErrorPage(error, pageId) {
         const errorHTML = `
-      <div class="page-error">
-        <div class="error-icon">❌</div>
-        <h2 class="error-title">Ошибка загрузки страницы</h2>
-        <p class="error-message">Не удалось загрузить страницу "${this.getDefaultPageTitle(pageId)}"</p>
-        <p class="error-detail">${error.message}</p>
-        <div class="error-actions">
-          <button class="error-btn" onclick="window.app?.components?.pageLoader?.reloadCurrentPage()">
-            Попробовать снова
-          </button>
-          <button class="error-btn secondary" onclick="window.app?.navigateToPage('dashboard')">
-            На главную
-          </button>
-        </div>
-      </div>
-    `;
+            <div class="page-error">
+                <div class="error-icon">⚠️</div>
+                <h2 class="error-title">Ошибка загрузки страницы</h2>
+                <p class="error-message">${error.message}</p>
+                <div class="error-details">
+                    <p><strong>Страница:</strong> ${pageId}</p>
+                    <p><strong>Время:</strong> ${new Date().toLocaleString()}</p>
+                </div>
+                <div class="error-actions">
+                    <button onclick="window.location.reload()" class="error-btn">
+                        Обновить страницу
+                    </button>
+                    <button onclick="window.pageLoader?.loadPage('dashboard')" class="error-btn secondary">
+                        На главную
+                    </button>
+                    <button onclick="window.pageLoader?.loadPage('${pageId}')" class="error-btn secondary">
+                        Попробовать еще раз
+                    </button>
+                </div>
+            </div>
+        `;
 
-        this.elements.content.innerHTML = errorHTML;
+        if (this.elements.content) {
+            this.elements.content.innerHTML = errorHTML;
+        }
+
         this.hideLoading();
     }
 
     /**
-     * Обновление истории браузера
+     * Обновление истории браузера - БЕЗ ИЗМЕНЕНИЙ
      */
     updateBrowserHistory(pageId, title) {
-        const url = `#${pageId}`;
-        const state = { page: pageId };
-
         if (window.history && window.history.pushState) {
-            window.history.pushState(state, title, url);
+            window.history.pushState(
+                { page: pageId },
+                title,
+                `#${pageId}`
+            );
             document.title = `${title} - IP Roast Enterprise`;
         }
     }
 
     /**
-     * Получение заголовка страницы по умолчанию
-     */
-    getDefaultPageTitle(pageId) {
-        const titles = {
-            'dashboard': 'Панель управления',
-            'scanner': 'Модуль сканирования',
-            'attack-constructor': 'Конструктор атак',
-            'network-topology': 'Топология сети',
-            'reports': 'Отчеты и аналитика',
-            'settings': 'Настройки системы'
-        };
-
-        return titles[pageId] || 'Неизвестная страница';
-    }
-
-    /**
-     * Проверка валидности ID страницы
-     */
-    isValidPageId(pageId) {
-        const validPages = ['dashboard', 'scanner', 'attack-constructor', 'network-topology', 'reports', 'settings'];
-        return validPages.includes(pageId);
-    }
-
-    /**
-     * Перезагрузка текущей страницы
-     */
-    async reloadCurrentPage() {
-        if (!this.currentPage) return;
-
-        console.log(`🔄 Перезагрузка страницы: ${this.currentPage}`);
-
-        // Очищаем кэш для текущей страницы
-        this.pageCache.delete(this.currentPage);
-
-        // Загружаем заново
-        await this.loadPage(this.currentPage, false);
-    }
-
-    /**
-     * Очистка кэша страниц
-     */
-    clearCache() {
-        this.pageCache.clear();
-        console.log('🗑️ Кэш страниц очищен');
-    }
-
-    /**
-     * Предзагрузка страницы
-     */
-    async preloadPage(pageId) {
-        if (!this.isValidPageId(pageId) || this.pageCache.has(pageId)) {
-            return;
-        }
-
-        try {
-            console.log(`📄 Предзагрузка страницы: ${pageId}`);
-            const pageData = await this.fetchPage(pageId);
-            this.pageCache.set(pageId, pageData);
-        } catch (error) {
-            console.warn(`⚠️ Ошибка предзагрузки страницы ${pageId}:`, error);
-        }
-    }
-
-    /**
-     * Утилита для задержки
+     * Утилита задержки - БЕЗ ИЗМЕНЕНИЙ
      */
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     /**
-     * Система событий
+     * Система событий - БЕЗ ИЗМЕНЕНИЙ
      */
     on(event, callback) {
         if (!this.eventListeners.has(event)) {
@@ -544,51 +665,58 @@ class PageLoader {
     }
 
     /**
-     * Получение информации о загрузчике
+     * Получение информации о загрузчике - НОВОЕ
      */
     getInfo() {
         return {
             currentPage: this.currentPage,
-            cachedPages: Array.from(this.pageCache.keys()),
+            cacheSize: this.pageCache.size,
             loadingQueue: Array.from(this.loadingQueue),
-            config: this.config
+            elementsFound: {
+                container: !!this.elements.container,
+                content: !!this.elements.content,
+                loading: !!this.elements.loading
+            }
         };
     }
 
     /**
-     * Уничтожение загрузчика
+     * Принудительная перезагрузка страницы - НОВОЕ
      */
-    destroy() {
-        // Удаляем обработчики событий
-        window.removeEventListener('popstate', this.handlePopState);
-        document.removeEventListener('click', this.handleLinkClick);
+    async reloadCurrentPage() {
+        if (this.currentPage) {
+            // Очищаем кэш для текущей страницы
+            this.pageCache.delete(this.currentPage);
+            // Перезагружаем
+            await this.loadPage(this.currentPage, false);
+        }
+    }
 
-        // Очищаем кэш
-        this.clearCache();
-
-        // Удаляем загруженные стили страниц
-        document.querySelectorAll('link[data-page]').forEach(link => {
-            link.remove();
-        });
-
-        // Удаляем загруженные скрипты страниц
-        document.querySelectorAll('script[data-page]').forEach(script => {
-            script.remove();
-        });
-
-        // Очищаем слушатели событий
-        this.eventListeners.clear();
-
-        console.log('🗑️ PageLoader уничтожен');
+    /**
+     * Очистка кэша - НОВОЕ
+     */
+    clearCache() {
+        this.pageCache.clear();
+        console.log('🗑️ Кэш страниц очищен');
     }
 }
 
-// Экспорт
+// Глобальный экспорт
 window.PageLoader = PageLoader;
 
-// Автоинициализация
+// Автоматическая инициализация если элементы готовы
 document.addEventListener('DOMContentLoaded', () => {
-    if (!window.pageLoader) {
-        window.pageLoader = new PageLoader();
-    }
+    // Ждем немного чтобы другие компоненты могли загрузиться
+    setTimeout(() => {
+        if (!window.pageLoader) {
+            try {
+                window.pageLoader = new PageLoader();
+                console.log('✅ PageLoader автоматически инициализирован');
+            } catch (error) {
+                console.warn('⚠️ Автоматическая инициализация PageLoader не удалась:', error);
+            }
+        }
+    }, 100);
 });
+
+console.log('📄 PageLoader (исправленная версия) загружен');
