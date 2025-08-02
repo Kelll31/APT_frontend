@@ -1,17 +1,12 @@
 /**
-
-IP Roast Enterprise 4.0 - Sidebar Component
-
-Адаптивная боковая панель навигации
-
-Версия: Enterprise 4.0
-*/
+ * IP Roast Enterprise 4.0 - Fixed Sidebar Styles  
+ * Исправленные стили боковой панели навигации
+ * Версия: Enterprise 4.0 (Fixed)
+ */
 
 /* ===============================
-
-SIDEBAR LAYOUT
-
-=============================== */
+   SIDEBAR LAYOUT
+   =============================== */
 
 .sidebar {
     position: fixed;
@@ -45,10 +40,8 @@ SIDEBAR LAYOUT
 }
 
 /* ===============================
-
-SIDEBAR HEADER
-
-=============================== */
+   SIDEBAR HEADER
+   =============================== */
 
 .sidebar__header {
     padding: var(--space-20) var(--space-24);
@@ -104,7 +97,6 @@ SIDEBAR HEADER
 }
 
 .sidebar__toggle {
-    display: none;
     background: transparent;
     border: none;
     color: var(--color-text-secondary);
@@ -113,6 +105,11 @@ SIDEBAR HEADER
     border-radius: var(--radius-base);
     transition: all var(--duration-fast) var(--ease-standard);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
 }
 
 .sidebar__toggle:hover {
@@ -126,10 +123,8 @@ SIDEBAR HEADER
 }
 
 /* ===============================
-
-SIDEBAR NAVIGATION
-
-=============================== */
+   SIDEBAR NAVIGATION
+   =============================== */
 
 .sidebar__content {
     display: flex;
@@ -251,10 +246,8 @@ SIDEBAR NAVIGATION
 }
 
 /* ===============================
-
-COLLAPSED STATE
-
-=============================== */
+   COLLAPSED STATE
+   =============================== */
 
 .sidebar--collapsed .sidebar__brand-text,
 .sidebar--collapsed .nav-text,
@@ -308,10 +301,8 @@ COLLAPSED STATE
 }
 
 /* ===============================
-
-SIDEBAR FOOTER
-
-=============================== */
+   SIDEBAR FOOTER
+   =============================== */
 
 .sidebar__footer {
     padding: var(--space-20) var(--space-24);
@@ -364,15 +355,13 @@ SIDEBAR FOOTER
 }
 
 /* ===============================
-
-DESKTOP TOGGLE BUTTON
-
-=============================== */
+   ИСПРАВЛЕННЫЙ DESKTOP TOGGLE BUTTON
+   =============================== */
 
 .sidebar__desktop-toggle {
     position: fixed;
-    top: var(--space-16);
-    left: var(--space-16);
+    top: 20px;
+    left: 20px;
     z-index: 1001;
     background: var(--color-surface);
     border: 1px solid var(--color-card-border);
@@ -380,18 +369,22 @@ DESKTOP TOGGLE BUTTON
     width: 40px;
     height: 40px;
     display: none;
+    /* Скрыт по умолчанию */
     align-items: center;
     justify-content: center;
     cursor: pointer;
     color: var(--color-text-secondary);
     transition: all var(--duration-fast) var(--ease-standard);
     box-shadow: var(--shadow-sm);
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .sidebar__desktop-toggle:hover {
     background: var(--color-secondary);
     color: var(--color-text);
     box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
 }
 
 .sidebar__desktop-toggle:focus-visible {
@@ -399,16 +392,14 @@ DESKTOP TOGGLE BUTTON
     box-shadow: var(--focus-ring);
 }
 
-.sidebar--collapsed+.sidebar__desktop-toggle {
-    display: flex;
-    left: var(--space-16);
+.sidebar__desktop-toggle:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
 }
 
 /* ===============================
-
-MOBILE OVERLAY
-
-=============================== */
+   MOBILE OVERLAY
+   =============================== */
 
 .sidebar__overlay {
     position: fixed;
@@ -429,10 +420,8 @@ MOBILE OVERLAY
 }
 
 /* ===============================
-
-RESPONSIVE DESIGN
-
-=============================== */
+   RESPONSIVE DESIGN
+   =============================== */
 
 @media (min-width: 1025px) {
     .sidebar__toggle {
@@ -447,6 +436,11 @@ RESPONSIVE DESIGN
 
     .sidebar--open {
         transform: translateX(0);
+    }
+
+    /* Скрываем desktop toggle на мобильных */
+    .sidebar__desktop-toggle {
+        display: none !important;
     }
 }
 
@@ -466,10 +460,8 @@ RESPONSIVE DESIGN
 }
 
 /* ===============================
-
-ANIMATIONS
-
-=============================== */
+   ANIMATIONS
+   =============================== */
 
 @keyframes slideInLeft {
     from {
@@ -500,10 +492,8 @@ ANIMATIONS
 }
 
 /* ===============================
-
-DARK MODE ADJUSTMENTS
-
-=============================== */
+   DARK MODE ADJUSTMENTS
+   =============================== */
 
 @media (prefers-color-scheme: dark) {
     .sidebar--collapsed .nav-link:hover::after {
@@ -518,10 +508,8 @@ DARK MODE ADJUSTMENTS
 }
 
 /* ===============================
-
-ACCESSIBILITY
-
-=============================== */
+   ACCESSIBILITY
+   =============================== */
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -540,10 +528,8 @@ ACCESSIBILITY
 }
 
 /* ===============================
-
-HIGH CONTRAST MODE
-
-=============================== */
+   HIGH CONTRAST MODE
+   =============================== */
 
 @media (prefers-contrast: high) {
     .sidebar {
@@ -558,5 +544,38 @@ HIGH CONTRAST MODE
     .sidebar__footer {
         border-bottom-width: 2px;
         border-top-width: 2px;
+    }
+}
+
+/* ===============================
+   ДОПОЛНИТЕЛЬНЫЕ ИСПРАВЛЕНИЯ
+   =============================== */
+
+/* Исправление для мобильных устройств */
+@media (max-width: 1024px) {
+    .sidebar__desktop-toggle {
+        display: none !important;
+    }
+}
+
+/* Убираем показ toggle через CSS селектор */
+/* .sidebar--collapsed + .sidebar__desktop-toggle - УДАЛЕНО */
+
+/* Улучшение видимости toggle */
+.sidebar__desktop-toggle {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Плавная анимация для toggle */
+.sidebar__desktop-toggle {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Улучшение для темной темы */
+@media (prefers-color-scheme: dark) {
+    .sidebar__desktop-toggle {
+        background: rgba(var(--color-surface-rgb), 0.9);
+        backdrop-filter: blur(12px);
     }
 }

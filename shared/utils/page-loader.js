@@ -117,7 +117,7 @@ export class PageLoader {
             this.showLoadingIndicator(tabId);
 
             // Загружаем HTML файл
-            const response = await fetch(`APT_frontend/pages/${tabId}.html`);
+            const response = await fetch(`./pages/${tabId}.html`);
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);

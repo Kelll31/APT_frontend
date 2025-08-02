@@ -1,7 +1,7 @@
 /**
- * IP Roast Enterprise 4.0 - Sidebar Component
- * Адаптивная боковая панель навигации с современным функционалом
- * Версия: Enterprise 4.0 Ultimate
+ * IP Roast Enterprise 4.0 - Fixed Sidebar Component
+ * Исправленная адаптивная боковая панель навигации
+ * Версия: Enterprise 4.0 (Fixed)
  */
 
 import { EventEmitter, logger, Storage, debounce, addClass, removeClass, toggleClass } from '../utils/helpers.js';
@@ -10,7 +10,6 @@ import { STORAGE_KEYS, MODULES, ANIMATION_DURATION } from '../utils/constants.js
 export class SidebarComponent extends EventEmitter {
     constructor(options = {}) {
         super();
-
         this.options = {
             container: '.sidebar',
             toggleButton: '.sidebar__toggle',
@@ -58,7 +57,6 @@ export class SidebarComponent extends EventEmitter {
     async init() {
         try {
             logger.info('🔧 Инициализация Sidebar компонента');
-
             await this.findElements();
             this.loadState();
             this.setupEventListeners();
@@ -66,7 +64,6 @@ export class SidebarComponent extends EventEmitter {
             this.updateView();
             this.setupNavigation();
             this.setupSystemStatus();
-
             logger.info('✅ Sidebar компонент инициализирован успешно');
             this.emit('initialized');
         } catch (error) {
@@ -94,19 +91,27 @@ export class SidebarComponent extends EventEmitter {
     }
 
     /**
-     * Создание кнопки desktop toggle
+     * ИСПРАВЛЕННАЯ функция создания desktop toggle
      */
     createDesktopToggle() {
-        if (!document.querySelector(this.options.desktopToggleButton)) {
-            const toggle = document.createElement('button');
-            toggle.className = 'sidebar__desktop-toggle';
-            toggle.innerHTML = '<i class="fas fa-bars"></i>';
-            toggle.title = 'Развернуть меню';
-            toggle.setAttribute('aria-label', 'Развернуть боковое меню');
-            document.body.appendChild(toggle);
+        // Удаляем существующий toggle если есть
+        const existingToggle = document.querySelector(this.options.desktopToggleButton);
+        if (existingToggle) {
+            existingToggle.remove();
         }
 
-        this.elements.desktopToggle = document.querySelector(this.options.desktopToggleButton);
+        const toggle = document.createElement('button');
+        toggle.className = 'sidebar__desktop-toggle';
+        toggle.innerHTML = '☰'; // Простая иконка меню
+        toggle.title = 'Развернуть меню';
+        toggle.setAttribute('aria-label', 'Развернуть боковое меню');
+        toggle.style.display = 'none'; // Скрываем по умолчанию
+
+        // Добавляем в body
+        document.body.appendChild(toggle);
+        this.elements.desktopToggle = toggle;
+
+        logger.debug('Desktop toggle создан');
     }
 
     /**
@@ -115,11 +120,19 @@ export class SidebarComponent extends EventEmitter {
     setupEventListeners() {
         // Toggle кнопки
         if (this.elements.toggle) {
-            this.elements.toggle.addEventListener('click', () => this.toggle());
+            this.elements.toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggle();
+            });
+            logger.debug('Mobile toggle обработчик добавлен');
         }
 
         if (this.elements.desktopToggle) {
-            this.elements.desktopToggle.addEventListener('click', () => this.expand());
+            this.elements.desktopToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.expand();
+            });
+            logger.debug('Desktop toggle обработчик добавлен');
         }
 
         // Overlay для мобильных
@@ -185,13 +198,11 @@ export class SidebarComponent extends EventEmitter {
 
             if (label && value) {
                 const statusType = label.textContent.toLowerCase();
-
                 if (statusData[statusType]) {
                     value.textContent = statusData[statusType];
 
                     // Обновляем CSS классы
                     value.className = 'status-value';
-
                     if (statusData[statusType] === 'OK' || statusData[statusType] === 'Connected' || statusData[statusType] === 'Protected') {
                         addClass(value, 'status-healthy');
                     } else if (statusData[statusType] === 'WARNING') {
@@ -209,7 +220,6 @@ export class SidebarComponent extends EventEmitter {
      */
     handleNavClick(e, item) {
         e.preventDefault();
-
         const tabId = item.dataset.tab;
         if (!tabId) return;
 
@@ -256,7 +266,6 @@ export class SidebarComponent extends EventEmitter {
      */
     checkMobileView() {
         this.state.isMobile = window.innerWidth <= this.options.mobileBreakpoint;
-
         if (this.state.isMobile) {
             addClass(this.elements.sidebar, 'sidebar--mobile');
         } else {
@@ -271,6 +280,7 @@ export class SidebarComponent extends EventEmitter {
         if (this.state.isMobile) {
             // Переход на мобильный - закрываем меню
             this.close();
+            this.hideDesktopToggle();
         } else {
             // Переход на десктоп - восстанавливаем состояние
             this.loadState();
@@ -306,7 +316,7 @@ export class SidebarComponent extends EventEmitter {
     }
 
     /**
-     * Переключение состояния
+     * ИСПРАВЛЕННАЯ функция переключения состояния
      */
     toggle() {
         if (this.state.isMobile) {
@@ -367,13 +377,16 @@ export class SidebarComponent extends EventEmitter {
     }
 
     /**
-     * Сворачивание меню (десктоп)
+     * ИСПРАВЛЕННАЯ функция сворачивания меню (десктоп)
      */
     collapse() {
         if (this.state.isMobile || this.state.isCollapsed) return;
 
         this.state.isCollapsed = true;
         addClass(this.elements.sidebar, 'sidebar--collapsed');
+
+        // Показываем desktop toggle
+        this.showDesktopToggle();
 
         if (this.elements.desktopToggle) {
             this.elements.desktopToggle.title = 'Развернуть меню';
@@ -385,13 +398,16 @@ export class SidebarComponent extends EventEmitter {
     }
 
     /**
-     * Разворачивание меню (десктоп)
+     * ИСПРАВЛЕННАЯ функция разворачивания меню (десктоп)
      */
     expand() {
         if (this.state.isMobile || !this.state.isCollapsed) return;
 
         this.state.isCollapsed = false;
         removeClass(this.elements.sidebar, 'sidebar--collapsed');
+
+        // Скрываем desktop toggle
+        this.hideDesktopToggle();
 
         if (this.elements.desktopToggle) {
             this.elements.desktopToggle.title = 'Свернуть меню';
@@ -403,20 +419,45 @@ export class SidebarComponent extends EventEmitter {
     }
 
     /**
-     * Обновление отображения
+     * НОВАЯ функция для показа desktop toggle
+     */
+    showDesktopToggle() {
+        if (this.elements.desktopToggle && !this.state.isMobile) {
+            this.elements.desktopToggle.style.display = 'flex';
+            logger.debug('Desktop toggle показан');
+        }
+    }
+
+    /**
+     * НОВАЯ функция для скрытия desktop toggle
+     */
+    hideDesktopToggle() {
+        if (this.elements.desktopToggle) {
+            this.elements.desktopToggle.style.display = 'none';
+            logger.debug('Desktop toggle скрыт');
+        }
+    }
+
+    /**
+     * ИСПРАВЛЕННАЯ функция обновления отображения
      */
     updateView() {
         if (this.state.isMobile) {
+            // Мобильная логика
             if (this.state.isOpen) {
                 addClass(this.elements.sidebar, 'sidebar--open');
             } else {
                 removeClass(this.elements.sidebar, 'sidebar--open');
             }
+            this.hideDesktopToggle();
         } else {
+            // Десктопная логика
             if (this.state.isCollapsed) {
                 addClass(this.elements.sidebar, 'sidebar--collapsed');
+                this.showDesktopToggle();
             } else {
                 removeClass(this.elements.sidebar, 'sidebar--collapsed');
+                this.hideDesktopToggle();
             }
         }
     }
@@ -509,7 +550,6 @@ export class SidebarComponent extends EventEmitter {
 
         // Очищаем состояние
         this.removeAllListeners();
-
         logger.info('🗑️ Sidebar компонент уничтожен');
     }
 }

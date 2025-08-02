@@ -216,7 +216,7 @@ class IPRoastEnterpriseApp extends EventEmitter {
 
             // Связываем sidebar с page loader
             this.components.sidebar.on('navigate', (data) => {
-                this.components.pageLoader.loadPage(data.tab);
+                this.loadPage(data.tab);
                 logger.info(`Навигация к модулю: ${data.tab}`);
             });
 
