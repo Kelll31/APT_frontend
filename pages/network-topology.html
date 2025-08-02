@@ -1,5 +1,1157 @@
-<section class="dashboard-static">
-    <h1>Панель управления</h1>
-    <p>Добро пожаловать в IP Roast Enterprise.</p>
-    <!-- Здесь можно вставить статические виджеты–заглушки -->
-</section>
+<!-- pages/network-topology.html -->
+<!-- Advanced Network Topology module for IP Roast Enterprise 4.0 -->
+<!-- Enhanced with full functionality from network-topology folder -->
+
+<!-- All Network Topology Styles -->
+<link rel="stylesheet" href="../network-topology/network-map.css">
+<link rel="stylesheet" href="../network-topology/network-graph.css">
+<link rel="stylesheet" href="../network-topology/topology-viewer.css">
+<link rel="stylesheet" href="../network-topology/device-details.css">
+
+<!-- Topology Viewer Container -->
+<div class="topology-viewer" id="topology-viewer">
+
+    <!-- Sidebar Panel -->
+    <aside class="topology-sidebar" id="topology-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Сетевая топология</h2>
+            <button class="sidebar-toggle-btn" id="sidebar-toggle" title="Свернуть/развернуть">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- Search and Filters -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h4 class="section-title">Поиск и фильтры</h4>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Поиск устройств..." id="device-search">
+                    <i class="search-icon fas fa-search"></i>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Тип устройства:</label>
+                    <select class="filter-select" id="device-type-filter">
+                        <option value="">Все устройства</option>
+                        <option value="router">Маршрутизаторы</option>
+                        <option value="switch">Коммутаторы</option>
+                        <option value="firewall">Межсетевые экраны</option>
+                        <option value="server">Серверы</option>
+                        <option value="endpoint">Конечные устройства</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Статус:</label>
+                    <select class="filter-select" id="device-status-filter">
+                        <option value="">Все статусы</option>
+                        <option value="online">В сети</option>
+                        <option value="offline">Офлайн</option>
+                        <option value="warning">Предупреждение</option>
+                        <option value="unknown">Неизвестно</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Подсеть:</label>
+                    <select class="filter-select" id="subnet-filter">
+                        <option value="">Все подсети</option>
+                        <option value="192.168.1.0/24">192.168.1.0/24</option>
+                        <option value="192.168.2.0/24">192.168.2.0/24</option>
+                        <option value="10.0.0.0/8">10.0.0.0/8</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Topology Tree -->
+            <div class="topology-tree">
+                <div class="tree-section" id="devices-section">
+                    <div class="tree-section-header" onclick="toggleTreeSection('devices-section')">
+                        <h4 class="tree-section-title">Устройства</h4>
+                        <span class="tree-section-count" id="devices-count">0</span>
+                        <i class="tree-section-toggle fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tree-items" id="devices-tree">
+                        <!-- Device items will be dynamically generated -->
+                    </div>
+                </div>
+
+                <div class="tree-section" id="segments-section">
+                    <div class="tree-section-header" onclick="toggleTreeSection('segments-section')">
+                        <h4 class="tree-section-title">Сегменты сети</h4>
+                        <span class="tree-section-count" id="segments-count">0</span>
+                        <i class="tree-section-toggle fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tree-items" id="segments-tree">
+                        <!-- Segment items will be dynamically generated -->
+                    </div>
+                </div>
+
+                <div class="tree-section" id="vulnerabilities-section">
+                    <div class="tree-section-header" onclick="toggleTreeSection('vulnerabilities-section')">
+                        <h4 class="tree-section-title">Уязвимости</h4>
+                        <span class="tree-section-count" id="vulnerabilities-count">0</span>
+                        <i class="tree-section-toggle fas fa-chevron-down"></i>
+                    </div>
+                    <div class="tree-items" id="vulnerabilities-tree">
+                        <!-- Vulnerability items will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Topology Area -->
+    <div class="topology-main">
+
+        <!-- Topology Header -->
+        <header class="topology-header">
+            <div class="topology-breadcrumb">
+                <a href="#" class="breadcrumb-item">Главная</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-item active">Топология сети</span>
+            </div>
+
+            <div class="topology-actions">
+                <!-- View Mode Selector -->
+                <div class="view-mode-selector">
+                    <button class="view-mode-btn active" data-mode="map" title="Карта сети">
+                        <i class="fas fa-map"></i>
+                    </button>
+                    <button class="view-mode-btn" data-mode="graph" title="Граф сети">
+                        <i class="fas fa-project-diagram"></i>
+                    </button>
+                    <button class="view-mode-btn" data-mode="list" title="Список устройств">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+
+                <!-- Layout Controls -->
+                <div class="layout-controls">
+                    <select class="layout-select" id="layout-algorithm">
+                        <option value="force">Force Layout</option>
+                        <option value="hierarchical">Иерархический</option>
+                        <option value="circular">Круговой</option>
+                        <option value="grid">Сетка</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn" id="refresh-topology" title="Обновить топологию">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="action-btn" id="auto-arrange" title="Автоматическое размещение">
+                        <i class="fas fa-magic"></i>
+                    </button>
+                    <button class="action-btn" id="fit-to-screen" title="Уместить на экране">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                    <button class="action-btn" id="export-topology" title="Экспорт топологии">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="action-btn" id="settings-topology" title="Настройки">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Network Map Container -->
+        <div class="network-topology" id="network-topology">
+
+            <!-- Map View -->
+            <div class="topology-view active" id="map-view">
+                <div class="network-map-container">
+
+                    <!-- Map Header & Controls -->
+                    <div class="network-map-header">
+                        <div class="map-title">
+                            <h3>Интерактивная карта сети</h3>
+                            <div class="map-status-indicator live">
+                                <i class="fas fa-circle"></i>
+                                <span>Данные в реальном времени</span>
+                            </div>
+                        </div>
+
+                        <div class="map-controls">
+                            <!-- Zoom Controls -->
+                            <div class="map-control-group">
+                                <button class="map-control-btn" id="zoom-in" data-tooltip="Увеличить">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="map-control-btn" id="zoom-out" data-tooltip="Уменьшить">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="map-control-btn" id="zoom-fit" data-tooltip="Уместить все">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+
+                            <!-- Display Controls -->
+                            <div class="map-control-group">
+                                <button class="map-control-btn active" id="toggle-labels"
+                                    data-tooltip="Показать/скрыть подписи">
+                                    <i class="fas fa-tag"></i>
+                                </button>
+                                <button class="map-control-btn" id="toggle-connections"
+                                    data-tooltip="Показать/скрыть соединения">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                                <button class="map-control-btn" id="toggle-grid" data-tooltip="Показать/скрыть сетку">
+                                    <i class="fas fa-th"></i>
+                                </button>
+                            </div>
+
+                            <!-- View Options -->
+                            <div class="map-view-selector">
+                                <button class="map-view-option active" data-view="physical">Физическая</button>
+                                <button class="map-view-option" data-view="logical">Логическая</button>
+                                <button class="map-view-option" data-view="security">Безопасность</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map Viewport -->
+                    <div class="network-map-viewport" id="map-viewport">
+                        <div class="map-canvas" id="map-canvas">
+                            <!-- Network segments will be rendered here -->
+                            <div class="network-segment vlan" data-label="VLAN 100"
+                                style="left: 50px; top: 50px; width: 300px; height: 200px;"></div>
+                            <div class="network-segment subnet" data-label="DMZ"
+                                style="left: 400px; top: 50px; width: 250px; height: 200px;"></div>
+
+                            <!-- Network devices will be rendered here -->
+                            <div class="network-device router selected" style="left: 100px; top: 100px;"
+                                data-id="router-01">
+                                <div class="device-icon-container">
+                                    <i class="device-icon fas fa-router"></i>
+                                    <div class="device-status-indicator online"></div>
+                                </div>
+                                <div class="device-label">Core-Router-01</div>
+                            </div>
+
+                            <div class="network-device switch" style="left: 200px; top: 150px;" data-id="switch-01">
+                                <div class="device-icon-container">
+                                    <i class="device-icon fas fa-network-wired"></i>
+                                    <div class="device-status-indicator online"></div>
+                                </div>
+                                <div class="device-label">Access-Switch-01</div>
+                            </div>
+
+                            <div class="network-device firewall" style="left: 450px; top: 100px;" data-id="firewall-01">
+                                <div class="device-icon-container">
+                                    <i class="device-icon fas fa-shield-alt"></i>
+                                    <div class="device-status-indicator warning"></div>
+                                </div>
+                                <div class="device-label">DMZ-Firewall</div>
+                            </div>
+
+                            <div class="network-device server" style="left: 500px; top: 180px;" data-id="server-01">
+                                <div class="device-icon-container">
+                                    <i class="device-icon fas fa-server"></i>
+                                    <div class="device-status-indicator online"></div>
+                                </div>
+                                <div class="device-label">Web-Server-01</div>
+                            </div>
+
+                            <!-- Connection lines will be drawn with SVG -->
+                            <svg class="connection-overlay"
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                                <line class="connection-line highlighted" x1="120" y1="120" x2="220" y2="170"
+                                    stroke="#32b8c6" stroke-width="3"></line>
+                                <line class="connection-line" x1="220" y1="170" x2="470" y2="120" stroke="#32b8c6"
+                                    stroke-width="2"></line>
+                                <line class="connection-line" x1="470" y1="120" x2="520" y2="200" stroke="#32b8c6"
+                                    stroke-width="2"></line>
+                            </svg>
+                        </div>
+
+                        <!-- Grid Background -->
+                        <div class="map-grid"></div>
+                        <div class="map-grid major"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graph View -->
+            <div class="topology-view" id="graph-view">
+                <div class="network-graph-container">
+
+                    <!-- Graph Toolbar -->
+                    <div class="graph-toolbar">
+                        <div class="graph-controls">
+                            <!-- Layout Controls -->
+                            <div class="graph-control-group">
+                                <button class="graph-control-btn active" id="force-layout" title="Force Layout">
+                                    <i class="fas fa-expand-arrows-alt"></i>
+                                </button>
+                                <button class="graph-control-btn" id="hierarchical-layout" title="Hierarchical Layout">
+                                    <i class="fas fa-sitemap"></i>
+                                </button>
+                                <button class="graph-control-btn" id="circular-layout" title="Circular Layout">
+                                    <i class="fas fa-circle-notch"></i>
+                                </button>
+                            </div>
+
+                            <!-- Zoom Controls -->
+                            <div class="graph-control-group">
+                                <button class="graph-control-btn" id="graph-zoom-in">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <span class="graph-zoom-level">100%</span>
+                                <button class="graph-control-btn" id="graph-zoom-out">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                            </div>
+
+                            <!-- Layout Selector -->
+                            <div class="graph-layout-selector">
+                                <button class="graph-layout-btn">
+                                    <i class="fas fa-project-diagram"></i>
+                                    <span>Алгоритм размещения</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="graph-info">
+                            <div class="graph-stats">
+                                <div class="graph-stat">
+                                    <span class="graph-stat-value" id="nodes-count">24</span>
+                                    <span>узлов</span>
+                                </div>
+                                <div class="graph-stat">
+                                    <span class="graph-stat-value" id="links-count">47</span>
+                                    <span>связей</span>
+                                </div>
+                                <div class="graph-stat">
+                                    <span class="graph-stat-value" id="clusters-count">3</span>
+                                    <span>кластеров</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graph Canvas -->
+                    <div class="graph-canvas" id="graph-canvas">
+                        <svg class="graph-svg" id="graph-svg">
+                            <!-- Graph content will be dynamically generated -->
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div class="topology-view" id="list-view">
+                <div class="devices-list-container">
+                    <div class="list-header">
+                        <h3>Список устройств</h3>
+                        <div class="list-controls">
+                            <button class="btn btn--primary btn--sm" id="add-device">
+                                <i class="fas fa-plus"></i>
+                                Добавить устройство
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="devices-table-container">
+                        <table class="devices-table">
+                            <thead>
+                                <tr>
+                                    <th>Устройство</th>
+                                    <th>IP адрес</th>
+                                    <th>Тип</th>
+                                    <th>Статус</th>
+                                    <th>Последняя активность</th>
+                                    <th>Уязвимости</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devices-table-body">
+                                <!-- Table rows will be dynamically generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Map Legend -->
+        <div class="network-map-legend" id="map-legend">
+            <div class="legend-header">
+                <h4 class="legend-title">Легенда</h4>
+                <button class="legend-toggle" id="legend-toggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            <div class="legend-items">
+                <!-- Device Types -->
+                <div class="legend-section">
+                    <h5>Типы устройств</h5>
+                    <div class="legend-item">
+                        <div class="legend-icon router"></div>
+                        <span class="legend-text">Маршрутизаторы</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon switch"></div>
+                        <span class="legend-text">Коммутаторы</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon firewall"></div>
+                        <span class="legend-text">Межсетевые экраны</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon server"></div>
+                        <span class="legend-text">Серверы</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon endpoint"></div>
+                        <span class="legend-text">Конечные устройства</span>
+                    </div>
+                </div>
+
+                <!-- Connection Types -->
+                <div class="legend-section">
+                    <h5>Типы соединений</h5>
+                    <div class="legend-item">
+                        <div class="legend-line ethernet"></div>
+                        <span class="legend-text">Ethernet</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line fiber"></div>
+                        <span class="legend-text">Оптоволокно</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line wireless"></div>
+                        <span class="legend-text">Беспроводная</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line vpn"></div>
+                        <span class="legend-text">VPN</span>
+                    </div>
+                </div>
+
+                <!-- Status Indicators -->
+                <div class="legend-section">
+                    <h5>Статусы</h5>
+                    <div class="legend-item">
+                        <div class="legend-status online"></div>
+                        <span class="legend-text">В сети</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-status offline"></div>
+                        <span class="legend-text">Офлайн</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-status warning"></div>
+                        <span class="legend-text">Предупреждение</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-status unknown"></div>
+                        <span class="legend-text">Неизвестно</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Minimap -->
+        <div class="network-map-minimap" id="minimap">
+            <div class="minimap-viewport"></div>
+            <div class="minimap-content">
+                <!-- Miniature version of the network map -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Properties Panel -->
+    <div class="topology-properties" id="topology-properties">
+
+        <!-- Device Details Panel -->
+        <div class="device-details" id="device-details-panel">
+            <!-- Device details will be dynamically loaded -->
+        </div>
+
+        <!-- Properties Toggle -->
+        <button class="properties-toggle" id="properties-toggle" title="Показать/скрыть свойства">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Templates for Dynamic Content -->
+<script type="text/template" id="device-tree-item-template">
+    <div class="tree-item {{deviceType}}" data-device-id="{{id}}">
+        <div class="tree-item-icon">
+            <i class="{{iconClass}}"></i>
+        </div>
+        <div class="tree-item-info">
+            <h5 class="tree-item-name">{{name}}</h5>
+            <p class="tree-item-details">{{ip}} | {{model}}</p>
+        </div>
+        <div class="tree-item-status {{statusClass}}"></div>
+    </div>
+</script>
+
+<script type="text/template" id="segment-tree-item-template">
+    <div class="tree-item segment" data-segment-id="{{id}}">
+        <div class="tree-item-icon">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div class="tree-item-info">
+            <h5 class="tree-item-name">{{name}}</h5>
+            <p class="tree-item-details">{{network}} | {{deviceCount}} устройств</p>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="vulnerability-tree-item-template">
+    <div class="tree-item vulnerability {{severity}}" data-vuln-id="{{id}}">
+        <div class="tree-item-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="tree-item-info">
+            <h5 class="tree-item-name">{{title}}</h5>
+            <p class="tree-item-details">{{affectedDevices}} устройств</p>
+        </div>
+        <div class="tree-item-status {{severityClass}}"></div>
+    </div>
+</script>
+
+<script type="text/template" id="device-table-row-template">
+    <tr data-device-id="{{id}}">
+        <td>
+            <div class="device-info">
+                <i class="device-type-icon {{iconClass}}"></i>
+                <div class="device-name-info">
+                    <strong>{{name}}</strong>
+                    <small>{{hostname}}</small>
+                </div>
+            </div>
+        </td>
+        <td class="table-cell-mono">{{ip}}</td>
+        <td>{{type}}</td>
+        <td>
+            <span class="device-status {{statusClass}}">
+                <i class="fas fa-circle"></i>
+                {{statusText}}
+            </span>
+        </td>
+        <td>{{lastActivity}}</td>
+        <td>
+            <span class="vulnerability-count {{vulnSeverity}}">{{vulnerabilityCount}}</span>
+        </td>
+        <td class="table-actions">
+            <button class="action-btn-sm" onclick="viewDeviceDetails('{{id}}')" title="Просмотр">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn-sm" onclick="scanDevice('{{id}}')" title="Сканировать">
+                <i class="fas fa-search"></i>
+            </button>
+            <button class="action-btn-sm" onclick="editDevice('{{id}}')" title="Редактировать">
+                <i class="fas fa-edit"></i>
+            </button>
+        </td>
+    </tr>
+</script>
+
+<!-- Enhanced JavaScript Modules -->
+<script src="../network-topology/network-map.js" defer></script>
+<script src="../network-topology/network-graph.js" defer></script>
+<script src="../network-topology/device-details.js" defer></script>
+<script src="../network-topology/topology-viewer.js" defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🗺️ Initializing Network Topology Module');
+
+        // Initialize Enhanced Topology Viewer with full capabilities
+        const topologyViewer = new TopologyViewerController({
+            container: '#topology-viewer',
+            autoRefresh: true,
+            refreshInterval: 30000,
+            defaultView: 'map',
+            showSidebar: true,
+            showProperties: true,
+            enableSearch: true,
+            enableFilters: true,
+            enableWebSocket: true,
+            onDeviceSelect: (deviceId) => {
+                console.log('📱 Device selected:', deviceId);
+                showDeviceDetails(deviceId);
+            },
+            onSegmentSelect: (segmentId) => {
+                console.log('🏢 Segment selected:', segmentId);
+                highlightSegment(segmentId);
+            },
+            onTopologyUpdate: (data) => {
+                console.log('🔄 Topology updated:', data);
+                updateTopologyStats(data);
+            },
+            onError: (error) => {
+                console.error('❌ Topology error:', error);
+                showErrorNotification('Ошибка загрузки топологии');
+            }
+        });
+
+        // Initialize Network Map Controller
+        const networkMapController = new NetworkTopologyController({
+            container: '#map-view'
+        });
+
+        // Initialize Network Graph Controller  
+        const networkGraphController = new NetworkGraphController({
+            container: '#graph-view'
+        });
+
+        // Setup view switching
+        setupViewSwitching();
+
+        // Setup search and filters
+        setupSearchAndFilters();
+
+        // Setup interactive controls
+        setupInteractiveControls();
+
+        // Setup keyboard shortcuts
+        setupKeyboardShortcuts();
+
+        // Setup export functionality
+        setupExportFunctionality();
+
+        // Setup real-time updates
+        setupRealTimeUpdates();
+
+        // Load initial data
+        loadInitialTopologyData();
+    });
+
+    // View switching functionality
+    function setupViewSwitching() {
+        const viewButtons = document.querySelectorAll('.view-mode-btn');
+        const views = document.querySelectorAll('.topology-view');
+
+        viewButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.dataset.mode;
+
+                // Update active button
+                viewButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Switch views
+                views.forEach(view => view.classList.remove('active'));
+                document.getElementById(`${mode}-view`).classList.add('active');
+
+                // Trigger view-specific initialization
+                switch (mode) {
+                    case 'map':
+                        initializeMapView();
+                        break;
+                    case 'graph':
+                        initializeGraphView();
+                        break;
+                    case 'list':
+                        initializeListView();
+                        break;
+                }
+            });
+        });
+    }
+
+    // Search and filter functionality
+    function setupSearchAndFilters() {
+        const searchInput = document.getElementById('device-search');
+        const typeFilter = document.getElementById('device-type-filter');
+        const statusFilter = document.getElementById('device-status-filter');
+        const subnetFilter = document.getElementById('subnet-filter');
+
+        // Debounced search
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterDevices({
+                    search: e.target.value,
+                    type: typeFilter.value,
+                    status: statusFilter.value,
+                    subnet: subnetFilter.value
+                });
+            }, 300);
+        });
+
+        // Filter changes
+        [typeFilter, statusFilter, subnetFilter].forEach(filter => {
+            filter.addEventListener('change', () => {
+                filterDevices({
+                    search: searchInput.value,
+                    type: typeFilter.value,
+                    status: statusFilter.value,
+                    subnet: subnetFilter.value
+                });
+            });
+        });
+    }
+
+    // Interactive controls setup
+    function setupInteractiveControls() {
+        // Sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+            document.getElementById('topology-sidebar').classList.toggle('collapsed');
+        });
+
+        // Properties panel toggle
+        document.getElementById('properties-toggle').addEventListener('click', () => {
+            document.getElementById('topology-properties').classList.toggle('collapsed');
+        });
+
+        // Legend toggle
+        document.getElementById('legend-toggle').addEventListener('click', () => {
+            document.getElementById('map-legend').classList.toggle('collapsed');
+        });
+
+        // Zoom controls
+        document.getElementById('zoom-in').addEventListener('click', () => zoomIn());
+        document.getElementById('zoom-out').addEventListener('click', () => zoomOut());
+        document.getElementById('zoom-fit').addEventListener('click', () => fitToScreen());
+
+        // Display toggles
+        document.getElementById('toggle-labels').addEventListener('click', toggleLabels);
+        document.getElementById('toggle-connections').addEventListener('click', toggleConnections);
+        document.getElementById('toggle-grid').addEventListener('click', toggleGrid);
+
+        // Action buttons
+        document.getElementById('refresh-topology').addEventListener('click', refreshTopology);
+        document.getElementById('auto-arrange').addEventListener('click', autoArrangeDevices);
+        document.getElementById('fit-to-screen').addEventListener('click', fitToScreen);
+        document.getElementById('export-topology').addEventListener('click', exportTopology);
+        document.getElementById('settings-topology').addEventListener('click', openTopologySettings);
+    }
+
+    // Keyboard shortcuts
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('device-search').focus();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        refreshTopology();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        switchToView('map');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        switchToView('graph');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        switchToView('list');
+                        break;
+                    case '=':
+                    case '+':
+                        e.preventDefault();
+                        zoomIn();
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        zoomOut();
+                        break;
+                    case '0':
+                        e.preventDefault();
+                        fitToScreen();
+                        break;
+                }
+            }
+
+            if (e.key === 'Escape') {
+                // Close any open dialogs or panels
+                closeAllDialogs();
+            }
+        });
+    }
+
+    // Export functionality
+    function setupExportFunctionality() {
+        const exportFormats = ['png', 'svg', 'pdf', 'json'];
+
+        exportFormats.forEach(format => {
+            document.addEventListener('export-' + format, () => {
+                exportTopologyAs(format);
+            });
+        });
+    }
+
+    // Real-time updates via WebSocket
+    function setupRealTimeUpdates() {
+        if (window.WebSocket) {
+            const ws = new WebSocket('/ws/topology');
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleTopologyUpdate(data);
+            };
+
+            ws.onopen = () => {
+                console.log('🔌 WebSocket connected for topology updates');
+            };
+
+            ws.onclose = () => {
+                console.log('📴 WebSocket disconnected, attempting reconnect...');
+                setTimeout(setupRealTimeUpdates, 5000);
+            };
+        }
+    }
+
+    // Tree section toggle
+    function toggleTreeSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.classList.toggle('collapsed');
+    }
+
+    // View initialization functions
+    function initializeMapView() {
+        console.log('🗺️ Initializing map view');
+        // Refresh map layout
+        if (window.networkMapController) {
+            window.networkMapController.refresh();
+        }
+    }
+
+    function initializeGraphView() {
+        console.log('📊 Initializing graph view');
+        // Refresh graph layout
+        if (window.networkGraphController) {
+            window.networkGraphController.refresh();
+        }
+    }
+
+    function initializeListView() {
+        console.log('📋 Initializing list view');
+        loadDevicesTable();
+    }
+
+    // Device filtering
+    function filterDevices(filters) {
+        console.log('🔍 Filtering devices:', filters);
+        // Apply filters to current view
+        if (window.topologyViewer) {
+            window.topologyViewer.applyFilters(filters);
+        }
+    }
+
+    // Device details
+    function showDeviceDetails(deviceId) {
+        console.log('📱 Showing device details:', deviceId);
+
+        // Initialize device details controller
+        if (window.DeviceDetailsController) {
+            new DeviceDetailsController({
+                container: '#device-details-panel',
+                deviceId: deviceId
+            });
+        }
+
+        // Show properties panel
+        document.getElementById('topology-properties').classList.remove('collapsed');
+    }
+
+    // Utility functions
+    function zoomIn() { console.log('🔍 Zoom in'); }
+    function zoomOut() { console.log('🔍 Zoom out'); }
+    function fitToScreen() { console.log('🔍 Fit to screen'); }
+    function toggleLabels() { console.log('🏷️ Toggle labels'); }
+    function toggleConnections() { console.log('🔗 Toggle connections'); }
+    function toggleGrid() { console.log('⚏ Toggle grid'); }
+    function refreshTopology() { console.log('🔄 Refresh topology'); }
+    function autoArrangeDevices() { console.log('✨ Auto arrange devices'); }
+    function exportTopology() { console.log('💾 Export topology'); }
+    function openTopologySettings() { console.log('⚙️ Open settings'); }
+    function switchToView(viewName) { console.log('👁️ Switch to view:', viewName); }
+    function closeAllDialogs() { console.log('❌ Close all dialogs'); }
+    function exportTopologyAs(format) { console.log('💾 Export as:', format); }
+    function handleTopologyUpdate(data) { console.log('🔄 Handle update:', data); }
+    function loadInitialTopologyData() { console.log('📥 Loading initial data'); }
+    function loadDevicesTable() { console.log('📋 Loading devices table'); }
+    function updateTopologyStats(data) { console.log('📊 Update stats:', data); }
+    function highlightSegment(segmentId) { console.log('🎯 Highlight segment:', segmentId); }
+    function showErrorNotification(message) { console.log('❌ Error:', message); }
+
+    // Device table actions
+    function viewDeviceDetails(deviceId) { showDeviceDetails(deviceId); }
+    function scanDevice(deviceId) { console.log('🔍 Scan device:', deviceId); }
+    function editDevice(deviceId) { console.log('✏️ Edit device:', deviceId); }
+</script>
+
+<style>
+    /* Additional styles for enhanced functionality */
+    .topology-view {
+        display: none;
+        width: 100%;
+        height: 100%;
+    }
+
+    .topology-view.active {
+        display: block;
+    }
+
+    .view-mode-btn {
+        padding: var(--space-8) var(--space-12);
+        border: 1px solid var(--color-border);
+        background: transparent;
+        color: var(--color-text-secondary);
+        border-radius: var(--radius-base);
+        cursor: pointer;
+        transition: all var(--duration-fast) var(--ease-standard);
+    }
+
+    .view-mode-btn:hover {
+        background: var(--color-secondary);
+        color: var(--color-text);
+    }
+
+    .view-mode-btn.active {
+        background: var(--color-primary);
+        color: var(--color-btn-primary-text);
+        border-color: var(--color-primary);
+    }
+
+    .action-btn {
+        padding: var(--space-8);
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-secondary);
+        border-radius: var(--radius-base);
+        cursor: pointer;
+        transition: all var(--duration-fast) var(--ease-standard);
+    }
+
+    .action-btn:hover {
+        background: var(--color-secondary);
+        color: var(--color-text);
+        border-color: var(--color-primary);
+    }
+
+    .action-btn-sm {
+        padding: var(--space-4) var(--space-6);
+        font-size: var(--font-size-xs);
+        border: 1px solid var(--color-border);
+        background: transparent;
+        color: var(--color-text-secondary);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all var(--duration-fast) var(--ease-standard);
+    }
+
+    .action-btn-sm:hover {
+        background: var(--color-primary);
+        color: var(--color-btn-primary-text);
+        border-color: var(--color-primary);
+    }
+
+    .devices-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--color-surface);
+        border-radius: var(--radius-base);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .devices-table th,
+    .devices-table td {
+        padding: var(--space-12);
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .devices-table th {
+        background: var(--color-secondary);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text);
+    }
+
+    .device-info {
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
+    }
+
+    .device-type-icon {
+        font-size: var(--font-size-lg);
+        color: var(--color-primary);
+    }
+
+    .device-name-info strong {
+        display: block;
+        color: var(--color-text);
+    }
+
+    .device-name-info small {
+        color: var(--color-text-secondary);
+        font-family: var(--font-family-mono);
+    }
+
+    .device-status {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-4);
+        padding: var(--space-4) var(--space-8);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+    }
+
+    .device-status.online {
+        background: rgba(var(--color-success-rgb), 0.1);
+        color: var(--color-success);
+    }
+
+    .device-status.offline {
+        background: rgba(var(--color-error-rgb), 0.1);
+        color: var(--color-error);
+    }
+
+    .device-status.warning {
+        background: rgba(var(--color-warning-rgb), 0.1);
+        color: var(--color-warning);
+    }
+
+    .vulnerability-count {
+        display: inline-block;
+        padding: var(--space-2) var(--space-6);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-bold);
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .vulnerability-count.critical {
+        background: var(--color-error);
+        color: white;
+    }
+
+    .vulnerability-count.high {
+        background: var(--color-warning);
+        color: white;
+    }
+
+    .vulnerability-count.medium {
+        background: var(--color-info);
+        color: white;
+    }
+
+    .vulnerability-count.low {
+        background: var(--color-success);
+        color: white;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: var(--space-4);
+    }
+
+    .search-container {
+        position: relative;
+        margin-bottom: var(--space-16);
+    }
+
+    .search-input {
+        width: 100%;
+        padding: var(--space-8) var(--space-32) var(--space-8) var(--space-12);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-base);
+        background: var(--color-surface);
+        color: var(--color-text);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: var(--space-12);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-text-secondary);
+    }
+
+    .filter-group {
+        margin-bottom: var(--space-12);
+    }
+
+    .filter-label {
+        display: block;
+        margin-bottom: var(--space-4);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text);
+    }
+
+    .filter-select {
+        width: 100%;
+        padding: var(--space-6) var(--space-8);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-base);
+        background: var(--color-surface);
+        color: var(--color-text);
+    }
+
+    .legend-status {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .legend-status.online {
+        background: var(--color-success);
+    }
+
+    .legend-status.offline {
+        background: var(--color-error);
+    }
+
+    .legend-status.warning {
+        background: var(--color-warning);
+    }
+
+    .legend-status.unknown {
+        background: var(--color-info);
+    }
+
+    /* Loading states */
+    .topology-view.loading::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(var(--color-background-rgb, 252, 252, 249), 0.8);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .topology-view.loading::after {
+        content: 'Загрузка...';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1001;
+        padding: var(--space-16) var(--space-24);
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-base);
+        box-shadow: var(--shadow-lg);
+    }
+</style>

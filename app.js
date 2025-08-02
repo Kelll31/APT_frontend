@@ -43,6 +43,7 @@ import { IPRoastAPI } from './shared/utils/api.js';
 import { NavigationComponent } from './shared/components/navigation.js';
 import { Modal, ConfirmModal } from './shared/components/modals.js';
 import { Button, Spinner } from './shared/components/common.js';
+import { loadPage } from './shared/utils/page-loader.js';
 
 // Импорт контроллеров модулей
 import { DashboardController } from './dashboard/dashboard.js';
@@ -233,132 +234,60 @@ class IPRoastEnterpriseApp extends EventEmitter {
      * Инициализация всех модулей
      */
     async initializeModules() {
-        try {
-            // 1. Dashboard (основной модуль, загружается сразу)
-            logger.info('📊 Инициализация Dashboard...');
-            const dashboardController = new DashboardController({
-                container: '#dashboard-container .tab-content-inner',
-                autoRefresh: this.settings.autoRefresh,
-                refreshInterval: this.settings.refreshInterval,
-                enableWebSocket: this.settings.enableWebSocket
-            });
+        logger.info('📊 Инициализация Dashboard');
+        // Загружаем dashboard сразу
+        await loadPage(
+            'dashboard',
+            '#dashboard-container .tab-content-inner',
+            () => this.initializeModuleFunctionality('dashboard')
+        );
+        this.state.loadedModules.add('dashboard');
 
-            this.modules.set('dashboard', dashboardController);
-            this.state.loadedModules.add('dashboard');
-
-            // 2. Остальные модули загружаем по требованию, но подготавливаем заглушки
-            await this.prepareModuleStubs();
-
-            logger.info('📦 Модули инициализированы');
-        } catch (error) {
-            throw createError('Ошибка инициализации модулей: ' + error.message, 500, 'MODULE_INIT_ERROR');
-        }
+        // Регистрируем заглушки остальных модулей
+        this.prepareModuleStubs();
+        logger.info('📦 Модули подготовлены');
     }
 
     /**
      * Подготовка заглушек модулей
      */
-    async prepareModuleStubs() {
+    prepareModuleStubs() {
         const modules = ['scanner', 'attack-constructor', 'network-topology', 'reports', 'settings'];
         modules.forEach(id => {
-            const container = document.querySelector(`#${id}-container .tab-content-inner`);
-            if (container) {
-                container.innerHTML = `
-              <div class="module-placeholder">
-                <button data-module="${id}">Загрузить ${this.getModuleTitle(id)}</button>
-              </div>
-            `;
-                container.querySelector('button').addEventListener('click', () => {
-                    this.loadStaticModule(id, container);
-                });
-            }
+            const containerSel = `#${id}-container .tab-content-inner`;
+            const container = document.querySelector(containerSel);
+            if (!container) return;
+
+            container.innerHTML = `
+        <div class="module-placeholder">
+          <button class="btn btn--primary" data-module="${id}">
+            Загрузить ${this.getModuleTitle(id)}
+          </button>
+        </div>
+      `;
+            container.querySelector('button').addEventListener('click', () => {
+                this.loadStaticModule(id);
+            });
         });
     }
 
     /**
- * Загрузка статического модуля из pages/
- */
-    async loadStaticModule(moduleId, buttonElement = null) {
-        logger.info(`📄 Загрузка статического модуля: ${moduleId}`);
-
-        const container = document.querySelector(`#${moduleId}-container .tab-content-inner`);
-        if (!container) {
-            logger.error(`Контейнер для модуля ${moduleId} не найден`);
-            return;
-        }
-
-        try {
-            // Показать индикатор загрузки
-            if (buttonElement) {
-                buttonElement.disabled = true;
-                buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+     * Загрузка статического модуля из pages/
+     */
+    async loadStaticModule(moduleId) {
+        const containerSel = `#${moduleId}-container .tab-content-inner`;
+        await loadPage(
+            moduleId,
+            containerSel,
+            () => {
+                this.state.loadedModules.add(moduleId);
+                this.initializeModuleFunctionality(moduleId);
+                this.showNotification(`Модуль "${this.getModuleTitle(moduleId)}" загружен`, NOTIFICATION_TYPES.SUCCESS);
+            },
+            (err) => {
+                this.showNotification(`Ошибка загрузки модуля: ${err.message}`, NOTIFICATION_TYPES.ERROR);
             }
-
-            container.innerHTML = `
-            <div class="module-loading">
-                <div class="loading-spinner"></div>
-                <p>Загрузка модуля ${this.getModuleTitle(moduleId)}...</p>
-            </div>
-        `;
-
-            // Загружаем HTML из папки pages/
-            const response = await fetch(`pages/${moduleId}.html`);
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const html = await response.text();
-
-            // Добавляем небольшую задержку для плавности
-            await delay(300);
-
-            // Вставляем загруженный контент
-            container.innerHTML = html;
-
-            // Отмечаем модуль как загруженный
-            this.state.loadedModules.add(moduleId);
-
-            // Инициализируем функциональность модуля, если есть
-            this.initializeModuleFunctionality(moduleId);
-
-            // Показать уведомление об успехе
-            this.showNotification(
-                `Модуль "${this.getModuleTitle(moduleId)}" успешно загружен`,
-                NOTIFICATION_TYPES.SUCCESS
-            );
-
-            logger.info(`✅ Модуль ${moduleId} загружен из pages/${moduleId}.html`);
-
-        } catch (error) {
-            logger.error(`❌ Ошибка загрузки модуля ${moduleId}:`, error);
-
-            // Показать ошибку в контейнере
-            container.innerHTML = `
-            <div class="module-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Ошибка загрузки модуля</h3>
-                <p>${error.message}</p>
-                <button class="btn btn--primary retry-btn" onclick="window.ipRoastApp.loadStaticModule('${moduleId}')">
-                    <i class="fas fa-redo"></i>
-                    Попробовать снова
-                </button>
-            </div>
-        `;
-
-            // Показать уведомление об ошибке
-            this.showNotification(
-                `Ошибка загрузки модуля: ${error.message}`,
-                NOTIFICATION_TYPES.ERROR
-            );
-
-        } finally {
-            // Восстанавливаем кнопку
-            if (buttonElement) {
-                buttonElement.disabled = false;
-                buttonElement.innerHTML = '<i class="fas fa-play"></i> Загрузить модуль';
-            }
-        }
+        );
     }
 
     /**
