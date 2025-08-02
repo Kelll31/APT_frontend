@@ -44,6 +44,8 @@ import { NavigationComponent } from './shared/components/navigation.js';
 import { Modal, ConfirmModal } from './shared/components/modals.js';
 import { Button, Spinner } from './shared/components/common.js';
 import { loadPage } from './shared/utils/page-loader.js';
+import SidebarComponent from './shared/components/sidebar.js';
+import { PageLoader } from './shared/utils/page-loader.js';
 
 // Импорт контроллеров модулей
 import { DashboardController } from './dashboard/dashboard.js';
@@ -103,6 +105,8 @@ class IPRoastEnterpriseApp extends EventEmitter {
 
         // Компоненты UI
         this.components = {
+            sidebar: null,
+            pageLoader: null,
             navigation: null,
             sidebar: null,
             modals: new Map(),
@@ -204,6 +208,18 @@ class IPRoastEnterpriseApp extends EventEmitter {
      */
     async setupUI() {
         try {
+            // Инициализация sidebar
+            this.components.sidebar = new SidebarComponent();
+
+            // Настройка page loader
+            this.components.pageLoader = new PageLoader();
+
+            // Связываем sidebar с page loader
+            this.components.sidebar.on('navigate', (data) => {
+                this.components.pageLoader.loadPage(data.tab);
+                logger.info(`Навигация к модулю: ${data.tab}`);
+            });
+
             // Инициализация навигации
             this.setupNavigation();
 
@@ -229,6 +245,20 @@ class IPRoastEnterpriseApp extends EventEmitter {
             throw createError('Ошибка настройки UI: ' + error.message, 500, 'UI_SETUP_ERROR');
         }
     }
+
+    /**
+    * Обновление состояния модулей
+    */
+    updateModuleStates(states) {
+        if (this.components.sidebar) {
+            Object.entries(states).forEach(([module, state]) => {
+                if (state.badgeCount) {
+                    this.components.sidebar.updateBadge(module, state.badgeCount);
+                }
+            });
+        }
+    }
+
 
     /**
      * Инициализация всех модулей

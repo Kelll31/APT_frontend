@@ -1,5 +1,1486 @@
-<section class="dashboard-static">
-    <h1>Панель управления</h1>
-    <p>Добро пожаловать в IP Roast Enterprise.</p>
-    <!-- Здесь можно вставить статические виджеты–заглушки -->
-</section>
+<!-- pages/attack-constructor.html -->
+<!-- Advanced Attack Constructor module for IP Roast Enterprise 4.0 -->
+<!-- Enhanced with full functionality from attack-constructor folder -->
+
+<!-- All Attack Constructor Styles -->
+<link rel="stylesheet" href="../attack-constructor/attack-builder.css">
+<link rel="stylesheet" href="../attack-constructor/constructor-styles.css">
+<link rel="stylesheet" href="../attack-constructor/exploit-library.css">
+<link rel="stylesheet" href="../attack-constructor/payload-editor.css">
+
+<!-- Attack Constructor Container -->
+<div class="attack-constructor" id="attack-constructor">
+
+    <!-- Constructor Header -->
+    <header class="constructor-header">
+        <div class="header-left">
+            <div class="title-section">
+                <h1 class="constructor-title">
+                    <i class="fas fa-hammer"></i>
+                    Конструктор атак
+                </h1>
+                <div class="version-info">Enterprise Attack Builder 4.0</div>
+            </div>
+
+            <div class="workflow-info" id="workflow-info">
+                <div class="workflow-name">Новый рабочий процесс</div>
+                <div class="workflow-status">
+                    <span class="status-indicator status-draft"></span>
+                    <span class="status-text">Черновик</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <!-- Workflow Templates -->
+            <div class="template-selector">
+                <label for="workflow-template">Шаблон:</label>
+                <select id="workflow-template" class="template-select">
+                    <option value="">Выберите шаблон</option>
+                    <option value="basic_pentest">Базовый пентест</option>
+                    <option value="advanced_apt">Продвинутая APT атака</option>
+                    <option value="web_application">Веб-приложение</option>
+                    <option value="network_infrastructure">Сетевая инфраструктура</option>
+                    <option value="social_engineering">Социальная инженерия</option>
+                    <option value="custom">Пользовательский</option>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn" id="validate-workflow" title="Валидация рабочего процесса">
+                    <i class="fas fa-check-circle"></i>
+                    <span class="btn-text">Валидация</span>
+                </button>
+                <button class="action-btn" id="test-workflow" title="Тестировать workflow">
+                    <i class="fas fa-play"></i>
+                    <span class="btn-text">Тест</span>
+                </button>
+                <button class="action-btn" id="save-workflow" title="Сохранить рабочий процесс">
+                    <i class="fas fa-save"></i>
+                    <span class="btn-text">Сохранить</span>
+                </button>
+                <button class="action-btn" id="export-workflow" title="Экспорт workflow">
+                    <i class="fas fa-download"></i>
+                    <span class="btn-text">Экспорт</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Constructor Layout -->
+    <div class="constructor-main">
+
+        <!-- Module Library Sidebar -->
+        <aside class="module-library" id="module-library">
+            <div class="library-header">
+                <h3 class="library-title">
+                    <i class="fas fa-cube"></i>
+                    Библиотека модулей
+                </h3>
+                <button class="library-toggle" id="library-toggle" title="Свернуть/развернуть">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <div class="library-content">
+                <!-- Search and Filter -->
+                <div class="library-search">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Поиск модулей..." id="module-search">
+                        <i class="search-icon fas fa-search"></i>
+                    </div>
+
+                    <div class="filter-container">
+                        <select class="filter-select" id="category-filter">
+                            <option value="all">Все категории</option>
+                            <option value="signature_analysis">Сигнатурный анализ</option>
+                            <option value="intelligence">Интеллектуальные модули</option>
+                            <option value="reconnaissance">Разведка</option>
+                            <option value="attacks">Модули атак</option>
+                            <option value="post_exploitation">Пост-эксплуатация</option>
+                            <option value="evasion">Модули уклонения</option>
+                            <option value="analytics">Аналитические модули</option>
+                            <option value="system">Системные модули</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Module Categories -->
+                <div class="module-categories" id="module-categories">
+
+                    <!-- Signature Analysis Category -->
+                    <div class="category-section" data-category="signature_analysis">
+                        <div class="category-header" onclick="toggleCategory('signature_analysis')">
+                            <h4 class="category-title">
+                                <i class="category-icon fas fa-search" style="color: #3B82F6;"></i>
+                                Сигнатурный анализ
+                            </h4>
+                            <span class="category-count">3</span>
+                            <i class="category-toggle fas fa-chevron-down"></i>
+                        </div>
+                        <div class="category-modules">
+                            <div class="module-item" draggable="true" data-module="sig_scanner">
+                                <div class="module-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Сканер сигнатур</div>
+                                    <div class="module-description">Базовое сканирование и анализ отпечатков сервисов
+                                    </div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: target"></div>
+                                    <div class="port output" title="Выходы: signatures"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="service_detector">
+                                <div class="module-icon">
+                                    <i class="fas fa-network-wired"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Детектор сервисов</div>
+                                    <div class="module-description">Интеллектуальная идентификация типов сервисов</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: signatures"></div>
+                                    <div class="port output" title="Выходы: services"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="vuln_matcher">
+                                <div class="module-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Сопоставитель уязвимостей</div>
+                                    <div class="module-description">Автоматический поиск CVE для обнаруженных сервисов
+                                    </div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: services"></div>
+                                    <div class="port output" title="Выходы: vulnerabilities"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Intelligence Category -->
+                    <div class="category-section" data-category="intelligence">
+                        <div class="category-header" onclick="toggleCategory('intelligence')">
+                            <h4 class="category-title">
+                                <i class="category-icon fas fa-brain" style="color: #8B5CF6;"></i>
+                                Интеллектуальные модули
+                            </h4>
+                            <span class="category-count">3</span>
+                            <i class="category-toggle fas fa-chevron-down"></i>
+                        </div>
+                        <div class="category-modules">
+                            <div class="module-item" draggable="true" data-module="decision_engine">
+                                <div class="module-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Движок принятия решений</div>
+                                    <div class="module-description">Центральный ИИ-модуль системы</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: vulnerabilities, context"></div>
+                                    <div class="port output" title="Выходы: decisions, priorities"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="adaptive_selector">
+                                <div class="module-icon">
+                                    <i class="fas fa-user-secret"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Адаптивный селектор</div>
+                                    <div class="module-description">Динамический выбор стратегии атак</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: decisions"></div>
+                                    <div class="port output" title="Выходы: strategy"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="priority_analyzer">
+                                <div class="module-icon">
+                                    <i class="fas fa-list-ol"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Анализатор приоритетов</div>
+                                    <div class="module-description">Ранжирование целей по критичности</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: strategy, vulnerabilities"></div>
+                                    <div class="port output" title="Выходы: ranked_targets"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reconnaissance Category -->
+                    <div class="category-section" data-category="reconnaissance">
+                        <div class="category-header" onclick="toggleCategory('reconnaissance')">
+                            <h4 class="category-title">
+                                <i class="category-icon fas fa-globe" style="color: #10B981;"></i>
+                                Разведка
+                            </h4>
+                            <span class="category-count">3</span>
+                            <i class="category-toggle fas fa-chevron-down"></i>
+                        </div>
+                        <div class="category-modules">
+                            <div class="module-item" draggable="true" data-module="osint_collector">
+                                <div class="module-icon">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">OSINT сборщик</div>
+                                    <div class="module-description">Сбор открытой разведывательной информации</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: target"></div>
+                                    <div class="port output" title="Выходы: osint_data"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="dns_enum">
+                                <div class="module-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">DNS перечисление</div>
+                                    <div class="module-description">Перечисление DNS записей и субдоменов</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: target"></div>
+                                    <div class="port output" title="Выходы: dns_records"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="social_engineer">
+                                <div class="module-icon">
+                                    <i class="fas fa-mask"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Социальная инженерия</div>
+                                    <div class="module-description">Модуль социальной инженерии и фишинга</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: osint_data"></div>
+                                    <div class="port output" title="Выходы: social_vectors"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attack Modules Category -->
+                    <div class="category-section" data-category="attacks">
+                        <div class="category-header" onclick="toggleCategory('attacks')">
+                            <h4 class="category-title">
+                                <i class="category-icon fas fa-bomb" style="color: #EF4444;"></i>
+                                Модули атак
+                            </h4>
+                            <span class="category-count">4</span>
+                            <i class="category-toggle fas fa-chevron-down"></i>
+                        </div>
+                        <div class="category-modules">
+                            <div class="module-item" draggable="true" data-module="web_attacks">
+                                <div class="module-icon">
+                                    <i class="fas fa-bug"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Веб-атаки</div>
+                                    <div class="module-description">SQL-инъекции, XSS, CSRF атаки</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: web_services"></div>
+                                    <div class="port output" title="Выходы: web_exploits"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="network_attacks">
+                                <div class="module-icon">
+                                    <i class="fas fa-bomb"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Сетевые атаки</div>
+                                    <div class="module-description">Buffer overflow, DoS, протокольные атаки</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: network_services"></div>
+                                    <div class="port output" title="Выходы: network_exploits"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="auth_bypass">
+                                <div class="module-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Обход аутентификации</div>
+                                    <div class="module-description">Брутфорс, словарные атаки, обход аутентификации
+                                    </div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: auth_services"></div>
+                                    <div class="port output" title="Выходы: credentials"></div>
+                                </div>
+                            </div>
+
+                            <div class="module-item" draggable="true" data-module="privilege_escalation">
+                                <div class="module-icon">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <div class="module-info">
+                                    <div class="module-name">Повышение привилегий</div>
+                                    <div class="module-description">Эскалация прав в системе</div>
+                                </div>
+                                <div class="module-ports">
+                                    <div class="port input" title="Входы: credentials, system_info"></div>
+                                    <div class="port output" title="Выходы: elevated_access"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other categories can be added similarly -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Constructor Canvas -->
+        <div class="constructor-canvas" id="constructor-canvas">
+            <div class="canvas-header">
+                <div class="canvas-tools">
+                    <button class="tool-btn" id="select-tool" title="Выбор" data-tool="select">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </button>
+                    <button class="tool-btn active" id="hand-tool" title="Перемещение" data-tool="hand">
+                        <i class="fas fa-hand-paper"></i>
+                    </button>
+                    <button class="tool-btn" id="zoom-tool" title="Масштаб" data-tool="zoom">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="tool-btn" id="connect-tool" title="Соединение" data-tool="connect">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+
+                <div class="canvas-controls">
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" id="zoom-out" title="Уменьшить">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="zoom-level" id="zoom-level">100%</span>
+                        <button class="zoom-btn" id="zoom-in" title="Увеличить">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="zoom-btn" id="zoom-fit" title="Уместить все">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+
+                    <div class="canvas-actions">
+                        <button class="canvas-btn" id="clear-canvas" title="Очистить холст">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="canvas-btn" id="auto-layout" title="Автоматическая компоновка">
+                            <i class="fas fa-magic"></i>
+                        </button>
+                        <button class="canvas-btn" id="fullscreen-canvas" title="Полноэкранный режим">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-workspace" id="canvas-workspace">
+                <div class="canvas-grid"></div>
+                <div class="canvas-content" id="canvas-content">
+                    <!-- Workflow modules will be placed here dynamically -->
+                </div>
+                <svg class="connection-layer" id="connection-layer">
+                    <!-- Connection lines will be drawn here -->
+                </svg>
+            </div>
+
+            <!-- Canvas Status Bar -->
+            <div class="canvas-status">
+                <div class="status-info">
+                    <span class="modules-count">Модулей: <span id="modules-count">0</span></span>
+                    <span class="connections-count">Соединений: <span id="connections-count">0</span></span>
+                </div>
+                <div class="validation-status" id="validation-status">
+                    <i class="fas fa-check-circle status-valid"></i>
+                    <span>Рабочий процесс валиден</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Properties Panel -->
+        <aside class="properties-panel" id="properties-panel">
+            <div class="panel-header">
+                <h3 class="panel-title">
+                    <i class="fas fa-cog"></i>
+                    Свойства модуля
+                </h3>
+                <button class="panel-toggle" id="properties-toggle" title="Свернуть/развернуть">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="panel-content" id="properties-content">
+                <div class="no-selection">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Выберите модуль для просмотра и редактирования его свойств</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Bottom Panel - Payload Editor -->
+    <div class="bottom-panel" id="bottom-panel">
+        <div class="panel-tabs">
+            <button class="tab-btn active" data-tab="payload-editor">
+                <i class="fas fa-code"></i>
+                Редактор пэйлоадов
+            </button>
+            <button class="tab-btn" data-tab="execution-log">
+                <i class="fas fa-terminal"></i>
+                Журнал выполнения
+            </button>
+            <button class="tab-btn" data-tab="workflow-validation">
+                <i class="fas fa-check-double"></i>
+                Валидация workflow
+            </button>
+        </div>
+
+        <div class="panel-resize-handle" id="panel-resize-handle"></div>
+
+        <div class="tab-content">
+            <!-- Payload Editor Tab -->
+            <div class="tab-pane active" id="payload-editor-tab">
+                <div class="payload-editor">
+                    <div class="editor-header">
+                        <h4 class="editor-title">
+                            <i class="fas fa-code"></i>
+                            Редактор полезной нагрузки
+                        </h4>
+                        <div class="editor-actions">
+                            <select class="language-select" id="payload-language">
+                                <option value="bash">Bash</option>
+                                <option value="python">Python</option>
+                                <option value="powershell">PowerShell</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="sql">SQL</option>
+                                <option value="custom">Пользовательский</option>
+                            </select>
+                            <button class="editor-btn" id="format-payload" title="Форматирование">
+                                <i class="fas fa-indent"></i>
+                            </button>
+                            <button class="editor-btn" id="validate-payload" title="Валидация">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="editor-btn" id="test-payload" title="Тестирование">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="editor-body">
+                        <textarea class="payload-editor__textarea" id="payload-textarea"
+                            placeholder="Введите ваш пэйлоад здесь...">#!/bin/bash
+
+# Пример базового пэйлоада для сканирования портов
+# Цель: обнаружение открытых портов на целевой системе
+
+TARGET_IP="192.168.1.100"
+PORTS="22,80,443,3389,5432"
+
+echo "Начинаем сканирование портов на $TARGET_IP"
+echo "Порты для сканирования: $PORTS"
+
+for port in $(echo $PORTS | tr "," " "); do
+    timeout 3 bash -c "echo >/dev/tcp/$TARGET_IP/$port" 2>/dev/null && 
+    echo "Порт $port: ОТКРЫТ" || 
+    echo "Порт $port: ЗАКРЫТ"
+done
+
+echo "Сканирование завершено"</textarea>
+                    </div>
+
+                    <div class="editor-footer">
+                        <div class="editor-status">
+                            <span class="status-text">Готов</span>
+                            <span class="lines-count">Строк: 15</span>
+                            <span class="chars-count">Символов: 423</span>
+                        </div>
+                        <div class="editor-controls">
+                            <button class="editor-btn" id="clear-payload">
+                                <i class="fas fa-trash"></i>
+                                Очистить
+                            </button>
+                            <button class="editor-btn" id="save-payload">
+                                <i class="fas fa-save"></i>
+                                Сохранить
+                            </button>
+                            <button class="editor-btn" id="load-payload">
+                                <i class="fas fa-folder-open"></i>
+                                Загрузить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Execution Log Tab -->
+            <div class="tab-pane" id="execution-log-tab">
+                <div class="execution-log">
+                    <div class="log-header">
+                        <h4 class="log-title">
+                            <i class="fas fa-terminal"></i>
+                            Журнал выполнения
+                        </h4>
+                        <div class="log-controls">
+                            <button class="log-btn" id="clear-log" title="Очистить журнал">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="log-btn" id="export-log" title="Экспорт журнала">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="log-content" id="log-content">
+                        <div class="log-entry info">
+                            <span class="log-time">[2025-02-15 14:30:15]</span>
+                            <span class="log-level">INFO</span>
+                            <span class="log-message">Конструктор атак инициализирован</span>
+                        </div>
+                        <div class="log-entry success">
+                            <span class="log-time">[2025-02-15 14:30:16]</span>
+                            <span class="log-level">SUCCESS</span>
+                            <span class="log-message">Загружены модули атак (25 модулей)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workflow Validation Tab -->
+            <div class="tab-pane" id="workflow-validation-tab">
+                <div class="workflow-validation">
+                    <div class="validation-header">
+                        <h4 class="validation-title">
+                            <i class="fas fa-check-double"></i>
+                            Валидация рабочего процесса
+                        </h4>
+                        <button class="validation-btn" id="run-validation">
+                            <i class="fas fa-play"></i>
+                            Запустить валидацию
+                        </button>
+                    </div>
+                    <div class="validation-results" id="validation-results">
+                        <!-- Validation results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Templates for Dynamic Content -->
+<script type="text/template" id="workflow-module-template">
+    <div class="workflow-module {{moduleType}}" data-module-id="{{id}}" style="left: {{x}}px; top: {{y}}px;">
+        <div class="module-header">
+            <div class="module-icon">
+                <i class="{{iconClass}}"></i>
+            </div>
+            <div class="module-title">{{name}}</div>
+            <div class="module-actions">
+                <button class="module-action" data-action="settings" title="Настройки">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="module-action" data-action="delete" title="Удалить">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        <div class="module-body">
+            <div class="module-description">{{description}}</div>
+            <div class="module-ports">
+                <div class="input-ports">
+                    {{#each inputs}}
+                    <div class="port input-port" data-port="{{this}}" title="Вход: {{this}}">
+                        <div class="port-label">{{this}}</div>
+                    </div>
+                    {{/each}}
+                </div>
+                <div class="output-ports">
+                    {{#each outputs}}
+                    <div class="port output-port" data-port="{{this}}" title="Выход: {{this}}">
+                        <div class="port-label">{{this}}</div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        <div class="module-status">
+            <div class="status-indicator {{statusClass}}"></div>
+            <div class="status-text">{{statusText}}</div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="module-settings-template">
+    <div class="module-settings">
+        <div class="settings-header">
+            <h4>Настройки модуля: {{moduleName}}</h4>
+        </div>
+        <div class="settings-body">
+            {{#each settings}}
+            <div class="setting-item">
+                <label class="setting-label">{{label}}</label>
+                {{#if (eq type 'text')}}
+                <input type="text" class="setting-input" name="{{key}}" value="{{default}}" {{#if required}}required{{/if}}>
+                {{/if}}
+                {{#if (eq type 'number')}}
+                <input type="number" class="setting-input" name="{{key}}" value="{{default}}" min="{{min}}" max="{{max}}" {{#if required}}required{{/if}}>
+                {{/if}}
+                {{#if (eq type 'checkbox')}}
+                <input type="checkbox" class="setting-checkbox" name="{{key}}" {{#if default}}checked{{/if}}>
+                {{/if}}
+                {{#if (eq type 'select')}}
+                <select class="setting-select" name="{{key}}">
+                    {{#each options}}
+                    <option value="{{this}}" {{#if (eq this ../default)}}selected{{/if}}>{{this}}</option>
+                    {{/each}}
+                </select>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+        <div class="settings-footer">
+            <button class="btn btn--secondary" onclick="closeSettings()">Отмена</button>
+            <button class="btn btn--primary" onclick="saveSettings()">Сохранить</button>
+        </div>
+    </div>
+</script>
+
+<!-- Enhanced JavaScript Initialization -->
+<script src="../attack-constructor/exploit-library.js" defer></script>
+<script src="../attack-constructor/attack-builder.js" defer></script>
+<script src="../attack-constructor/AttackModuleConstructor.js" defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🔨 Initializing Attack Constructor Module');
+
+        // Initialize Enhanced Attack Module Constructor with full capabilities
+        const attackConstructor = new AttackModuleConstructor('attack-constructor', {
+            theme: 'dark',
+            readOnly: false,
+            showLibrary: true,
+            showProperties: true,
+            enableDragDrop: true,
+            enableConnections: true,
+            enableValidation: true,
+            enableExport: true,
+            autoSave: true,
+            maxModules: 50,
+            onModuleAdd: (module) => {
+                console.log('📦 Module added:', module);
+                updateWorkflowStats();
+            },
+            onModuleRemove: (moduleId) => {
+                console.log('🗑️ Module removed:', moduleId);
+                updateWorkflowStats();
+            },
+            onConnectionCreate: (connection) => {
+                console.log('🔗 Connection created:', connection);
+                validateWorkflow();
+            },
+            onWorkflowChange: (workflow) => {
+                console.log('🔄 Workflow changed:', workflow);
+                autoSaveWorkflow(workflow);
+            },
+            onError: (error) => {
+                console.error('❌ Constructor error:', error);
+                showErrorNotification(error.message);
+            }
+        });
+
+        // Initialize Enhanced Exploit Library
+        const exploitLibrary = new ExploitLibrary('module-library', {
+            showSearch: true,
+            showCategories: true,
+            itemsPerPage: 20,
+            enableFiltering: true,
+            enableDragDrop: true,
+            onModuleSelect: (module) => {
+                console.log('📋 Module selected:', module);
+                showModuleDetails(module);
+            },
+            onModuleDrag: (module, event) => {
+                console.log('🎯 Module drag started:', module);
+                handleModuleDragStart(module, event);
+            }
+        });
+
+        // Initialize Enhanced Attack Builder
+        const attackBuilder = new AttackBuilder('constructor-canvas', {
+            readOnly: false,
+            showLibrary: true,
+            showProperties: true,
+            enableDragDrop: true,
+            enableZoom: true,
+            enableGrid: true,
+            enableSnapping: true,
+            gridSize: 20,
+            maxZoom: 300,
+            minZoom: 25,
+            onCanvasChange: (state) => {
+                console.log('🎨 Canvas changed:', state);
+                updateCanvasStatus(state);
+            },
+            onModulePlace: (module, position) => {
+                console.log('📍 Module placed:', module, position);
+                addModuleToWorkflow(module, position);
+            }
+        });
+
+        // Setup enhanced event handlers
+        setupEnhancedEventHandlers();
+
+        // Setup drag & drop functionality
+        setupDragDropHandlers();
+
+        // Setup payload editor
+        setupPayloadEditor();
+
+        // Setup workflow validation
+        setupWorkflowValidation();
+
+        // Setup export functionality
+        setupExportFunctionality();
+
+        // Setup auto-save
+        setupAutoSave();
+
+        // Setup keyboard shortcuts
+        setupKeyboardShortcuts();
+
+        // Load default template
+        loadWorkflowTemplate('basic_pentest');
+    });
+
+    // Enhanced event handlers
+    function setupEnhancedEventHandlers() {
+        // Workflow template selector
+        document.getElementById('workflow-template').addEventListener('change', (e) => {
+            if (e.target.value) {
+                loadWorkflowTemplate(e.target.value);
+            }
+        });
+
+        // Action buttons
+        document.getElementById('validate-workflow').addEventListener('click', validateWorkflow);
+        document.getElementById('test-workflow').addEventListener('click', testWorkflow);
+        document.getElementById('save-workflow').addEventListener('click', saveWorkflow);
+        document.getElementById('export-workflow').addEventListener('click', exportWorkflow);
+
+        // Library toggle
+        document.getElementById('library-toggle').addEventListener('click', toggleLibrary);
+        document.getElementById('properties-toggle').addEventListener('click', toggleProperties);
+
+        // Canvas tools
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tool = e.target.closest('.tool-btn').dataset.tool;
+                selectCanvasTool(tool);
+            });
+        });
+
+        // Zoom controls
+        document.getElementById('zoom-in').addEventListener('click', () => zoomCanvas(1.2));
+        document.getElementById('zoom-out').addEventListener('click', () => zoomCanvas(0.8));
+        document.getElementById('zoom-fit').addEventListener('click', fitToCanvas);
+
+        // Canvas actions
+        document.getElementById('clear-canvas').addEventListener('click', clearCanvas);
+        document.getElementById('auto-layout').addEventListener('click', autoLayoutModules);
+        document.getElementById('fullscreen-canvas').addEventListener('click', toggleFullscreen);
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tab = e.target.closest('.tab-btn').dataset.tab;
+                switchTab(tab);
+            });
+        });
+
+        // Category toggles
+        window.toggleCategory = (categoryId) => {
+            const section = document.querySelector(`[data-category="${categoryId}"]`);
+            section.classList.toggle('collapsed');
+        };
+    }
+
+    // Drag & Drop handlers
+    function setupDragDropHandlers() {
+        const canvas = document.getElementById('canvas-content');
+
+        // Handle module drag from library
+        document.querySelectorAll('.module-item').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                const moduleId = e.target.closest('.module-item').dataset.module;
+                e.dataTransfer.setData('text/plain', moduleId);
+                e.dataTransfer.effectAllowed = 'copy';
+            });
+        });
+
+        // Handle drop on canvas
+        canvas.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const moduleId = e.dataTransfer.getData('text/plain');
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            addModuleToCanvas(moduleId, { x, y });
+        });
+    }
+
+    // Payload editor setup
+    function setupPayloadEditor() {
+        const textarea = document.getElementById('payload-textarea');
+        const languageSelect = document.getElementById('payload-language');
+
+        // Language change handler
+        languageSelect.addEventListener('change', (e) => {
+            updatePayloadSyntax(e.target.value);
+        });
+
+        // Payload validation
+        document.getElementById('validate-payload').addEventListener('click', validatePayload);
+        document.getElementById('test-payload').addEventListener('click', testPayload);
+        document.getElementById('format-payload').addEventListener('click', formatPayload);
+
+        // Auto-update stats
+        textarea.addEventListener('input', updatePayloadStats);
+    }
+
+    // Workflow validation setup
+    function setupWorkflowValidation() {
+        document.getElementById('run-validation').addEventListener('click', () => {
+            runWorkflowValidation();
+        });
+    }
+
+    // Export functionality
+    function setupExportFunctionality() {
+        const exportFormats = ['json', 'xml', 'yaml', 'python', 'bash'];
+
+        exportFormats.forEach(format => {
+            document.addEventListener(`export-${format}`, () => {
+                exportWorkflowAs(format);
+            });
+        });
+    }
+
+    // Auto-save functionality
+    function setupAutoSave() {
+        let autoSaveTimer;
+        const autoSaveInterval = 30000; // 30 seconds
+
+        function triggerAutoSave() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                autoSaveWorkflow();
+            }, autoSaveInterval);
+        }
+
+        // Trigger auto-save on workflow changes
+        document.addEventListener('workflow-changed', triggerAutoSave);
+    }
+
+    // Keyboard shortcuts
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 's':
+                        e.preventDefault();
+                        saveWorkflow();
+                        break;
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            redoAction();
+                        } else {
+                            undoAction();
+                        }
+                        break;
+                    case 'a':
+                        e.preventDefault();
+                        selectAllModules();
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        copySelectedModules();
+                        break;
+                    case 'v':
+                        e.preventDefault();
+                        pasteModules();
+                        break;
+                    case 'd':
+                        e.preventDefault();
+                        duplicateSelectedModules();
+                        break;
+                }
+            }
+
+            // Delete key
+            if (e.key === 'Delete') {
+                deleteSelectedModules();
+            }
+
+            // Escape key
+            if (e.key === 'Escape') {
+                deselectAllModules();
+                closeModals();
+            }
+        });
+    }
+
+    // Implementation functions
+    function loadWorkflowTemplate(templateId) {
+        console.log('📋 Loading workflow template:', templateId);
+        // Template loading logic
+    }
+
+    function addModuleToCanvas(moduleId, position) {
+        console.log('📦 Adding module to canvas:', moduleId, position);
+        // Module placement logic
+    }
+
+    function validateWorkflow() {
+        console.log('✅ Validating workflow');
+        // Validation logic
+    }
+
+    function testWorkflow() {
+        console.log('🧪 Testing workflow');
+        // Test execution logic
+    }
+
+    function saveWorkflow() {
+        console.log('💾 Saving workflow');
+        // Save logic
+    }
+
+    function exportWorkflow() {
+        console.log('📤 Exporting workflow');
+        // Export logic
+    }
+
+    function updateWorkflowStats() {
+        const modulesCount = document.querySelectorAll('.workflow-module').length;
+        const connectionsCount = document.querySelectorAll('.connection-line').length;
+
+        document.getElementById('modules-count').textContent = modulesCount;
+        document.getElementById('connections-count').textContent = connectionsCount;
+    }
+
+    function updatePayloadStats() {
+        const textarea = document.getElementById('payload-textarea');
+        const lines = textarea.value.split('\n').length;
+        const chars = textarea.value.length;
+
+        document.querySelector('.lines-count').textContent = `Строк: ${lines}`;
+        document.querySelector('.chars-count').textContent = `Символов: ${chars}`;
+    }
+
+    // Placeholder functions for advanced features
+    function toggleLibrary() { console.log('📚 Toggle library'); }
+    function toggleProperties() { console.log('⚙️ Toggle properties'); }
+    function selectCanvasTool(tool) { console.log('🔧 Select tool:', tool); }
+    function zoomCanvas(factor) { console.log('🔍 Zoom canvas:', factor); }
+    function fitToCanvas() { console.log('📐 Fit to canvas'); }
+    function clearCanvas() { console.log('🧹 Clear canvas'); }
+    function autoLayoutModules() { console.log('✨ Auto layout'); }
+    function toggleFullscreen() { console.log('🖥️ Toggle fullscreen'); }
+    function switchTab(tab) { console.log('📑 Switch tab:', tab); }
+    function validatePayload() { console.log('✅ Validate payload'); }
+    function testPayload() { console.log('🧪 Test payload'); }
+    function formatPayload() { console.log('🎨 Format payload'); }
+    function runWorkflowValidation() { console.log('🔍 Run validation'); }
+    function exportWorkflowAs(format) { console.log('📤 Export as:', format); }
+    function autoSaveWorkflow() { console.log('💾 Auto save'); }
+    function undoAction() { console.log('↶ Undo'); }
+    function redoAction() { console.log('↷ Redo'); }
+    function selectAllModules() { console.log('🎯 Select all'); }
+    function copySelectedModules() { console.log('📋 Copy'); }
+    function pasteModules() { console.log('📌 Paste'); }
+    function duplicateSelectedModules() { console.log('📦 Duplicate'); }
+    function deleteSelectedModules() { console.log('🗑️ Delete'); }
+    function deselectAllModules() { console.log('❌ Deselect all'); }
+    function closeModals() { console.log('🚪 Close modals'); }
+    function showModuleDetails(module) { console.log('📄 Show details:', module); }
+    function handleModuleDragStart(module, event) { console.log('🎯 Drag start:', module); }
+    function updateCanvasStatus(state) { console.log('📊 Canvas status:', state); }
+    function addModuleToWorkflow(module, position) { console.log('➕ Add to workflow:', module, position); }
+    function updatePayloadSyntax(language) { console.log('🎨 Update syntax:', language); }
+    function showErrorNotification(message) { console.log('❌ Error:', message); }
+</script>
+
+<style>
+    /* Additional enhanced styles for attack constructor */
+    .attack-constructor {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: var(--color-background);
+        color: var(--color-text);
+    }
+
+    .constructor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-16) var(--space-24);
+        background: var(--color-surface);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .constructor-title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-text);
+        margin: 0;
+    }
+
+    .constructor-title i {
+        color: var(--color-primary);
+    }
+
+    .workflow-info {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .workflow-name {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text);
+    }
+
+    .workflow-status {
+        display: flex;
+        align-items: center;
+        gap: var(--space-6);
+        font-size: var(--font-size-sm);
+        color: var(--color-text-secondary);
+    }
+
+    .status-indicator {
+        width: var(--space-8);
+        height: var(--space-8);
+        border-radius: 50%;
+    }
+
+    .status-indicator.status-draft {
+        background: var(--color-warning);
+    }
+
+    .status-indicator.status-valid {
+        background: var(--color-success);
+    }
+
+    .status-indicator.status-invalid {
+        background: var(--color-error);
+    }
+
+    .constructor-main {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .module-library {
+        width: 320px;
+        background: var(--color-surface);
+        border-right: 1px solid var(--color-border);
+        display: flex;
+        flex-direction: column;
+        transition: width var(--duration-normal) var(--ease-standard);
+    }
+
+    .module-library.collapsed {
+        width: 48px;
+    }
+
+    .library-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-16);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .library-title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        margin: 0;
+    }
+
+    .category-section {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-12) var(--space-16);
+        cursor: pointer;
+        transition: background var(--duration-fast) var(--ease-standard);
+    }
+
+    .category-header:hover {
+        background: var(--color-secondary);
+    }
+
+    .category-title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-semibold);
+        margin: 0;
+    }
+
+    .category-count {
+        background: var(--color-primary);
+        color: var(--color-btn-primary-text);
+        padding: var(--space-2) var(--space-6);
+        border-radius: var(--radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .category-modules {
+        padding: var(--space-8);
+    }
+
+    .category-section.collapsed .category-modules {
+        display: none;
+    }
+
+    .module-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        padding: var(--space-8);
+        margin-bottom: var(--space-8);
+        background: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-base);
+        cursor: grab;
+        transition: all var(--duration-fast) var(--ease-standard);
+    }
+
+    .module-item:hover {
+        border-color: var(--color-primary);
+        box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.2);
+    }
+
+    .module-item:active {
+        cursor: grabbing;
+    }
+
+    .module-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: var(--color-primary);
+        color: var(--color-btn-primary-text);
+        border-radius: var(--radius-base);
+        font-size: var(--font-size-sm);
+    }
+
+    .module-info {
+        flex: 1;
+    }
+
+    .module-name {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text);
+        margin-bottom: var(--space-2);
+    }
+
+    .module-description {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary);
+        line-height: var(--line-height-tight);
+    }
+
+    .module-ports {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .port {
+        width: var(--space-8);
+        height: var(--space-8);
+        border-radius: 50%;
+        border: 2px solid var(--color-border);
+        transition: border-color var(--duration-fast) var(--ease-standard);
+    }
+
+    .port.input {
+        background: var(--color-info);
+    }
+
+    .port.output {
+        background: var(--color-success);
+    }
+
+    .constructor-canvas {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--color-background);
+    }
+
+    .canvas-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-12) var(--space-16);
+        background: var(--color-surface);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .canvas-tools {
+        display: flex;
+        gap: var(--space-4);
+    }
+
+    .tool-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: transparent;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-base);
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        transition: all var(--duration-fast) var(--ease-standard);
+    }
+
+    .tool-btn:hover {
+        background: var(--color-secondary);
+        color: var(--color-text);
+    }
+
+    .tool-btn.active {
+        background: var(--color-primary);
+        color: var(--color-btn-primary-text);
+        border-color: var(--color-primary);
+    }
+
+    .canvas-workspace {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background: var(--color-background);
+    }
+
+    .canvas-grid {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image:
+            linear-gradient(rgba(var(--color-border-rgb), 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(var(--color-border-rgb), 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+
+    .canvas-content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .connection-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .workflow-module {
+        position: absolute;
+        min-width: 200px;
+        background: var(--color-surface);
+        border: 2px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        cursor: move;
+        transition: all var(--duration-fast) var(--ease-standard);
+        z-index: 2;
+    }
+
+    .workflow-module:hover {
+        border-color: var(--color-primary);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .workflow-module.selected {
+        border-color: var(--color-warning);
+        box-shadow: 0 0 0 3px rgba(var(--color-warning-rgb), 0.3);
+    }
+
+    .bottom-panel {
+        height: 300px;
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-border);
+        display: flex;
+        flex-direction: column;
+        transition: height var(--duration-normal) var(--ease-standard);
+    }
+
+    .panel-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .tab-btn {
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
+        padding: var(--space-12) var(--space-16);
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        transition: all var(--duration-fast) var(--ease-standard);
+    }
+
+    .tab-btn:hover {
+        color: var(--color-text);
+        background: var(--color-secondary);
+    }
+
+    .tab-btn.active {
+        color: var(--color-primary);
+        border-bottom-color: var(--color-primary);
+    }
+
+    .payload-editor__textarea {
+        width: 100%;
+        height: 200px;
+        padding: var(--space-16);
+        background: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-base);
+        color: var(--color-text);
+        font-family: var(--font-family-mono);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-normal);
+        resize: vertical;
+    }
+
+    .canvas-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-8) var(--space-16);
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-border);
+        font-size: var(--font-size-sm);
+    }
+
+    .status-info {
+        display: flex;
+        gap: var(--space-16);
+        color: var(--color-text-secondary);
+    }
+
+    .validation-status {
+        display: flex;
+        align-items: center;
+        gap: var(--space-6);
+        color: var(--color-success);
+    }
+
+    /* Animation for drag and drop */
+    @keyframes module-drop {
+        0% {
+            transform: scale(0.8);
+            opacity: 0.8;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .workflow-module.just-added {
+        animation: module-drop 0.3s ease-out;
+    }
+
+    /* Responsive design */
+    @media (max-width: 1024px) {
+        .module-library {
+            width: 280px;
+        }
+
+        .properties-panel {
+            width: 280px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .constructor-header {
+            flex-direction: column;
+            gap: var(--space-12);
+        }
+
+        .module-library {
+            width: 240px;
+        }
+
+        .bottom-panel {
+            height: 250px;
+        }
+    }
+</style>

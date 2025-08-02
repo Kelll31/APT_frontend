@@ -1273,3 +1273,29 @@ button {
     vertical-align: top;
   }
 }
+
+/* Основной контент с адаптивными отступами */
+.main-content {
+  margin-left: 280px;
+  min-height: 100vh;
+  background: var(--color-background);
+  transition: margin-left var(--duration-normal) var(--ease-standard);
+  padding: var(--space-24);
+}
+
+.sidebar--collapsed+.main-content {
+  margin-left: 64px;
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+/* Адаптивные отступы для мобильных */
+@media (max-width: 768px) {
+  .main-content {
+    padding: var(--space-16);
+  }
+}

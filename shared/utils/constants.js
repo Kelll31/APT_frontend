@@ -54,6 +54,7 @@ export const STORAGE_KEYS = {
     USER_PREFERENCES: 'ipRoast:userPreferences',
     CACHE: 'ipRoast:cache',
     SESSION: 'ipRoast:session',
+    SIDEBAR_STATE: 'ipRoast:sidebarState',
     NOTIFICATIONS: 'ipRoast:notifications'
 };
 

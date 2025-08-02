@@ -1,5 +1,1237 @@
-<section class="dashboard-static">
-    <h1>Панель управления</h1>
-    <p>Добро пожаловать в IP Roast Enterprise.</p>
-    <!-- Здесь можно вставить статические виджеты–заглушки -->
-</section>
+<!-- pages/reports.html -->
+<!-- Advanced Reports module for IP Roast Enterprise 4.0 -->
+<!-- Enhanced with full functionality from reports folder -->
+
+<!-- All Reports Styles -->
+<link rel="stylesheet" href="../reports/reports.css">
+<link rel="stylesheet" href="../reports/report-generator.css">
+<link rel="stylesheet" href="../reports/report-viewer.css">
+<link rel="stylesheet" href="../reports/export-manager.css">
+
+<!-- Reports Container -->
+<div class="reports-container" id="reports-container">
+
+    <!-- Reports Layout -->
+    <div class="reports-layout">
+
+        <!-- Reports Sidebar -->
+        <aside class="reports-sidebar" id="reports-sidebar">
+            <!-- Search Section -->
+            <div class="reports-search-section">
+                <div class="reports-search-container">
+                    <input type="text" class="reports-search-input" placeholder="Поиск отчетов..." id="reports-search">
+                    <i class="reports-search-icon fas fa-search"></i>
+                    <button class="reports-search-clear" id="search-clear" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Quick Filters -->
+                <div class="reports-quick-filters">
+                    <div class="reports-filter-chip active" data-filter="all">
+                        <i class="fas fa-globe"></i>
+                        Все отчеты
+                    </div>
+                    <div class="reports-filter-chip" data-filter="recent">
+                        <i class="fas fa-clock"></i>
+                        Недавние
+                    </div>
+                    <div class="reports-filter-chip" data-filter="favorites">
+                        <i class="fas fa-star"></i>
+                        Избранные
+                    </div>
+                    <div class="reports-filter-chip" data-filter="shared">
+                        <i class="fas fa-share-alt"></i>
+                        Общие
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Filters -->
+            <div class="reports-filters-content">
+                <div class="reports-filters-header">
+                    <h3 class="reports-filters-title">Расширенные фильтры</h3>
+                    <button class="reports-filters-clear" id="clear-filters">
+                        <i class="fas fa-times"></i>
+                        Очистить
+                    </button>
+                </div>
+
+                <!-- Report Type Filter -->
+                <div class="reports-filter-group">
+                    <h4 class="reports-filter-title">Тип отчета</h4>
+                    <div class="reports-filter-options">
+                        <label class="reports-filter-checkbox">
+                            <input type="checkbox" value="vulnerability_assessment" checked>
+                            <span class="reports-filter-checkmark"></span>
+                            Оценка уязвимостей
+                        </label>
+                        <label class="reports-filter-checkbox">
+                            <input type="checkbox" value="penetration_test" checked>
+                            <span class="reports-filter-checkmark"></span>
+                            Тест на проникновение
+                        </label>
+                        <label class="reports-filter-checkbox">
+                            <input type="checkbox" value="network_scan" checked>
+                            <span class="reports-filter-checkmark"></span>
+                            Сканирование сети
+                        </label>
+                        <label class="reports-filter-checkbox">
+                            <input type="checkbox" value="compliance" checked>
+                            <span class="reports-filter-checkmark"></span>
+                            Соответствие требованиям
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="reports-filter-group">
+                    <h4 class="reports-filter-title">Статус</h4>
+                    <div class="reports-filter-options">
+                        <label class="reports-filter-checkbox">
+                            <input type="checkbox" value="completed" checked>
+                            <span class="reports-filter-checkmark"></span>
+                            Завершен
+                        </label>
+                        <label class="reports-filter-checkbox">
+                            <input type="checkbox" value="generating">
+                            <span class="reports-filter-checkmark"></span>
+                            Генерируется
+                        </label>
+                        <label class="reports-filter-checkbox">
+                            <input type="checkbox" value="failed">
+                            <span class="reports-filter-checkmark"></span>
+                            Ошибка
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Date Range Filter -->
+                <div class="reports-filter-group">
+                    <h4 class="reports-filter-title">Период создания</h4>
+                    <div class="reports-date-range">
+                        <input type="date" class="reports-date-input" id="date-from">
+                        <span class="reports-date-separator">до</span>
+                        <input type="date" class="reports-date-input" id="date-to">
+                    </div>
+                </div>
+
+                <!-- Risk Level Filter -->
+                <div class="reports-filter-group">
+                    <h4 class="reports-filter-title">Уровень риска</h4>
+                    <div class="reports-risk-filters">
+                        <button class="reports-risk-filter critical" data-risk="critical">
+                            Критический
+                        </button>
+                        <button class="reports-risk-filter high" data-risk="high">
+                            Высокий
+                        </button>
+                        <button class="reports-risk-filter medium" data-risk="medium">
+                            Средний
+                        </button>
+                        <button class="reports-risk-filter low" data-risk="low">
+                            Низкий
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tags Filter -->
+                <div class="reports-filter-group">
+                    <h4 class="reports-filter-title">Теги</h4>
+                    <div class="reports-tags-input">
+                        <input type="text" placeholder="Введите тег..." id="tags-input">
+                        <div class="reports-selected-tags" id="selected-tags">
+                            <!-- Selected tags will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Reports Area -->
+        <main class="reports-main">
+
+            <!-- Reports Header -->
+            <header class="reports-header">
+                <div class="reports-header-left">
+                    <div class="title-section">
+                        <h1 class="reports-title">
+                            <i class="reports-title-icon fas fa-chart-line"></i>
+                            Отчеты и аналитика
+                        </h1>
+                        <p class="reports-subtitle">Управление отчетами безопасности</p>
+                    </div>
+
+                    <div class="reports-stats">
+                        <div class="reports-stat">
+                            <i class="fas fa-file-alt"></i>
+                            <span class="reports-stat-value" id="total-reports">247</span>
+                            <span>отчетов</span>
+                        </div>
+                        <div class="reports-stat">
+                            <i class="fas fa-clock"></i>
+                            <span class="reports-stat-value" id="recent-reports">12</span>
+                            <span>за неделю</span>
+                        </div>
+                        <div class="reports-stat">
+                            <i class="fas fa-share-alt"></i>
+                            <span class="reports-stat-value" id="shared-reports">8</span>
+                            <span>общих</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reports-header-actions">
+                    <button class="reports-action-btn" id="import-reports" title="Импорт отчетов">
+                        <i class="fas fa-upload"></i>
+                        Импорт
+                    </button>
+                    <button class="reports-action-btn" id="schedule-report" title="Запланировать отчет">
+                        <i class="fas fa-calendar-alt"></i>
+                        Расписание
+                    </button>
+                    <div class="reports-action-dropdown">
+                        <button class="reports-action-btn" id="batch-actions">
+                            <i class="fas fa-layer-group"></i>
+                            Групповые действия
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="reports-dropdown-menu">
+                            <div class="reports-dropdown-item" data-action="export-selected">
+                                <i class="fas fa-download"></i>
+                                Экспорт выбранных
+                            </div>
+                            <div class="reports-dropdown-item" data-action="delete-selected">
+                                <i class="fas fa-trash"></i>
+                                Удалить выбранные
+                            </div>
+                            <div class="reports-dropdown-item" data-action="archive-selected">
+                                <i class="fas fa-archive"></i>
+                                Архивировать
+                            </div>
+                        </div>
+                    </div>
+                    <button class="reports-action-btn reports-action-btn--primary" id="create-report">
+                        <i class="fas fa-plus"></i>
+                        Создать отчет
+                    </button>
+                </div>
+            </header>
+
+            <!-- Reports Content -->
+            <div class="reports-content">
+
+                <!-- View Controls -->
+                <div class="reports-view-controls">
+                    <div class="reports-view-left">
+                        <!-- View Mode Buttons -->
+                        <div class="reports-view-modes">
+                            <button class="reports-view-btn active" data-view="grid" title="Сетка">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="reports-view-btn" data-view="list" title="Список">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button class="reports-view-btn" data-view="table" title="Таблица">
+                                <i class="fas fa-table"></i>
+                            </button>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div class="reports-sort-controls">
+                            <label for="sort-by">Сортировка:</label>
+                            <select class="reports-sort-select" id="sort-by">
+                                <option value="created_desc">Дата создания (новые)</option>
+                                <option value="created_asc">Дата создания (старые)</option>
+                                <option value="name_asc">Имя (А-Я)</option>
+                                <option value="name_desc">Имя (Я-А)</option>
+                                <option value="size_desc">Размер (большие)</option>
+                                <option value="size_asc">Размер (маленькие)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="reports-view-right">
+                        <!-- Items per page -->
+                        <div class="reports-per-page">
+                            <label for="per-page">Показать:</label>
+                            <select class="reports-per-page-select" id="per-page">
+                                <option value="12">12</option>
+                                <option value="24" selected>24</option>
+                                <option value="48">48</option>
+                                <option value="96">96</option>
+                            </select>
+                        </div>
+
+                        <!-- Toggle Sidebar -->
+                        <button class="reports-sidebar-toggle" id="sidebar-toggle" title="Показать/скрыть фильтры">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Bar (hidden by default) -->
+                <div class="reports-bulk-actions" id="bulk-actions" style="display: none;">
+                    <div class="reports-bulk-info">
+                        <span class="reports-bulk-count" id="bulk-count">0</span> выбрано
+                    </div>
+                    <div class="reports-bulk-buttons">
+                        <button class="reports-bulk-btn" data-action="export">
+                            <i class="fas fa-download"></i>
+                            Экспорт
+                        </button>
+                        <button class="reports-bulk-btn" data-action="archive">
+                            <i class="fas fa-archive"></i>
+                            Архив
+                        </button>
+                        <button class="reports-bulk-btn reports-bulk-btn--danger" data-action="delete">
+                            <i class="fas fa-trash"></i>
+                            Удалить
+                        </button>
+                        <button class="reports-bulk-btn reports-bulk-btn--secondary" data-action="cancel">
+                            <i class="fas fa-times"></i>
+                            Отмена
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reports Grid -->
+                <div class="reports-grid" id="reports-grid">
+                    <!-- Report cards will be dynamically generated -->
+                </div>
+
+                <!-- Loading State -->
+                <div class="reports-loading" id="reports-loading" style="display: none;">
+                    <div class="reports-loading-spinner"></div>
+                    <p>Загрузка отчетов...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div class="reports-empty-state" id="reports-empty" style="display: none;">
+                    <i class="reports-empty-icon fas fa-file-alt"></i>
+                    <h3 class="reports-empty-title">Отчеты не найдены</h3>
+                    <p class="reports-empty-text">Попробуйте изменить критерии поиска или создать новый отчет</p>
+                    <button class="reports-action-btn reports-action-btn--primary" onclick="openReportGenerator()">
+                        <i class="fas fa-plus"></i>
+                        Создать первый отчет
+                    </button>
+                </div>
+
+                <!-- Pagination -->
+                <div class="reports-pagination" id="reports-pagination">
+                    <div class="reports-pagination-info">
+                        Показано <span id="pagination-start">1</span>-<span id="pagination-end">24</span> из <span
+                            id="pagination-total">247</span> отчетов
+                    </div>
+                    <div class="reports-pagination-controls">
+                        <button class="reports-pagination-btn" id="pagination-first" disabled>
+                            <i class="fas fa-angle-double-left"></i>
+                        </button>
+                        <button class="reports-pagination-btn" id="pagination-prev" disabled>
+                            <i class="fas fa-angle-left"></i>
+                        </button>
+                        <div class="reports-pagination-pages" id="pagination-pages">
+                            <button class="reports-pagination-btn active">1</button>
+                            <button class="reports-pagination-btn">2</button>
+                            <button class="reports-pagination-btn">3</button>
+                            <span class="reports-pagination-ellipsis">...</span>
+                            <button class="reports-pagination-btn">11</button>
+                        </div>
+                        <button class="reports-pagination-btn" id="pagination-next">
+                            <i class="fas fa-angle-right"></i>
+                        </button>
+                        <button class="reports-pagination-btn" id="pagination-last">
+                            <i class="fas fa-angle-double-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Report Generator Modal -->
+<div class="modal" id="report-generator-modal">
+    <div class="modal-backdrop" onclick="closeReportGenerator()"></div>
+    <div class="modal-content report-generator-modal">
+        <div class="report-generator" id="report-generator-container">
+            <!-- Report generator content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Report Viewer Modal -->
+<div class="modal" id="report-viewer-modal">
+    <div class="modal-backdrop" onclick="closeReportViewer()"></div>
+    <div class="modal-content report-viewer-modal">
+        <div class="report-viewer" id="report-viewer-container">
+            <!-- Report viewer content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Export Manager Modal -->
+<div class="modal" id="export-manager-modal">
+    <div class="modal-backdrop" onclick="closeExportManager()"></div>
+    <div class="modal-content export-manager-modal">
+        <div class="export-manager" id="export-manager-container">
+            <!-- Export manager content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Templates for Dynamic Content -->
+<script type="text/template" id="report-card-template">
+    <div class="report-card" data-report-id="{{id}}">
+        <div class="report-card-select">
+            <input type="checkbox" class="report-select-checkbox" data-id="{{id}}">
+        </div>
+        <div class="report-card-header" style="{{headerStyle}}">
+            <div class="report-card-type">
+                <i class="{{typeIcon}}"></i>
+                {{typeName}}
+            </div>
+            <div class="report-card-status {{statusClass}}">
+                {{statusText}}
+            </div>
+        </div>
+        <div class="report-card-body">
+            <h3 class="report-card-title" title="{{name}}">{{name}}</h3>
+            <p class="report-card-description">{{description}}</p>
+            <div class="report-card-meta">
+                <div class="report-card-date">
+                    <i class="fas fa-calendar"></i>
+                    {{createdDate}}
+                </div>
+                <div class="report-card-size">
+                    <i class="fas fa-file"></i>
+                    {{fileSize}}
+                </div>
+                <div class="report-card-author">
+                    <i class="fas fa-user"></i>
+                    {{author}}
+                </div>
+            </div>
+            <div class="report-card-tags">
+                {{#each tags}}
+                <span class="report-tag {{class}}">{{name}}</span>
+                {{/each}}
+            </div>
+        </div>
+        <div class="report-card-footer">
+            <div class="report-card-actions">
+                <button class="report-action-btn" onclick="viewReport('{{id}}')" title="Просмотр">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="report-action-btn" onclick="downloadReport('{{id}}')" title="Скачать">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="report-action-btn" onclick="shareReport('{{id}}')" title="Поделиться">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+                <div class="report-action-dropdown">
+                    <button class="report-action-btn" onclick="toggleReportMenu('{{id}}')">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="report-dropdown-menu" id="menu-{{id}}">
+                        <div class="report-dropdown-item" onclick="editReport('{{id}}')">
+                            <i class="fas fa-edit"></i>
+                            Редактировать
+                        </div>
+                        <div class="report-dropdown-item" onclick="duplicateReport('{{id}}')">
+                            <i class="fas fa-copy"></i>
+                            Дублировать
+                        </div>
+                        <div class="report-dropdown-item" onclick="exportReport('{{id}}')">
+                            <i class="fas fa-file-export"></i>
+                            Экспорт
+                        </div>
+                        <div class="report-dropdown-item" onclick="archiveReport('{{id}}')">
+                            <i class="fas fa-archive"></i>
+                            Архивировать
+                        </div>
+                        <div class="report-dropdown-item danger" onclick="deleteReport('{{id}}')">
+                            <i class="fas fa-trash"></i>
+                            Удалить
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{#if riskScore}}
+            <div class="report-card-risk">
+                <span class="risk-score {{riskClass}}">{{riskScore}}</span>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="report-table-row-template">
+    <tr class="report-table-row" data-report-id="{{id}}">
+        <td class="report-table-select">
+            <input type="checkbox" class="report-select-checkbox" data-id="{{id}}">
+        </td>
+        <td class="report-table-type">
+            <i class="{{typeIcon}}"></i>
+            {{typeName}}
+        </td>
+        <td class="report-table-name">
+            <div class="report-name-info">
+                <strong>{{name}}</strong>
+                <small>{{description}}</small>
+            </div>
+        </td>
+        <td class="report-table-status">
+            <span class="report-status {{statusClass}}">{{statusText}}</span>
+        </td>
+        <td class="report-table-date">{{createdDate}}</td>
+        <td class="report-table-size">{{fileSize}}</td>
+        <td class="report-table-author">{{author}}</td>
+        <td class="report-table-actions">
+            <div class="report-table-action-buttons">
+                <button class="report-action-btn" onclick="viewReport('{{id}}')" title="Просмотр">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="report-action-btn" onclick="downloadReport('{{id}}')" title="Скачать">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="report-action-btn" onclick="shareReport('{{id}}')" title="Поделиться">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+</script>
+
+<!-- Enhanced JavaScript Initialization -->
+<script src="../reports/report-generator.js" defer></script>
+<script src="../reports/report-viewer.js" defer></script>
+<script src="../reports/export-manager.js" defer></script>
+<script src="../reports/reports.js" defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('📊 Initializing Reports Module');
+
+        // Initialize Enhanced Reports Controller with full capabilities
+        const reportsController = new ReportsController({
+            container: '#reports-container',
+            autoRefresh: true,
+            refreshInterval: 60000, // 1 minute
+            itemsPerPage: 24,
+            defaultView: 'grid',
+            enableBulkActions: true,
+            enableRealTimeUpdates: true,
+            enableDragDrop: true,
+            enableKeyboardShortcuts: true,
+            cacheTimeout: 300000, // 5 minutes
+            onReportLoad: (reports) => {
+                console.log('📄 Reports loaded:', reports.length);
+                updateReportsStats(reports);
+            },
+            onReportSelect: (reportIds) => {
+                console.log('✅ Reports selected:', reportIds);
+                toggleBulkActions(reportIds.length > 0);
+            },
+            onError: (error) => {
+                console.error('❌ Reports error:', error);
+                showErrorNotification('Ошибка загрузки отчетов');
+            }
+        });
+
+        // Initialize Report Generator
+        const reportGenerator = new ReportGenerator('report-generator-container', {
+            onGenerate: (reportConfig) => {
+                console.log('🔧 Generating report:', reportConfig);
+                handleReportGeneration(reportConfig);
+            },
+            onError: (error) => {
+                console.error('❌ Report generation error:', error);
+                showErrorNotification('Ошибка генерации отчета');
+            }
+        });
+
+        // Initialize Export Manager
+        const exportManager = new ExportManager('export-manager-container', {
+            formats: ['pdf', 'html', 'json', 'xml', 'csv', 'docx', 'xlsx'],
+            onExportComplete: (result) => {
+                console.log('📦 Export completed:', result);
+                showSuccessNotification('Экспорт завершен успешно');
+            },
+            onProgress: (progress) => {
+                updateExportProgress(progress);
+            },
+            onError: (error) => {
+                console.error('❌ Export error:', error);
+                showErrorNotification('Ошибка экспорта');
+            }
+        });
+
+        // Setup enhanced event handlers
+        setupEnhancedEventHandlers();
+
+        // Setup search and filtering
+        setupAdvancedFiltering();
+
+        // Setup bulk operations
+        setupBulkOperations();
+
+        // Setup drag & drop
+        setupDragDropFunctionality();
+
+        // Setup keyboard shortcuts
+        setupKeyboardShortcuts();
+
+        // Setup real-time updates
+        setupRealTimeUpdates();
+
+        // Load initial reports
+        loadInitialReports();
+    });
+
+    // Enhanced event handlers
+    function setupEnhancedEventHandlers() {
+        // Create report button
+        document.getElementById('create-report').addEventListener('click', openReportGenerator);
+
+        // Import reports button
+        document.getElementById('import-reports').addEventListener('click', openImportDialog);
+
+        // Schedule report button
+        document.getElementById('schedule-report').addEventListener('click', openScheduleDialog);
+
+        // View mode buttons
+        document.querySelectorAll('.reports-view-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const view = e.target.closest('.reports-view-btn').dataset.view;
+                switchReportsView(view);
+            });
+        });
+
+        // Sort selection
+        document.getElementById('sort-by').addEventListener('change', (e) => {
+            sortReports(e.target.value);
+        });
+
+        // Items per page
+        document.getElementById('per-page').addEventListener('change', (e) => {
+            changeItemsPerPage(parseInt(e.target.value));
+        });
+
+        // Sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+
+        // Clear filters
+        document.getElementById('clear-filters').addEventListener('click', clearAllFilters);
+
+        // Pagination
+        setupPaginationHandlers();
+
+        // Batch actions dropdown
+        setupBatchActionsDropdown();
+    }
+
+    // Advanced filtering setup
+    function setupAdvancedFiltering() {
+        const searchInput = document.getElementById('reports-search');
+        const searchClear = document.getElementById('search-clear');
+
+        // Debounced search
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value;
+
+            // Show/hide clear button
+            searchClear.style.display = query ? 'flex' : 'none';
+
+            // Debounced search
+            searchTimeout = setTimeout(() => {
+                filterReports({ search: query });
+            }, 300);
+        });
+
+        // Clear search
+        searchClear.addEventListener('click', () => {
+            searchInput.value = '';
+            searchClear.style.display = 'none';
+            filterReports({ search: '' });
+        });
+
+        // Quick filters
+        document.querySelectorAll('.reports-filter-chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                const filter = e.target.closest('.reports-filter-chip').dataset.filter;
+                applyQuickFilter(filter);
+            });
+        });
+
+        // Advanced filters
+        document.querySelectorAll('.reports-filter-checkbox input').forEach(checkbox => {
+            checkbox.addEventListener('change', applyAdvancedFilters);
+        });
+
+        // Date filters
+        document.getElementById('date-from').addEventListener('change', applyAdvancedFilters);
+        document.getElementById('date-to').addEventListener('change', applyAdvancedFilters);
+
+        // Risk level filters
+        document.querySelectorAll('.reports-risk-filter').forEach(filter => {
+            filter.addEventListener('click', (e) => {
+                e.target.classList.toggle('active');
+                applyAdvancedFilters();
+            });
+        });
+
+        // Tags input
+        setupTagsInput();
+    }
+
+    // Bulk operations setup
+    function setupBulkOperations() {
+        // Bulk action buttons
+        document.querySelectorAll('.reports-bulk-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = e.target.closest('.reports-bulk-btn').dataset.action;
+                handleBulkAction(action);
+            });
+        });
+
+        // Cancel bulk selection
+        document.addEventListener('click', (e) => {
+            if (e.target.dataset.action === 'cancel') {
+                clearBulkSelection();
+            }
+        });
+    }
+
+    // Drag & Drop functionality
+    function setupDragDropFunctionality() {
+        let draggedReport = null;
+
+        // Handle drag start
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('report-card')) {
+                draggedReport = e.target;
+                e.target.classList.add('dragging');
+            }
+        });
+
+        // Handle drag end
+        document.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('report-card')) {
+                e.target.classList.remove('dragging');
+                draggedReport = null;
+            }
+        });
+
+        // Handle drop zones
+        const dropZones = document.querySelectorAll('.drop-zone');
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                if (draggedReport) {
+                    handleReportDrop(draggedReport, zone);
+                }
+            });
+        });
+    }
+
+    // Keyboard shortcuts
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Only handle shortcuts when not in input fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('reports-search').focus();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        openReportGenerator();
+                        break;
+                    case 'a':
+                        e.preventDefault();
+                        selectAllReports();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        refreshReports();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        switchReportsView('grid');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        switchReportsView('list');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        switchReportsView('table');
+                        break;
+                }
+            }
+
+            // Escape key actions
+            if (e.key === 'Escape') {
+                closeAllModals();
+                clearBulkSelection();
+            }
+
+            // Delete key
+            if (e.key === 'Delete') {
+                deleteSelectedReports();
+            }
+        });
+    }
+
+    // Real-time updates
+    function setupRealTimeUpdates() {
+        if (window.WebSocket) {
+            const ws = new WebSocket('/ws/reports');
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleReportUpdate(data);
+            };
+
+            ws.onopen = () => {
+                console.log('🔌 WebSocket connected for reports updates');
+            };
+
+            ws.onclose = () => {
+                console.log('📴 WebSocket disconnected, attempting reconnect...');
+                setTimeout(setupRealTimeUpdates, 5000);
+            };
+        }
+    }
+
+    // Implementation functions
+    function openReportGenerator() {
+        console.log('🔧 Opening report generator');
+        document.getElementById('report-generator-modal').classList.add('active');
+        // Initialize report generator if not already done
+        if (window.reportGenerator) {
+            window.reportGenerator.reset();
+        }
+    }
+
+    function closeReportGenerator() {
+        document.getElementById('report-generator-modal').classList.remove('active');
+    }
+
+    function openReportViewer(reportId) {
+        console.log('👁️ Opening report viewer:', reportId);
+        document.getElementById('report-viewer-modal').classList.add('active');
+        // Initialize report viewer with specific report
+        if (window.ReportViewer) {
+            new ReportViewer('report-viewer-container', reportId);
+        }
+    }
+
+    function closeReportViewer() {
+        document.getElementById('report-viewer-modal').classList.remove('active');
+    }
+
+    function openExportManager(reportId) {
+        console.log('📦 Opening export manager:', reportId);
+        document.getElementById('export-manager-modal').classList.add('active');
+        // Initialize export manager with specific report
+        if (window.exportManager) {
+            window.exportManager.setReport(reportId);
+        }
+    }
+
+    function closeExportManager() {
+        document.getElementById('export-manager-modal').classList.remove('active');
+    }
+
+    function switchReportsView(view) {
+        console.log('👁️ Switching to view:', view);
+
+        // Update active button
+        document.querySelectorAll('.reports-view-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+
+        // Switch view
+        const grid = document.getElementById('reports-grid');
+        grid.className = `reports-grid reports-grid--${view}`;
+
+        // Refresh reports in new view
+        renderReports();
+    }
+
+    function filterReports(filters) {
+        console.log('🔍 Filtering reports:', filters);
+        // Apply filters and refresh view
+        if (window.reportsController) {
+            window.reportsController.applyFilters(filters);
+        }
+    }
+
+    function applyQuickFilter(filter) {
+        console.log('⚡ Applying quick filter:', filter);
+
+        // Update active quick filter
+        document.querySelectorAll('.reports-filter-chip').forEach(chip => {
+            chip.classList.toggle('active', chip.dataset.filter === filter);
+        });
+
+        // Apply the filter
+        filterReports({ quickFilter: filter });
+    }
+
+    function applyAdvancedFilters() {
+        console.log('🔧 Applying advanced filters');
+
+        const filters = {
+            types: Array.from(document.querySelectorAll('.reports-filter-checkbox input[type="checkbox"]:checked'))
+                .map(cb => cb.value),
+            dateFrom: document.getElementById('date-from').value,
+            dateTo: document.getElementById('date-to').value,
+            riskLevels: Array.from(document.querySelectorAll('.reports-risk-filter.active'))
+                .map(filter => filter.dataset.risk),
+            tags: getSelectedTags()
+        };
+
+        filterReports(filters);
+    }
+
+    function handleBulkAction(action) {
+        const selectedReports = getSelectedReports();
+        console.log(`🔧 Bulk action ${action}:`, selectedReports);
+
+        switch (action) {
+            case 'export':
+                bulkExportReports(selectedReports);
+                break;
+            case 'archive':
+                bulkArchiveReports(selectedReports);
+                break;
+            case 'delete':
+                bulkDeleteReports(selectedReports);
+                break;
+            case 'cancel':
+                clearBulkSelection();
+                break;
+        }
+    }
+
+    function toggleBulkActions(show) {
+        const bulkActions = document.getElementById('bulk-actions');
+        bulkActions.style.display = show ? 'flex' : 'none';
+
+        if (show) {
+            const selectedCount = getSelectedReports().length;
+            document.getElementById('bulk-count').textContent = selectedCount;
+        }
+    }
+
+    // Utility functions
+    function getSelectedReports() {
+        return Array.from(document.querySelectorAll('.report-select-checkbox:checked'))
+            .map(checkbox => checkbox.dataset.id);
+    }
+
+    function clearBulkSelection() {
+        document.querySelectorAll('.report-select-checkbox:checked').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        toggleBulkActions(false);
+    }
+
+    function loadInitialReports() {
+        console.log('📥 Loading initial reports');
+        // Show loading state
+        showLoadingState();
+
+        // Simulate API call
+        setTimeout(() => {
+            generateSampleReports();
+            hideLoadingState();
+        }, 1000);
+    }
+
+    function generateSampleReports() {
+        // Generate sample report data
+        const sampleReports = [
+            {
+                id: '1',
+                name: 'Оценка уязвимостей сети DMZ',
+                description: 'Комплексная оценка безопасности демилитаризованной зоны',
+                type: 'vulnerability_assessment',
+                status: 'completed',
+                createdDate: '2025-02-10',
+                author: 'Иван Петров',
+                fileSize: '2.4 MB',
+                riskScore: 'Высокий',
+                tags: ['dmz', 'уязвимости', 'критично']
+            },
+            // Add more sample reports...
+        ];
+
+        renderReports(sampleReports);
+    }
+
+    function renderReports(reports = []) {
+        const grid = document.getElementById('reports-grid');
+        const template = document.getElementById('report-card-template').innerHTML;
+
+        if (reports.length === 0) {
+            document.getElementById('reports-empty').style.display = 'block';
+            return;
+        }
+
+        document.getElementById('reports-empty').style.display = 'none';
+
+        grid.innerHTML = reports.map(report => {
+            return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+                return report[key] || '';
+            });
+        }).join('');
+
+        // Update pagination
+        updatePagination(reports.length);
+    }
+
+    // Report action functions
+    function viewReport(reportId) { openReportViewer(reportId); }
+    function downloadReport(reportId) { console.log('⬇️ Download report:', reportId); }
+    function shareReport(reportId) { console.log('🔗 Share report:', reportId); }
+    function editReport(reportId) { console.log('✏️ Edit report:', reportId); }
+    function duplicateReport(reportId) { console.log('📋 Duplicate report:', reportId); }
+    function exportReport(reportId) { openExportManager(reportId); }
+    function archiveReport(reportId) { console.log('📦 Archive report:', reportId); }
+    function deleteReport(reportId) { console.log('🗑️ Delete report:', reportId); }
+
+    // Placeholder functions
+    function showLoadingState() { document.getElementById('reports-loading').style.display = 'block'; }
+    function hideLoadingState() { document.getElementById('reports-loading').style.display = 'none'; }
+    function showSuccessNotification(message) { console.log('✅ Success:', message); }
+    function showErrorNotification(message) { console.log('❌ Error:', message); }
+    function updateReportsStats(reports) { console.log('📊 Update stats:', reports.length); }
+    function updatePagination(total) { console.log('📄 Update pagination:', total); }
+    function refreshReports() { console.log('🔄 Refresh reports'); }
+    function selectAllReports() { console.log('✅ Select all reports'); }
+    function deleteSelectedReports() { console.log('🗑️ Delete selected reports'); }
+    function closeAllModals() { console.log('🚪 Close all modals'); }
+    function handleReportUpdate(data) { console.log('🔄 Handle report update:', data); }
+    function handleReportGeneration(config) { console.log('🔧 Handle report generation:', config); }
+    function updateExportProgress(progress) { console.log('📊 Export progress:', progress); }
+    function setupPaginationHandlers() { console.log('📄 Setup pagination'); }
+    function setupBatchActionsDropdown() { console.log('🔧 Setup batch actions'); }
+    function setupTagsInput() { console.log('🏷️ Setup tags input'); }
+    function getSelectedTags() { return []; }
+    function toggleSidebar() { console.log('📋 Toggle sidebar'); }
+    function clearAllFilters() { console.log('🧹 Clear filters'); }
+    function sortReports(sortBy) { console.log('🔄 Sort reports:', sortBy); }
+    function changeItemsPerPage(count) { console.log('📄 Items per page:', count); }
+    function openImportDialog() { console.log('📂 Open import dialog'); }
+    function openScheduleDialog() { console.log('📅 Open schedule dialog'); }
+    function bulkExportReports(ids) { console.log('📦 Bulk export:', ids); }
+    function bulkArchiveReports(ids) { console.log('📦 Bulk archive:', ids); }
+    function bulkDeleteReports(ids) { console.log('🗑️ Bulk delete:', ids); }
+    function handleReportDrop(report, zone) { console.log('🎯 Report dropped:', report, zone); }
+    function toggleReportMenu(id) { console.log('📋 Toggle menu:', id); }
+</script>
+
+<style>
+    /* Additional enhanced styles for reports functionality */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: var(--z-modal, 1050);
+    }
+
+    .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+    }
+
+    .modal-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+        background: var(--color-surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .report-generator-modal {
+        width: 1200px;
+    }
+
+    .report-viewer-modal {
+        width: 1000px;
+    }
+
+    .export-manager-modal {
+        width: 800px;
+    }
+
+    .reports-live-counter {
+        animation: pulse 2s infinite;
+    }
+
+    .report-card.selected {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+    }
+
+    .report-card.dragging {
+        opacity: 0.5;
+        transform: rotate(2deg);
+        z-index: var(--z-modal, 1050);
+    }
+
+    .report-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-base);
+        box-shadow: var(--shadow-lg);
+        z-index: var(--z-dropdown, 1000);
+        min-width: 200px;
+        display: none;
+    }
+
+    .report-dropdown-menu.active {
+        display: block;
+    }
+
+    .report-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
+        padding: var(--space-8) var(--space-12);
+        font-size: var(--font-size-sm);
+        color: var(--color-text);
+        cursor: pointer;
+        transition: background-color var(--duration-fast) var(--ease-standard);
+    }
+
+    .report-dropdown-item:hover {
+        background: var(--color-secondary);
+    }
+
+    .report-dropdown-item.danger {
+        color: var(--color-error);
+    }
+
+    .report-dropdown-item.danger:hover {
+        background: rgba(var(--color-error-rgb), 0.1);
+    }
+
+    .reports-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-48);
+        color: var(--color-text-secondary);
+    }
+
+    .reports-loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(var(--color-primary-rgb), 0.2);
+        border-top: 3px solid var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: var(--space-16);
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .reports-grid--list .report-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: var(--space-16);
+        margin-bottom: var(--space-8);
+    }
+
+    .reports-grid--table {
+        display: table;
+        width: 100%;
+    }
+
+    .reports-grid--table .report-card {
+        display: table-row;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+        .modal-content {
+            max-width: 95vw;
+            max-height: 95vh;
+        }
+
+        .reports-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .reports-sidebar.open {
+            transform: translateX(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .reports-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: var(--space-16);
+        }
+
+        .reports-view-controls {
+            flex-direction: column;
+            gap: var(--space-12);
+        }
+
+        .reports-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
