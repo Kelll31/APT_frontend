@@ -4,101 +4,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Roast Enterprise 4.0 - Корпоративная платформа кибербезопасности</title>
-    <meta name="description"
-        content="Автоматизированная платформа тестирования на проникновение и оценки сетевой безопасности">
-    <meta name="author" content="IP Roast Enterprise Team">
-    <meta name="robots" content="noindex, nofollow">
+    <title>IP Roast Enterprise 4.0 - Network Security Platform</title>
+    <meta name="description" content="Корпоративная платформа кибербезопасности">
 
-    <!-- Preconnect для производительности -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <!-- Подключение CSS в правильном порядке -->
+    <link rel="stylesheet" href="shared/styles/variables.css">
+    <link rel="stylesheet" href="shared/styles/themes.css">
+    <link rel="stylesheet" href="shared/styles/global.css">
+    <link rel="stylesheet" href="shared/styles/navigation.css">
+    <link rel="stylesheet" href="shared/styles/common.css">
+    <link rel="stylesheet" href="dashboard/dashboard.css">
+    <link rel="stylesheet" href="dashboard/overview.css">
+    <link rel="stylesheet" href="dashboard/widgets.css">
 
-    <!-- Favicon и манифест -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="manifest" href="/manifest.json">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Meta теги для PWA -->
-    <meta name="theme-color" content="#1a365d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Манифест PWA -->
+    <link rel="manifest" href="manifest.json">
 
-    <!-- ========================================
-         ПРАВИЛЬНАЯ ПОСЛЕДОВАТЕЛЬНОСТЬ ЗАГРУЗКИ CSS
-         ======================================== -->
+    <style>
+        /* Критически важные стили для корректного отображения */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
 
-    <!-- 1. Базовые переменные (ПЕРВЫМ!) -->
-    <link rel="stylesheet" href="./shared/styles/variables.css">
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-    <!-- 2. Темы (после переменных) -->
-    <link rel="stylesheet" href="./shared/styles/themes.css">
+        .loading-content {
+            text-align: center;
+            color: #f3f4f6;
+        }
 
-    <!-- 3. Глобальные стили (после тем) -->
-    <link rel="stylesheet" href="./shared/styles/global.css">
+        .loading-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+        }
 
-    <!-- 4. Общие компоненты -->
-    <link rel="stylesheet" href="./shared/components/common.css">
-    <link rel="stylesheet" href="./shared/components/navigation.css">
-    <link rel="stylesheet" href="./shared/components/modals.css">
+        .loading-logo i {
+            font-size: 64px;
+            color: #32b8c6;
+            margin-bottom: 16px;
+        }
 
-    <!-- 5. Модульные CSS файлы -->
-    <!-- Dashboard -->
-    <link rel="stylesheet" href="./dashboard/dashboard.css">
-    <link rel="stylesheet" href="./dashboard/overview.css">
-    <link rel="stylesheet" href="./dashboard/widgets.css">
+        .loading-logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            background: linear-gradient(135deg, #32b8c6, #2d96b2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    <!-- Scanner (загрузка по требованию, но предзагружаем) -->
-    <link rel="preload" href="./scanner/scanner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./scanner/scan-form.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./scanner/scan-results.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./scanner/port-scanner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        .loading-version {
+            font-size: 14px;
+            opacity: 0.7;
+        }
 
-    <!-- Attack Constructor -->
-    <link rel="preload" href="./attack-constructor/constructor-styles.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./attack-constructor/attack-builder.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
+        .loading-spinner {
+            margin: 24px 0;
+        }
 
-    <!-- Network Topology -->
-    <link rel="preload" href="./network-topology/network-map.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./network-topology/topology-viewer.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./network-topology/device-details.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./network-topology/network-graph.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
+        .spinner-ring {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin: 0 4px;
+            border: 3px solid rgba(50, 184, 198, 0.3);
+            border-radius: 50%;
+            border-top-color: #32b8c6;
+            animation: spin 1s ease-in-out infinite;
+        }
 
-    <!-- Reports -->
-    <link rel="preload" href="./reports/reports.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./reports/report-generator.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./reports/report-viewer.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./reports/export-manager.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-    <!-- Settings -->
-    <link rel="preload" href="./settings/settings.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./settings/user-preferences.css" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./settings/system-config.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="./settings/theme-manager.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        .loading-text {
+            font-size: 16px;
+            margin: 16px 0;
+        }
 
-    <!-- 6. Font Awesome иконки -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer">
+        .loading-progress {
+            width: 300px;
+            margin: 24px auto 0;
+        }
 
-    <!-- 7. Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-        rel="stylesheet">
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32b8c6, #2d96b2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .loading-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        .app {
+            display: none;
+            height: 100vh;
+            background: var(--color-background, #1f2937);
+            color: var(--color-text, #f3f4f6);
+        }
+
+        .app.loaded {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
 </head>
 
 <body>
-
-    <!-- ========================================
-         ЭКРАН ЗАГРУЗКИ
-         ======================================== -->
+    <!-- Экран загрузки -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-content">
             <div class="loading-logo">
@@ -111,7 +165,7 @@
                 <div class="spinner-ring"></div>
                 <div class="spinner-ring"></div>
             </div>
-            <div class="loading-text">Загрузка платформы безопасности...</div>
+            <div class="loading-text" id="loading-text">Загрузка платформы безопасности...</div>
             <div class="loading-progress">
                 <div class="progress-bar">
                     <div class="progress-fill" id="loading-progress-bar"></div>
@@ -120,308 +174,233 @@
             </div>
         </div>
         <div class="loading-footer">
-            <span class="loading-copyright">© 2025 IP Roast Enterprise. Все права защищены.</span>
+            <span>© 2024 IP Roast Enterprise. Все права защищены.</span>
         </div>
     </div>
 
-    <!-- ========================================
-         ГЛАВНОЕ ПРИЛОЖЕНИЕ
-         ======================================== -->
-    <div id="app" class="app" style="display: none;">
-
-        <!-- ========================================
-             HEADER / TOPBAR
-             ======================================== -->
-        <header class="app-header">
-            <div class="header-left">
-                <button id="sidebar-toggle" class="sidebar-toggle" title="Свернуть навигацию">
+    <!-- Основное приложение -->
+    <div id="app" class="app">
+        <!-- Верхняя панель навигации -->
+        <header class="top-navbar">
+            <div class="navbar-left">
+                <button id="sidebar-toggle" class="navbar-toggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="app-logo">
+                <div class="navbar-brand">
                     <i class="fas fa-shield-alt"></i>
-                    <span class="logo-text">IP Roast</span>
-                    <span class="logo-version">Enterprise 4.0</span>
+                    <span>IP Roast Enterprise</span>
                 </div>
             </div>
 
-            <div class="header-center">
-                <div class="search-box">
+            <div class="navbar-center">
+                <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Поиск устройств, IP, CVE..." maxlength="256">
-                    <div class="search-suggestions" id="search-suggestions"></div>
+                    <input type="text" class="search-input" placeholder="Поиск устройств, IP адресов, уязвимостей...">
                 </div>
             </div>
 
-            <div class="header-right">
-                <div class="connection-status" id="connection-status" title="Статус подключения">
-                    <i class="fas fa-wifi"></i>
-                    <span class="status-text">Подключено</span>
-                </div>
-
-                <button class="notification-bell" id="notification-bell" title="Уведомления">
+            <div class="navbar-right">
+                <button class="navbar-btn" id="notifications-btn">
                     <i class="fas fa-bell"></i>
                     <span class="notification-badge" id="notification-count">3</span>
                 </button>
-
-                <button class="theme-toggle" id="theme-toggle" title="Переключить тему">
+                <button class="navbar-btn" id="theme-toggle">
                     <i class="fas fa-moon"></i>
                 </button>
-
-                <div class="user-menu" id="user-menu">
-                    <button class="user-avatar" id="user-avatar">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' d='M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 8.5C14.8 8.15 14.5 7.95 14 7.95C13.5 7.95 13.2 8.15 13 8.5L7 7V9L13 10.5C13.2 10.85 13.5 11.05 14 11.05C14.5 11.05 14.8 10.85 15 10.5L21 9ZM14 13.5C14 14.6 13.1 15.5 12 15.5S10 14.6 10 13.5V12.5C10 11.4 10.9 10.5 12 10.5S14 11.4 14 12.5V13.5Z'/%3E%3C/svg%3E"
-                            alt="Admin"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <i class="fas fa-user" style="display: none;"></i>
-                        <span class="user-name">Admin</span>
+                <div class="user-menu">
+                    <button class="user-avatar" id="user-menu-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Администратор</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
-
-                    <div class="user-dropdown" id="user-dropdown">
-                        <div class="dropdown-header">
-                            <div class="user-info">
-                                <div class="user-display-name">Администратор</div>
-                                <div class="user-role">Security Analyst</div>
-                            </div>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item" data-action="profile">
-                                <i class="fas fa-user"></i>
-                                <span>Профиль</span>
-                            </a>
-                            <a href="#" class="dropdown-item" data-action="settings">
-                                <i class="fas fa-cog"></i>
-                                <span>Настройки</span>
-                            </a>
-                            <a href="#" class="dropdown-item" data-action="help">
-                                <i class="fas fa-question-circle"></i>
-                                <span>Справка</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item" data-action="logout">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Выход</span>
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </header>
 
-        <!-- ========================================
-             MAIN LAYOUT
-             ======================================== -->
-        <div class="app-main">
-
-            <!-- ========================================
-                 SIDEBAR NAVIGATION
-                 ======================================== -->
+        <div class="app-layout">
+            <!-- Боковая панель -->
             <nav class="app-sidebar" id="app-sidebar">
                 <div class="sidebar-content">
                     <ul class="nav-menu" id="nav-menu">
                         <li class="nav-item active" data-tab="dashboard">
-                            <div class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-chart-line"></i>
-                                </div>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <span class="nav-text">Панель управления</span>
-                                <div class="nav-actions">
-                                    <button class="nav-refresh" title="Обновить" data-action="refresh-dashboard">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            </a>
                         </li>
-
                         <li class="nav-item" data-tab="scanner">
-                            <div class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-radar"></i>
-                                </div>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-radar-dish"></i>
                                 <span class="nav-text">Сканирование сети</span>
-                                <div class="nav-actions">
-                                    <button class="nav-quick-action" title="Новое сканирование" data-action="new-scan">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            </a>
                         </li>
-
                         <li class="nav-item" data-tab="attack-constructor">
-                            <div class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-tools"></i>
-                                </div>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-tools"></i>
                                 <span class="nav-text">Конструктор атак</span>
-                                <div class="nav-actions">
-                                    <button class="nav-quick-action" title="Создать модуль" data-action="new-attack">
-                                        <i class="fas fa-hammer"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            </a>
                         </li>
-
                         <li class="nav-item" data-tab="network-topology">
-                            <div class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-project-diagram"></i>
-                                </div>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-project-diagram"></i>
                                 <span class="nav-text">Топология сети</span>
-                                <div class="nav-actions">
-                                    <button class="nav-refresh" title="Обновить карту" data-action="refresh-topology">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            </a>
                         </li>
-
                         <li class="nav-item" data-tab="reports">
-                            <div class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <span class="nav-text">Отчеты и аналитика</span>
-                                <div class="nav-actions">
-                                    <button class="nav-quick-action" title="Создать отчет" data-action="new-report">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-file-alt"></i>
+                                <span class="nav-text">Отчеты</span>
+                            </a>
                         </li>
-
                         <li class="nav-item" data-tab="settings">
-                            <div class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-cog"></i>
-                                </div>
-                                <span class="nav-text">Настройки системы</span>
-                                <div class="nav-actions">
-                                    <button class="nav-quick-action" title="Сохранить" data-action="save-settings">
-                                        <i class="fas fa-save"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <span class="nav-text">Настройки</span>
+                            </a>
                         </li>
                     </ul>
                 </div>
+
+                <div class="sidebar-footer">
+                    <div class="connection-status" id="connection-status">
+                        <i class="fas fa-circle"></i>
+                        <span>Подключено</span>
+                    </div>
+                </div>
             </nav>
 
-            <!-- ========================================
-                 CONTENT AREA
-                 ======================================== -->
-            <main class="app-content">
-
-                <!-- Dashboard Tab -->
+            <!-- Основной контент -->
+            <main class="app-main">
+                <!-- Панель управления -->
                 <section id="dashboard-container" class="tab-content active" data-tab="dashboard">
-                    <div class="tab-content-inner">
-                        <!-- Содержимое будет загружено dashboard.js -->
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Панель управления
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i>
+                                Обновить
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-content">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-network-wired"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>Активные устройства</h3>
+                                    <p class="stat-number">247</p>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>Критические уязвимости</h3>
+                                    <p class="stat-number">12</p>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>Защищенные хосты</h3>
+                                    <p class="stat-number">235</p>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>Последнее сканирование</h3>
+                                    <p class="stat-text">2 часа назад</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-widgets">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>Статус сети</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <p>Все системы работают нормально</p>
+                                </div>
+                            </div>
+
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <h3>Последние события</h3>
+                                </div>
+                                <div class="widget-content">
+                                    <p>Новых событий нет</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
-                <!-- Scanner Tab -->
+                <!-- Остальные секции -->
                 <section id="scanner-container" class="tab-content" data-tab="scanner">
-                    <div class="tab-content-inner">
-                        <div class="module-placeholder">
-                            <div class="placeholder-icon">
-                                <i class="fas fa-radar"></i>
-                            </div>
-                            <h3>Модуль сканирования</h3>
-                            <p>Выберите цель и тип сканирования для начала работы</p>
-                        </div>
+                    <div class="module-placeholder">
+                        <i class="fas fa-radar-dish"></i>
+                        <h3>Модуль сканирования</h3>
+                        <p>Выберите цель и тип сканирования для начала работы</p>
                     </div>
                 </section>
 
-                <!-- Attack Constructor Tab -->
                 <section id="attack-constructor-container" class="tab-content" data-tab="attack-constructor">
-                    <div class="tab-content-inner">
-                        <div class="module-placeholder">
-                            <div class="placeholder-icon">
-                                <i class="fas fa-tools"></i>
-                            </div>
-                            <h3>Конструктор атак</h3>
-                            <p>Создание и настройка модулей атак</p>
-                        </div>
+                    <div class="module-placeholder">
+                        <i class="fas fa-tools"></i>
+                        <h3>Конструктор атак</h3>
+                        <p>Создание и настройка модулей атак</p>
                     </div>
                 </section>
 
-                <!-- Network Topology Tab -->
                 <section id="network-topology-container" class="tab-content" data-tab="network-topology">
-                    <div class="tab-content-inner">
-                        <div class="module-placeholder">
-                            <div class="placeholder-icon">
-                                <i class="fas fa-project-diagram"></i>
-                            </div>
-                            <h3>Топология сети</h3>
-                            <p>Визуализация топологии сети и подключенных устройств</p>
-                        </div>
+                    <div class="module-placeholder">
+                        <i class="fas fa-project-diagram"></i>
+                        <h3>Топология сети</h3>
+                        <p>Визуализация топологии сети и подключенных устройств</p>
                     </div>
                 </section>
 
-                <!-- Reports Tab -->
                 <section id="reports-container" class="tab-content" data-tab="reports">
-                    <div class="tab-content-inner">
-                        <div class="module-placeholder">
-                            <div class="placeholder-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <h3>Отчеты и аналитика</h3>
-                            <p>Генерация отчетов и анализ данных безопасности</p>
-                        </div>
+                    <div class="module-placeholder">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>Отчеты и аналитика</h3>
+                        <p>Генерация отчетов и анализ данных безопасности</p>
                     </div>
                 </section>
 
-                <!-- Settings Tab -->
                 <section id="settings-container" class="tab-content" data-tab="settings">
-                    <div class="tab-content-inner">
-                        <div class="module-placeholder">
-                            <div class="placeholder-icon">
-                                <i class="fas fa-cog"></i>
-                            </div>
-                            <h3>Настройки системы</h3>
-                            <p>Конфигурация платформы и пользовательские настройки</p>
-                        </div>
+                    <div class="module-placeholder">
+                        <i class="fas fa-cog"></i>
+                        <h3>Настройки системы</h3>
+                        <p>Конфигурация платформы и пользовательские настройки</p>
                     </div>
                 </section>
-
             </main>
-
         </div>
     </div>
 
-    <!-- ========================================
-         OVERLAYS И МОДАЛЬНЫЕ ОКНА
-         ======================================== -->
-
-    <!-- Контейнер для уведомлений -->
-    <div id="notifications-container" class="notifications-container"></div>
-
-    <!-- Контейнер для модальных окон -->
-    <div id="modal-container" class="modal-container"></div>
-
-    <!-- Контекстные меню -->
-    <div id="context-menu" class="context-menu" style="display: none;"></div>
-
-    <!-- ========================================
-         JAVASCRIPT ЗАГРУЗКА
-         ======================================== -->
-
-    <!-- Mock Server (только для localhost) -->
+    <!-- Простой JavaScript без ES6 модулей -->
     <script>
-        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '') {
-            const mockScript = document.createElement('script');
-            mockScript.src = './mocks/mock-server.js';
-            mockScript.async = false;
-            document.head.appendChild(mockScript);
-            console.log('🔧 Mock Server загружен для демо-режима');
-        }
-    </script>
-
-    <!-- Базовые утилиты (ES6 модули) -->
-    <script>
-        // Простая версия без ES6 модулей для Live Server
+        // Простая версия приложения для Live Server
         class SimpleIPRoastApp {
             constructor() {
+                this.currentTab = 'dashboard';
                 this.init();
             }
 
@@ -434,13 +413,13 @@
                 // Скрываем экран загрузки
                 this.hideLoadingScreen();
 
-                // Настраиваем навигацию
-                this.setupNavigation();
+                // Настраиваем интерфейс
+                this.setupUI();
             }
 
             async simulateLoading() {
-                const progress = document.getElementById('loading-progress-bar');
-                const text = document.getElementById('loading-progress-text');
+                const progressBar = document.getElementById('loading-progress-bar');
+                const progressText = document.getElementById('loading-progress-text');
 
                 const steps = [
                     { percent: 20, text: 'Инициализация ядра...' },
@@ -451,8 +430,8 @@
                 ];
 
                 for (const step of steps) {
-                    if (progress) progress.style.width = step.percent + '%';
-                    if (text) text.textContent = step.text;
+                    if (progressBar) progressBar.style.width = step.percent + '%';
+                    if (progressText) progressText.textContent = step.text;
                     await new Promise(resolve => setTimeout(resolve, 500));
                 }
             }
@@ -463,21 +442,35 @@
 
                 if (loadingScreen) {
                     loadingScreen.classList.add('hidden');
-                    setTimeout(() => loadingScreen.style.display = 'none', 500);
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
                 }
 
                 if (app) {
+                    app.classList.add('loaded');
                     app.style.display = 'flex';
                 }
             }
 
-            setupNavigation() {
-                // Простая навигация между вкладками
+            setupUI() {
+                // Навигация по вкладкам
                 document.querySelectorAll('[data-tab]').forEach(item => {
                     item.addEventListener('click', (e) => {
+                        e.preventDefault();
                         const tabId = item.dataset.tab;
                         this.switchTab(tabId);
                     });
+                });
+
+                // Переключение sidebar
+                document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+                    this.toggleSidebar();
+                });
+
+                // Переключение темы
+                document.getElementById('theme-toggle')?.addEventListener('click', () => {
+                    this.toggleTheme();
                 });
             }
 
@@ -497,181 +490,36 @@
 
                 if (targetTab) targetTab.classList.add('active');
                 if (targetNav) targetNav.classList.add('active');
+
+                this.currentTab = tabId;
+                console.log('Переключение на вкладку:', tabId);
+            }
+
+            toggleSidebar() {
+                const sidebar = document.getElementById('app-sidebar');
+                if (sidebar) {
+                    sidebar.classList.toggle('collapsed');
+                }
+            }
+
+            toggleTheme() {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', newTheme);
+
+                const themeIcon = document.querySelector('#theme-toggle i');
+                if (themeIcon) {
+                    themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
             }
         }
 
-        // Запуск приложения
+        // Запуск приложения после загрузки DOM
         document.addEventListener('DOMContentLoaded', () => {
             window.ipRoastApp = new SimpleIPRoastApp();
         });
     </script>
-
-    <!-- Service Worker для PWA -->
-    <script>
-        if ('serviceWorker' in navigator && location.protocol === 'https:') {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('✅ Service Worker зарегистрирован'))
-                .catch(err => console.log('❌ Service Worker не зарегистрирован:', err));
-        }
-    </script>
-
-    <!-- Дополнительные стили для экрана загрузки -->
-    <style>
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--color-charcoal-700, #1a2332) 0%, var(--color-charcoal-800, #15202b) 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-        }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-        }
-
-        .loading-content {
-            text-align: center;
-            max-width: 500px;
-            padding: 2rem;
-        }
-
-        .loading-logo {
-            margin-bottom: 2rem;
-        }
-
-        .loading-logo i {
-            font-size: 4rem;
-            color: var(--color-primary, #06b6d4);
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .loading-logo h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--color-white, #ffffff);
-            margin: 0;
-        }
-
-        .loading-version {
-            font-size: 0.875rem;
-            color: var(--color-primary, #06b6d4);
-            font-weight: 500;
-        }
-
-        .loading-spinner {
-            margin: 2rem 0;
-            position: relative;
-            width: 80px;
-            height: 80px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .spinner-ring {
-            position: absolute;
-            width: 64px;
-            height: 64px;
-            border: 8px solid var(--color-primary, #06b6d4);
-            border-radius: 50%;
-            border-top: 8px solid transparent;
-            animation: spin 2s linear infinite;
-        }
-
-        .spinner-ring:nth-child(2) {
-            width: 48px;
-            height: 48px;
-            top: 8px;
-            left: 8px;
-            border-width: 6px;
-            animation-direction: reverse;
-            animation-duration: 1.5s;
-        }
-
-        .spinner-ring:nth-child(3) {
-            width: 32px;
-            height: 32px;
-            top: 16px;
-            left: 16px;
-            border-width: 4px;
-            animation-duration: 1s;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .loading-text {
-            font-size: 1.125rem;
-            color: var(--color-text-light, #e2e8f0);
-            margin-bottom: 1.5rem;
-        }
-
-        .loading-progress {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 0.75rem;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--color-primary, #06b6d4);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-            width: 0%;
-        }
-
-        .progress-text {
-            font-size: 0.875rem;
-            color: var(--color-text-muted, #94a3b8);
-        }
-
-        .loading-footer {
-            position: absolute;
-            bottom: 2rem;
-            text-align: center;
-        }
-
-        .loading-copyright {
-            font-size: 0.75rem;
-            color: var(--color-text-muted, #64748b);
-        }
-
-        .error-details {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-            color: #fca5a5;
-            font-family: monospace;
-            font-size: 0.875rem;
-        }
-    </style>
-
 </body>
 
 </html>
