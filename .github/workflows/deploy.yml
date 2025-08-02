@@ -23,25 +23,21 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      # 1. Клонируем репозиторий
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Отладка структуры после клонирования
       - name: Debug directory structure
         run: ls -R .
 
-      # 3. Настройка GitHub Pages
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      # 4. Загрузка статических файлов из папки core
       - name: Upload artifact for Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: core
+          # Поднимаем содержимое core как корень сайта
+          path: core/*
 
-      # 5. Деплой на GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -767,12 +767,6 @@ select.form-control {
     border: 1px solid var(--color-border-secondary);
 }
 
-@font-face {
-    font-family: 'FKGroteskNeue';
-    src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
-}
-
-/* END PERPLEXITY DESIGN SYSTEM */
 :root {
     /* Primitive Color Tokens */
     --color-white: rgba(255, 255, 255, 1);
@@ -1095,11 +1089,6 @@ select.form-control {
     --color-info-rgb: var(--color-slate-500-rgb);
 }
 
-@font-face {
-    font-family: 'FKGroteskNeue';
-    src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
-    font-display: swap;
-}
 
 /* Status utility classes */
 .status--success {
