@@ -37,7 +37,7 @@ import {
     handleError
 } from './shared/utils/helpers.js';
 
-import { IPRoastAPI, MockApiClient } from './shared/utils/api.js';
+import { IPRoastAPI } from './shared/utils/api.js';
 
 // Импорт компонентов
 import { NavigationComponent } from './shared/components/navigation.js';
@@ -508,7 +508,6 @@ class IPRoastEnterpriseApp extends EventEmitter {
 
             // Отправка события готовности
             this.emit('ready');
-
             logger.info('🎯 Финализация завершена');
         } catch (error) {
             logger.warn('Ошибка финализации:', error);
@@ -1063,30 +1062,29 @@ class IPRoastEnterpriseApp extends EventEmitter {
     /**
      * Обновление прогресса загрузки
      */
-    updateLoadingProgress(progress, message) {
-        const progressBar = document.querySelector('.loading-progress');
-        const progressText = document.querySelector('.loading-text');
-
-        if (progressBar) {
-            progressBar.style.width = `${progress}%`;
+    updateLoadingProgress(percent, message) {
+        const bar = document.querySelector('.loading-progress-bar');
+        const text = document.querySelector('.loading-text');
+        if (bar) {
+            bar.style.width = `${Math.min(Math.max(percent, 0), 100)}%`;
         }
-
-        if (progressText) {
-            progressText.textContent = message;
+        if (text && message) {
+            text.textContent = message;
         }
-
-        logger.debug(`Loading progress: ${progress}% - ${message}`);
     }
 
     /**
      * Скрыть экран загрузки
      */
     hideLoadingScreen() {
-        const loadingScreen = document.querySelector('.loading-screen');
-        if (loadingScreen) {
-            addClass(loadingScreen, 'loading-screen--hidden');
-            setTimeout(() => loadingScreen.remove(), 500);
-        }
+        const screen = document.getElementById('loading-screen');
+        if (!screen) return;
+        screen.classList.add('loading-screen--hidden');
+        setTimeout(() => {
+            if (screen.parentNode) {
+                screen.parentNode.removeChild(screen);
+            }
+        }, 300);
     }
 
     /**

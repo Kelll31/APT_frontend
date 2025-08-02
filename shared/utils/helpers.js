@@ -382,6 +382,32 @@ export function isValidURL(url) {
 }
 
 /**
+ * Разбор строки портов: "80", "22,80-90,443"
+ * → [22, 80, 81, …, 90, 443]
+ */
+export function parsePortRange(str) {
+    if (!str || typeof str !== 'string') return [];
+    const out = new Set();
+
+    str.split(',').forEach(seg => {
+        const s = seg.trim();
+        if (!s) return;
+
+        if (s.includes('-')) {
+            const [from, to] = s.split('-').map(v => parseInt(v.trim(), 10));
+            if (from >= 1 && to <= 65_535 && from <= to) {
+                for (let p = from; p <= to; p++) out.add(p);
+            }
+        } else {
+            const p = parseInt(s, 10);
+            if (p >= 1 && p <= 65_535) out.add(p);
+        }
+    });
+
+    return [...out].sort((a, b) => a - b);
+}
+
+/**
  * ===========================
  * РАБОТА С ОБЪЕКТАМИ И МАССИВАМИ
  * ===========================

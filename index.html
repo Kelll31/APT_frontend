@@ -298,7 +298,7 @@
     <div id="notification-container" class="notification-container"></div>
 
     <!-- Scripts -->
-    <!-- ИСПРАВЛЕННЫЙ ПОРЯДОК ЗАГРУЗКИ СКРИПТОВ -->
+    <script type="module" src="mocks/mock-server.js"></script>
     <script type="module" src="app.js"></script>
 
     <!-- Service Worker Registration -->
@@ -335,6 +335,13 @@
         .loading-screen.hidden {
             opacity: 0;
             pointer-events: none;
+        }
+
+        .loading-screen--hidden {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+            transition: opacity .3s ease;
         }
 
         .loading-content {

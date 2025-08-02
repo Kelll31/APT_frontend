@@ -10,7 +10,7 @@ import { logger, createError, delay } from './helpers.js';
 /**
  * Класс для API ошибок
  */
-export class ApiError extends Error {
+class ApiError extends Error {
     constructor(message, status = 0, response = null, type = 'API_ERROR') {
         super(message);
         this.name = 'ApiError';
@@ -44,7 +44,7 @@ export class ApiError extends Error {
 /**
  * Основной класс API клиента
  */
-export class ApiClient {
+class ApiClient {
     constructor(baseURL = API_CONFIG.BASE_URL, options = {}) {
         this.baseURL = baseURL;
         this.timeout = options.timeout || API_CONFIG.TIMEOUT;
@@ -542,7 +542,7 @@ defaultApiClient.addResponseInterceptor((response) => {
 /**
  * Специализированные API методы для IP Roast
  */
-export const IPRoastAPI = {
+const IPRoastAPI = {
     // Аутентификация
     auth: {
         async login(credentials) {
@@ -823,11 +823,11 @@ setInterval(() => {
 }, 60000); // Каждую минуту
 
 // Экспорт для использования в других модулях - убрана дублирующая строка
-export { defaultApiClient };
-
-export default {
+export {
     ApiClient,
     ApiError,
     IPRoastAPI,
     defaultApiClient
 };
+
+export default { ApiClient, ApiError, IPRoastAPI, defaultApiClient };
