@@ -1,7 +1,0 @@
-.card {
-  @apply bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700;
-}
-
-.input {
-  @apply bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400;
-}
