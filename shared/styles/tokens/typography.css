@@ -1,0 +1,410 @@
+/* ===============================
+ * IP ROAST DESIGN SYSTEM - TYPOGRAPHY TOKENS
+ * Типографические токены для всех компонентов системы
+ * Версия: 1.0
+ * =============================== */
+
+:root {
+  /* ===============================
+   * FONT FAMILIES
+   * Семейства шрифтов
+   * =============================== */
+
+  /* Основной шрифт для интерфейса */
+  --font-family-base: 
+    "FKGroteskNeue", 
+    "Geist", 
+    "Inter", 
+    -apple-system,
+    BlinkMacSystemFont, 
+    "Segoe UI", 
+    Roboto, 
+    sans-serif;
+
+  /* Моноширинный шрифт для кода */
+  --font-family-mono: 
+    "Berkeley Mono", 
+    ui-monospace, 
+    SFMono-Regular, 
+    Menlo,
+    Monaco, 
+    Consolas, 
+    monospace;
+
+  /* ===============================
+   * FONT SIZES
+   * Размеры шрифтов
+   * =============================== */
+
+  --font-size-xs: 11px;     /* 0.6875rem */
+  --font-size-sm: 12px;     /* 0.75rem */
+  --font-size-base: 14px;   /* 0.875rem */
+  --font-size-md: 14px;     /* 0.875rem */
+  --font-size-lg: 16px;     /* 1rem */
+  --font-size-xl: 18px;     /* 1.125rem */
+  --font-size-2xl: 20px;    /* 1.25rem */
+  --font-size-3xl: 24px;    /* 1.5rem */
+  --font-size-4xl: 30px;    /* 1.875rem */
+  --font-size-5xl: 36px;    /* 2.25rem */
+  --font-size-6xl: 48px;    /* 3rem */
+
+  /* ===============================
+   * FONT WEIGHTS
+   * Начертания шрифтов
+   * =============================== */
+
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 700;
+  --font-weight-black: 900;
+
+  /* ===============================
+   * LINE HEIGHTS
+   * Межстрочные интервалы
+   * =============================== */
+
+  --line-height-none: 1;
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  /* ===============================
+   * LETTER SPACING
+   * Межбуквенные интервалы
+   * =============================== */
+
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* ===============================
+   * TEXT UTILITIES
+   * Утилитарные значения для текста
+   * =============================== */
+
+  --text-decoration-none: none;
+  --text-decoration-underline: underline;
+  --text-decoration-line-through: line-through;
+
+  --text-transform-none: none;
+  --text-transform-capitalize: capitalize;
+  --text-transform-uppercase: uppercase;
+  --text-transform-lowercase: lowercase;
+
+  --text-align-left: left;
+  --text-align-center: center;
+  --text-align-right: right;
+  --text-align-justify: justify;
+
+  --text-overflow-clip: clip;
+  --text-overflow-ellipsis: ellipsis;
+
+  --white-space-normal: normal;
+  --white-space-nowrap: nowrap;
+  --white-space-pre: pre;
+  --white-space-pre-line: pre-line;
+  --white-space-pre-wrap: pre-wrap;
+
+  /* ===============================
+   * TYPOGRAPHY SCALES
+   * Типографические шкалы для разных контекстов
+   * =============================== */
+
+  /* Display Scale - для больших заголовков */
+  --font-size-display-sm: 36px;   /* 2.25rem */
+  --font-size-display-md: 45px;   /* 2.8125rem */
+  --font-size-display-lg: 57px;   /* 3.5625rem */
+  --font-size-display-xl: 72px;   /* 4.5rem */
+
+  /* Heading Scale - для заголовков */
+  --font-size-heading-h1: var(--font-size-4xl);
+  --font-size-heading-h2: var(--font-size-3xl);
+  --font-size-heading-h3: var(--font-size-2xl);
+  --font-size-heading-h4: var(--font-size-xl);
+  --font-size-heading-h5: var(--font-size-lg);
+  --font-size-heading-h6: var(--font-size-md);
+
+  /* Body Scale - для основного текста */
+  --font-size-body-lg: var(--font-size-lg);
+  --font-size-body-md: var(--font-size-base);
+  --font-size-body-sm: var(--font-size-sm);
+  --font-size-body-xs: var(--font-size-xs);
+
+  /* Caption Scale - для подписей */
+  --font-size-caption-lg: var(--font-size-sm);
+  --font-size-caption-md: var(--font-size-xs);
+  --font-size-caption-sm: 10px;
+
+  /* ===============================
+   * RESPONSIVE TYPOGRAPHY
+   * Адаптивная типографика
+   * =============================== */
+
+  /* Mobile First Typography */
+  --font-size-responsive-xs: clamp(10px, 2vw, 11px);
+  --font-size-responsive-sm: clamp(11px, 2.5vw, 12px);
+  --font-size-responsive-base: clamp(13px, 3vw, 14px);
+  --font-size-responsive-lg: clamp(15px, 3.5vw, 16px);
+  --font-size-responsive-xl: clamp(17px, 4vw, 18px);
+  --font-size-responsive-2xl: clamp(19px, 4.5vw, 20px);
+  --font-size-responsive-3xl: clamp(22px, 5vw, 24px);
+  --font-size-responsive-4xl: clamp(26px, 6vw, 30px);
+
+  /* ===============================
+   * FONT RENDERING
+   * Настройки рендеринга шрифтов
+   * =============================== */
+
+  --font-smoothing-antialiased: antialiased;
+  --font-smoothing-subpixel: subpixel-antialiased;
+  --font-smoothing-auto: auto;
+
+  --text-rendering-optimize-legibility: optimizeLegibility;
+  --text-rendering-optimize-speed: optimizeSpeed;
+  --text-rendering-geometric-precision: geometricPrecision;
+  --text-rendering-auto: auto;
+
+  /* ===============================
+   * MONO FONT ADJUSTMENTS
+   * Настройки для моноширинных шрифтов
+   * =============================== */
+
+  --font-size-mono-xs: calc(var(--font-size-xs) * 0.9);
+  --font-size-mono-sm: calc(var(--font-size-sm) * 0.9);
+  --font-size-mono-base: calc(var(--font-size-base) * 0.95);
+  --font-size-mono-lg: calc(var(--font-size-lg) * 0.95);
+  --font-size-mono-xl: calc(var(--font-size-xl) * 0.95);
+
+  /* ===============================
+   * TEXT SELECTION
+   * Цвета выделения текста
+   * =============================== */
+
+  --selection-bg: rgba(var(--color-teal-500-rgb, 33, 128, 141), 0.2);
+  --selection-color: var(--color-text, #134252);
+}
+
+/* ===============================
+ * TYPOGRAPHY MIXINS
+ * Готовые комбинации для применения
+ * =============================== */
+
+/* Базовые стили для всех текстовых элементов */
+.text-base {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+  color: var(--color-text);
+}
+
+/* Моноширинный текст */
+.text-mono {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-mono-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+/* Стили заголовков */
+.text-display-xl {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-display-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.text-display-lg {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-display-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.text-h1 {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-heading-h1);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.text-h2 {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-heading-h2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.text-h3 {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-heading-h3);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-body-lg {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-body-sm {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.text-caption {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-caption-md);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+/* ===============================
+ * RESPONSIVE BREAKPOINTS
+ * Адаптивная типографика
+ * =============================== */
+
+/* Mobile (до 480px) */
+@media (max-width: 480px) {
+  :root {
+    --font-size-heading-h1: var(--font-size-3xl);
+    --font-size-heading-h2: var(--font-size-2xl);
+    --font-size-heading-h3: var(--font-size-xl);
+    --font-size-heading-h4: var(--font-size-lg);
+    --font-size-display-xl: var(--font-size-4xl);
+    --font-size-display-lg: var(--font-size-3xl);
+  }
+}
+
+/* Tablet (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  :root {
+    --font-size-heading-h1: calc(var(--font-size-4xl) * 0.9);
+    --font-size-heading-h2: calc(var(--font-size-3xl) * 0.9);
+    --font-size-display-xl: calc(var(--font-size-display-xl) * 0.8);
+    --font-size-display-lg: calc(var(--font-size-display-lg) * 0.8);
+  }
+}
+
+/* Desktop (769px+) - используем базовые значения */
+@media (min-width: 769px) {
+  /* Все значения остаются базовыми */
+}
+
+/* ===============================
+ * TEXT SELECTION STYLES
+ * Стили выделения текста
+ * =============================== */
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-color);
+}
+
+::-moz-selection {
+  background: var(--selection-bg);
+  color: var(--selection-color);
+}
+
+/* ===============================
+ * FONT LOADING OPTIMIZATION
+ * Оптимизация загрузки шрифтов
+ * =============================== */
+
+/* Настройки font-display для основных шрифтов */
+@font-face {
+  font-family: "FKGroteskNeue";
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berkeley Mono";
+  font-display: swap;
+}
+
+/* ===============================
+ * ACCESSIBILITY
+ * Настройки доступности
+ * =============================== */
+
+/* Предпочтения пользователя для анимации */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    text-decoration-skip-ink: none;
+  }
+}
+
+/* Высокий контраст */
+@media (prefers-contrast: high) {
+  :root {
+    --letter-spacing-tight: var(--letter-spacing-normal);
+    --letter-spacing-tighter: var(--letter-spacing-normal);
+  }
+}
+
+/* ===============================
+ * PRINT TYPOGRAPHY
+ * Типографика для печати
+ * =============================== */
+
+@media print {
+  :root {
+    --font-family-base: "Times New Roman", Times, serif;
+    --font-size-base: 12pt;
+    --line-height-normal: 1.4;
+    --letter-spacing-normal: 0;
+  }
+
+  .text-mono {
+    font-family: "Courier New", Courier, monospace;
+  }
+}
+
+/* ===============================
+ * LEGACY BROWSER SUPPORT
+ * Поддержка старых браузеров
+ * =============================== */
+
+/* Fallback для браузеров без поддержки CSS Variables */
+@supports not (--css: variables) {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  h1 { font-size: 30px; }
+  h2 { font-size: 24px; }
+  h3 { font-size: 20px; }
+  h4 { font-size: 18px; }
+  h5 { font-size: 16px; }
+  h6 { font-size: 14px; }
+
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+  }
+}

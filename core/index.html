@@ -1,223 +1,146 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Roast Enterprise 4.0</title>
+    <title>IP Roast Enterprise 4.0 - Исправлено</title>
 
-    <!-- CSS -->
+    <!-- Стили (порядок важен) -->
     <link rel="stylesheet" href="styles/layout.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/sidebar.css">
     <link rel="stylesheet" href="styles/header.css">
     <link rel="stylesheet" href="styles/notifications.css">
-
-    <!-- Preload critical resources -->
-    <link rel="preload" href="scripts/component-loader.js" as="script">
-    <link rel="preload" href="scripts/main.js" as="script">
-    <link rel="preload" href="scripts/sidebar.js" as="script">
-    <link rel="preload" href="scripts/header.js" as="script">
-    <script src="scripts/notifications.js" defer></script>
+    <link rel="stylesheet" href="styles/page-loader-styles.css">
+    <link rel="stylesheet" href="../../shared/styles/index.css">
 </head>
 
 <body>
-    <!-- Loading Screen -->
+    <!-- Экран загрузки -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-container">
             <div class="loading-logo">
-                <div class="logo-icon">IP</div>
+                <div class="logo-icon">🛡️</div>
                 <div class="logo-text">
-                    <h1>IP Roast</h1>
-                    <span>Enterprise 4.0</span>
+                    <h1>IP Roast Enterprise</h1>
+                    <span>Версия 4.0 - Исправленная</span>
                 </div>
             </div>
             <div class="loading-progress">
                 <div class="progress-bar">
                     <div id="progress-fill" class="progress-fill"></div>
                 </div>
-                <div id="progress-text" class="progress-text">Инициализация компонентов...</div>
+                <p id="progress-text" class="progress-text">Инициализация...</p>
             </div>
         </div>
     </div>
 
-    <!-- Main Application -->
-    <div class="app" id="app">
-        <!-- Sidebar Container (будет загружен динамически) -->
+    <!-- Основной layout -->
+    <div id="app" class="app">
+        <!-- Контейнер для sidebar -->
         <div id="sidebar-container"></div>
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Header Container (будет загружен динамически) -->
+        <!-- Overlay для мобильных -->
+        <div id="sidebar-overlay" class="sidebar__overlay"></div>
+
+        <!-- Основной контент -->
+        <div class="main-content">
+            <!-- Контейнер для header -->
             <div id="header-container"></div>
 
-            <!-- Page Container -->
-            <div id="page-container" class="page-container">
-                <!-- Page Loading Indicator -->
+            <!-- Контейнер для страниц -->
+            <div class="page-container" id="page-container">
+                <div class="page-content" id="page-content">
+                    <div class="page-placeholder">
+                        <h2>🎯 IP Roast Enterprise 4.0 - Исправлено</h2>
+                        <p>Система инициализирована и готова к работе!</p>
+                        <p><strong>Статус:</strong> ✅ Все компоненты загружены</p>
+                    </div>
+                </div>
+
+                <!-- Индикатор загрузки страниц -->
                 <div id="page-loading" class="page-loading">
                     <div class="loading-spinner"></div>
                     <div class="loading-text">Загрузка страницы...</div>
                 </div>
-
-                <!-- Page Content -->
-                <div id="page-content" class="page-content">
-                    <!-- Default Dashboard Content -->
-                    <div class="container">
-                        <div style="padding: 40px; text-align: center;">
-                            <h2>🎯 IP Roast Enterprise 4.0</h2>
-                            <p>Система успешно инициализирована и готова к работе!</p>
-                            <div class="card" style="max-width: 600px; margin: 20px auto; text-align: left;">
-                                <div class="card__body">
-                                    <h3>Статус системы</h3>
-                                    <ul>
-                                        <li>✅ Ядро системы загружено</li>
-                                        <li>✅ Компоненты загружены модульно</li>
-                                        <li>✅ Боковое меню активно</li>
-                                        <li>✅ Заголовок функционирует</li>
-                                        <li>✅ Уведомления настроены</li>
-                                        <li>✅ Навигация работает</li>
-                                    </ul>
-                                    <div
-                                        style="margin-top: 20px; padding: 15px; background: var(--color-bg-3); border-radius: var(--radius-base); border-left: 4px solid var(--color-success);">
-                                        <strong>🔧 Модульная архитектура:</strong><br>
-                                        • Header загружен из: <code>components/header.html</code><br>
-                                        • Sidebar загружен из: <code>components/sidebar.html</code><br>
-                                        • Компоненты кэшируются для производительности
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </main>
+        </div>
     </div>
 
-    <!-- Toast Notifications Container -->
-    <div id="toast-container" class="toast-container"></div>
+    <!-- JavaScript модули в ПРАВИЛЬНОМ порядке -->
+    <!-- 1. Базовые модули -->
+    <script src="scripts/notifications.js"></script>
+    <script src="scripts/theme-manager.js"></script>
 
-    <!-- Scripts - Component System -->
+    <!-- 2. Исправленные модули с защитой от повторного объявления -->
     <script src="scripts/component-loader.js"></script>
     <script src="scripts/sidebar.js"></script>
-    <script src="scripts/header.js"></script>
     <script src="scripts/page-loader.js"></script>
+    <script src="scripts/header.js"></script>
     <script src="scripts/main.js"></script>
 
-    <!-- Initialize Application with Component Loading -->
+    <!-- 3. Инициализация приложения -->
     <script>
-        // Enhanced initialization с модульной загрузкой компонентов
-        document.addEventListener('DOMContentLoaded', async function () {
-            console.log('🚀 DOM готов, запускаем IP Roast Enterprise 4.0 с модульной архитектурой');
+        (async function () {
+            console.log('🚀 Запуск инициализации IP Roast Enterprise 4.0 (исправленная версия)');
 
             try {
-                // Обновляем прогресс загрузки
-                const updateProgress = (percent, text) => {
-                    const progressFill = document.getElementById('progress-fill');
-                    const progressText = document.getElementById('progress-text');
-                    if (progressFill) progressFill.style.width = `${percent}%`;
-                    if (progressText) progressText.textContent = text;
-                };
+                // 1. Создаем менеджер компонентов
+                const componentManager = new window.IPRoastComponentManager();
+                console.log('✅ Менеджер компонентов создан');
 
-                updateProgress(20, 'Инициализация загрузчика компонентов...');
+                // 2. Загружаем HTML компоненты
+                console.log('📦 Загружаем HTML компоненты...');
+                await componentManager.loadAllComponents();
+                console.log('✅ HTML компоненты загружены');
 
-                // Создаем менеджер компонентов
-                window.componentManager = new IPRoastComponentManager();
+                // 3. Создаем главное приложение
+                const app = new window.IPRoastApp();
+                window.ipRoastApp = app;
+                console.log('✅ Главное приложение создано');
 
-                updateProgress(40, 'Загрузка компонентов интерфейса...');
+                // 4. Инициализируем приложение
+                console.log('🔧 Инициализируем приложение...');
+                await app.init();
+                console.log('✅ Приложение полностью инициализировано');
 
-                // Загружаем все основные компоненты
-                await window.componentManager.loadAllComponents();
+                // 5. Делаем глобальные объекты доступными для отладки
+                window.pageLoader = app.components.pageLoader;
+                window.sidebarManager = app.components.sidebar;
+                window.headerManager = app.components.header;
 
-                updateProgress(70, 'Инициализация основного приложения...');
-
-                // Создаем основное приложение после загрузки компонентов
-                window.ipRoastApp = new IPRoastApp();
-
-                updateProgress(90, 'Настройка интеграции компонентов...');
-
-                // Интегрируем загруженные компоненты с основным приложением
-                if (window.sidebarManager) {
-                    window.ipRoastApp.components.sidebar = window.sidebarManager;
-
-                    // Настраиваем обработчики событий
-                    window.sidebarManager.on('navigate', (pageId) => {
-                        window.ipRoastApp.navigateToPage(pageId);
-                    });
-
-                    window.sidebarManager.on('collapsed', (isCollapsed) => {
-                        window.ipRoastApp.state.sidebarCollapsed = isCollapsed;
-                        window.ipRoastApp.saveState();
-                    });
-                }
-
-                if (window.headerManager) {
-                    window.ipRoastApp.components.header = window.headerManager;
-                }
-
-                updateProgress(100, 'Система готова к работе!');
-
-                // Скрываем экран загрузки
-                setTimeout(() => {
-                    document.getElementById('loading-screen').classList.add('hidden');
-
-                    console.log('✅ IP Roast Enterprise полностью инициализирован с модульными компонентами');
-                    console.log('📦 Загружены компоненты:', window.componentManager.getLoader().getStats());
-                }, 1000);
-
-                // Development helpers
-                if (localStorage.getItem('dev-mode') !== 'false') {
-                    console.log('🔧 Режим разработки активен');
-                    window.dev = {
-                        app: window.ipRoastApp,
-                        componentManager: window.componentManager,
-                        loader: window.componentManager.getLoader(),
-                        sidebar: window.sidebarManager,
-                        header: window.headerManager,
-                        stats: () => window.componentManager.getLoader().getStats(),
-                        reloadComponent: (name, container) => window.componentManager.getLoader().reloadComponent(name, container)
-                    };
-                }
+                console.log('🎉 IP Roast Enterprise 4.0 успешно запущен!');
 
             } catch (error) {
-                console.error('❌ Критическая ошибка при загрузке компонентов:', error);
+                console.error('💥 Критическая ошибка запуска:', error);
 
-                // Показываем ошибку пользователю
+                // Показываем ошибку на экране
                 const loadingScreen = document.getElementById('loading-screen');
                 if (loadingScreen) {
                     loadingScreen.innerHTML = `
                         <div class="loading-container">
-                            <div class="error-icon" style="font-size: 64px; color: var(--color-error); margin-bottom: 20px;">❌</div>
-                            <h2>Ошибка загрузки компонентов</h2>
-                            <p>Не удалось загрузить модульные компоненты системы.</p>
-                            <p class="error-message" style="font-family: monospace; color: var(--color-error);">${error.message}</p>
-                            <div style="margin-top: 30px;">
-                                <button onclick="location.reload()" class="btn btn--primary">Перезагрузить</button>
-                                <button onclick="localStorage.clear(); location.reload()" class="btn btn--secondary" style="margin-left: 10px;">
-                                    Очистить кэш и перезагрузить
+                            <div class="loading-logo">
+                                <div class="logo-icon">❌</div>
+                                <div class="logo-text">
+                                    <h1>Ошибка запуска</h1>
+                                    <span>IP Roast Enterprise 4.0</span>
+                                </div>
+                            </div>
+                            <div class="error-details" style="background: rgba(255, 84, 89, 0.1); padding: 16px; border-radius: 8px; margin: 20px 0;">
+                                <p><strong>Ошибка:</strong> ${error.message}</p>
+                                <p><strong>Время:</strong> ${new Date().toLocaleString()}</p>
+                            </div>
+                            <div class="error-actions">
+                                <button class="error-btn" onclick="location.reload()" style="background: #208df0; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">
+                                    Перезагрузить страницу
                                 </button>
                             </div>
                         </div>
                     `;
                 }
             }
-        });
-
-        // Глобальная функция для быстрой перезагрузки компонентов (для разработки)
-        window.reloadComponents = async function () {
-            console.log('🔄 Перезагрузка компонентов...');
-            try {
-                if (window.componentManager) {
-                    // Перезагружаем sidebar
-                    await window.componentManager.getLoader().reloadComponent('sidebar', 'sidebar-container');
-                    // Перезагружаем header
-                    await window.componentManager.getLoader().reloadComponent('header', 'header-container');
-
-                    console.log('✅ Компоненты успешно перезагружены');
-                }
-            } catch (error) {
-                console.error('❌ Ошибка перезагрузки компонентов:', error);
-            }
-        };
+        })();
     </script>
 </body>
 

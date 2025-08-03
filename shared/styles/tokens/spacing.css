@@ -1,0 +1,861 @@
+/* ===============================
+ * IP ROAST DESIGN SYSTEM - SPACING TOKENS
+ * Токены для отступов, размеров и контейнеров
+ * Версия: 1.0
+ * =============================== */
+
+:root {
+  /* ===============================
+   * SPACING SCALE
+   * Шкала отступов (8px базовая единица)
+   * =============================== */
+
+  --space-0: 0;
+  --space-1: 1px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-56: 56px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+  --space-112: 112px;
+  --space-128: 128px;
+
+  /* ===============================
+   * SEMANTIC SPACING
+   * Семантические отступы для компонентов
+   * =============================== */
+
+  /* Отступы для кнопок */
+  --button-padding-sm: var(--space-4) var(--space-12);
+  --button-padding-md: var(--space-8) var(--space-16);
+  --button-padding-lg: var(--space-10) var(--space-20);
+  --button-padding-xl: var(--space-12) var(--space-24);
+
+  /* Отступы для форм */
+  --input-padding-sm: var(--space-6) var(--space-10);
+  --input-padding-md: var(--space-8) var(--space-12);
+  --input-padding-lg: var(--space-10) var(--space-16);
+
+  /* Отступы для карточек */
+  --card-padding-sm: var(--space-12);
+  --card-padding-md: var(--space-16);
+  --card-padding-lg: var(--space-20);
+  --card-padding-xl: var(--space-24);
+
+  /* Отступы для контейнеров */
+  --container-padding-sm: var(--space-16);
+  --container-padding-md: var(--space-20);
+  --container-padding-lg: var(--space-24);
+  --container-padding-xl: var(--space-32);
+
+  /* Отступы между секциями */
+  --section-gap-sm: var(--space-24);
+  --section-gap-md: var(--space-32);
+  --section-gap-lg: var(--space-48);
+  --section-gap-xl: var(--space-64);
+
+  /* Отступы для навигации */
+  --nav-item-padding: var(--space-12) var(--space-16);
+  --nav-gap: var(--space-4);
+  --nav-padding: var(--space-16);
+
+  /* ===============================
+   * LAYOUT DIMENSIONS
+   * Размеры для компонентов интерфейса
+   * =============================== */
+
+  /* Высоты элементов */
+  --height-xs: var(--space-24);
+  --height-sm: var(--space-32);
+  --height-md: var(--space-40);
+  --height-lg: var(--space-48);
+  --height-xl: var(--space-56);
+  --height-2xl: var(--space-64);
+
+  /* Ширины элементов */
+  --width-xs: var(--space-64);
+  --width-sm: var(--space-80);
+  --width-md: var(--space-96);
+  --width-lg: var(--space-112);
+  --width-xl: var(--space-128);
+
+  /* Минимальные размеры для кликабельных элементов */
+  --min-touch-target: var(--space-48);
+  --min-button-height: var(--space-40);
+  --min-input-height: var(--space-40);
+
+  /* ===============================
+   * CONTAINER SIZES
+   * Размеры контейнеров
+   * =============================== */
+
+  --container-xs: 320px;
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+  --container-3xl: 1792px;
+
+  /* Максимальные ширины для контента */
+  --content-width-sm: 640px;
+  --content-width-md: 768px;
+  --content-width-lg: 1024px;
+  --content-width-xl: 1280px;
+
+  /* ===============================
+   * SIDEBAR & NAVIGATION SIZES
+   * Размеры боковых панелей и навигации
+   * =============================== */
+
+  --sidebar-width-collapsed: var(--space-64);
+  --sidebar-width-expanded: 280px;
+  --sidebar-width-wide: 320px;
+
+  --navbar-height: var(--space-64);
+  --navbar-height-mobile: 56px;
+
+  --breadcrumb-height: var(--space-40);
+  --tab-height: var(--space-48);
+
+  /* ===============================
+   * MODAL & DIALOG SIZES
+   * Размеры модальных окон
+   * =============================== */
+
+  --modal-width-sm: 400px;
+  --modal-width-md: 500px;
+  --modal-width-lg: 600px;
+  --modal-width-xl: 800px;
+  --modal-width-2xl: 1000px;
+
+  --modal-max-height: 90vh;
+  --modal-min-height: 200px;
+
+  /* ===============================
+   * FORM ELEMENT SIZES
+   * Размеры элементов форм
+   * =============================== */
+
+  --form-element-height-sm: var(--space-32);
+  --form-element-height-md: var(--space-40);
+  --form-element-height-lg: var(--space-48);
+
+  --form-label-spacing: var(--space-8);
+  --form-group-spacing: var(--space-16);
+  --form-section-spacing: var(--space-24);
+
+  /* ===============================
+   * GRID & FLEX GAPS
+   * Промежутки для сеток и флекс-контейнеров
+   * =============================== */
+
+  --grid-gap-xs: var(--space-4);
+  --grid-gap-sm: var(--space-8);
+  --grid-gap-md: var(--space-16);
+  --grid-gap-lg: var(--space-24);
+  --grid-gap-xl: var(--space-32);
+
+  --flex-gap-xs: var(--space-4);
+  --flex-gap-sm: var(--space-8);
+  --flex-gap-md: var(--space-12);
+  --flex-gap-lg: var(--space-16);
+  --flex-gap-xl: var(--space-20);
+
+  /* ===============================
+   * COMPONENT SPECIFIC SPACING
+   * Отступы для специфичных компонентов
+   * =============================== */
+
+  /* Badge/Tag spacing */
+  --badge-padding-sm: var(--space-2) var(--space-6);
+  --badge-padding-md: var(--space-4) var(--space-8);
+  --badge-padding-lg: var(--space-6) var(--space-12);
+
+  /* Alert/Notification spacing */
+  --alert-padding: var(--space-16);
+  --alert-margin: var(--space-16);
+  --alert-gap: var(--space-12);
+
+  /* Table spacing */
+  --table-cell-padding-sm: var(--space-8);
+  --table-cell-padding-md: var(--space-12);
+  --table-cell-padding-lg: var(--space-16);
+
+  /* List spacing */
+  --list-item-padding: var(--space-8);
+  --list-gap: var(--space-4);
+
+  /* ===============================
+   * Z-INDEX SCALE
+   * Шкала z-index для слоев
+   * =============================== */
+
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-banner: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  --z-toast: 800;
+  --z-top: 999;
+  --z-max: 9999;
+
+  /* ===============================
+   * BORDER WIDTHS
+   * Толщины границ
+   * =============================== */
+
+  --border-width-0: 0;
+  --border-width-1: 1px;
+  --border-width-2: 2px;
+  --border-width-4: 4px;
+  --border-width-8: 8px;
+
+  /* ===============================
+   * SCROLL DIMENSIONS
+   * Размеры полос прокрутки
+   * =============================== */
+
+  --scrollbar-width: 8px;
+  --scrollbar-height: 8px;
+  --scrollbar-thumb-radius: var(--space-4);
+}
+
+/* ===============================
+ * RESPONSIVE SPACING
+ * Адаптивные отступы
+ * =============================== */
+
+/* Mobile (до 480px) */
+@media (max-width: 480px) {
+  :root {
+    /* Уменьшаем отступы для мобильных */
+    --container-padding-sm: var(--space-12);
+    --container-padding-md: var(--space-16);
+    --container-padding-lg: var(--space-20);
+    --container-padding-xl: var(--space-24);
+
+    --section-gap-sm: var(--space-16);
+    --section-gap-md: var(--space-20);
+    --section-gap-lg: var(--space-24);
+    --section-gap-xl: var(--space-32);
+
+    --card-padding-sm: var(--space-8);
+    --card-padding-md: var(--space-12);
+    --card-padding-lg: var(--space-16);
+    --card-padding-xl: var(--space-20);
+
+    --sidebar-width-expanded: 100vw;
+    --navbar-height: var(--navbar-height-mobile);
+
+    /* Увеличиваем минимальные размеры для touch */
+    --min-touch-target: var(--space-48);
+    --min-button-height: var(--space-48);
+  }
+}
+
+/* Tablet (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  :root {
+    --container-padding-sm: var(--space-16);
+    --container-padding-md: var(--space-20);
+    --container-padding-lg: var(--space-24);
+    --container-padding-xl: var(--space-32);
+
+    --sidebar-width-expanded: 260px;
+  }
+}
+
+/* Desktop (769px+) - используем базовые значения */
+@media (min-width: 769px) {
+  /* Все значения остаются базовыми */
+}
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+  :root {
+    --section-gap-xl: var(--space-80);
+    --container-padding-xl: var(--space-40);
+  }
+}
+
+/* ===============================
+ * UTILITY CLASSES
+ * Утилитарные классы для быстрого применения
+ * =============================== */
+
+/* Margin utilities */
+.m-0 {
+  margin: var(--space-0);
+}
+
+.m-1 {
+  margin: var(--space-4);
+}
+
+.m-2 {
+  margin: var(--space-8);
+}
+
+.m-3 {
+  margin: var(--space-12);
+}
+
+.m-4 {
+  margin: var(--space-16);
+}
+
+.m-5 {
+  margin: var(--space-20);
+}
+
+.m-6 {
+  margin: var(--space-24);
+}
+
+.m-8 {
+  margin: var(--space-32);
+}
+
+/* Margin top */
+.mt-0 {
+  margin-top: var(--space-0);
+}
+
+.mt-1 {
+  margin-top: var(--space-4);
+}
+
+.mt-2 {
+  margin-top: var(--space-8);
+}
+
+.mt-3 {
+  margin-top: var(--space-12);
+}
+
+.mt-4 {
+  margin-top: var(--space-16);
+}
+
+.mt-5 {
+  margin-top: var(--space-20);
+}
+
+.mt-6 {
+  margin-top: var(--space-24);
+}
+
+.mt-8 {
+  margin-top: var(--space-32);
+}
+
+/* Margin bottom */
+.mb-0 {
+  margin-bottom: var(--space-0);
+}
+
+.mb-1 {
+  margin-bottom: var(--space-4);
+}
+
+.mb-2 {
+  margin-bottom: var(--space-8);
+}
+
+.mb-3 {
+  margin-bottom: var(--space-12);
+}
+
+.mb-4 {
+  margin-bottom: var(--space-16);
+}
+
+.mb-5 {
+  margin-bottom: var(--space-20);
+}
+
+.mb-6 {
+  margin-bottom: var(--space-24);
+}
+
+.mb-8 {
+  margin-bottom: var(--space-32);
+}
+
+/* Margin left/right */
+.ml-0 {
+  margin-left: var(--space-0);
+}
+
+.ml-1 {
+  margin-left: var(--space-4);
+}
+
+.ml-2 {
+  margin-left: var(--space-8);
+}
+
+.ml-3 {
+  margin-left: var(--space-12);
+}
+
+.ml-4 {
+  margin-left: var(--space-16);
+}
+
+.mr-0 {
+  margin-right: var(--space-0);
+}
+
+.mr-1 {
+  margin-right: var(--space-4);
+}
+
+.mr-2 {
+  margin-right: var(--space-8);
+}
+
+.mr-3 {
+  margin-right: var(--space-12);
+}
+
+.mr-4 {
+  margin-right: var(--space-16);
+}
+
+/* Margin horizontal/vertical */
+.mx-0 {
+  margin-left: var(--space-0);
+  margin-right: var(--space-0);
+}
+
+.mx-1 {
+  margin-left: var(--space-4);
+  margin-right: var(--space-4);
+}
+
+.mx-2 {
+  margin-left: var(--space-8);
+  margin-right: var(--space-8);
+}
+
+.mx-3 {
+  margin-left: var(--space-12);
+  margin-right: var(--space-12);
+}
+
+.mx-4 {
+  margin-left: var(--space-16);
+  margin-right: var(--space-16);
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-0 {
+  margin-top: var(--space-0);
+  margin-bottom: var(--space-0);
+}
+
+.my-1 {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.my-2 {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-8);
+}
+
+.my-3 {
+  margin-top: var(--space-12);
+  margin-bottom: var(--space-12);
+}
+
+.my-4 {
+  margin-top: var(--space-16);
+  margin-bottom: var(--space-16);
+}
+
+/* Padding utilities */
+.p-0 {
+  padding: var(--space-0);
+}
+
+.p-1 {
+  padding: var(--space-4);
+}
+
+.p-2 {
+  padding: var(--space-8);
+}
+
+.p-3 {
+  padding: var(--space-12);
+}
+
+.p-4 {
+  padding: var(--space-16);
+}
+
+.p-5 {
+  padding: var(--space-20);
+}
+
+.p-6 {
+  padding: var(--space-24);
+}
+
+.p-8 {
+  padding: var(--space-32);
+}
+
+/* Padding top */
+.pt-0 {
+  padding-top: var(--space-0);
+}
+
+.pt-1 {
+  padding-top: var(--space-4);
+}
+
+.pt-2 {
+  padding-top: var(--space-8);
+}
+
+.pt-3 {
+  padding-top: var(--space-12);
+}
+
+.pt-4 {
+  padding-top: var(--space-16);
+}
+
+.pt-5 {
+  padding-top: var(--space-20);
+}
+
+.pt-6 {
+  padding-top: var(--space-24);
+}
+
+.pt-8 {
+  padding-top: var(--space-32);
+}
+
+/* Padding bottom */
+.pb-0 {
+  padding-bottom: var(--space-0);
+}
+
+.pb-1 {
+  padding-bottom: var(--space-4);
+}
+
+.pb-2 {
+  padding-bottom: var(--space-8);
+}
+
+.pb-3 {
+  padding-bottom: var(--space-12);
+}
+
+.pb-4 {
+  padding-bottom: var(--space-16);
+}
+
+.pb-5 {
+  padding-bottom: var(--space-20);
+}
+
+.pb-6 {
+  padding-bottom: var(--space-24);
+}
+
+.pb-8 {
+  padding-bottom: var(--space-32);
+}
+
+/* Padding left/right */
+.pl-0 {
+  padding-left: var(--space-0);
+}
+
+.pl-1 {
+  padding-left: var(--space-4);
+}
+
+.pl-2 {
+  padding-left: var(--space-8);
+}
+
+.pl-3 {
+  padding-left: var(--space-12);
+}
+
+.pl-4 {
+  padding-left: var(--space-16);
+}
+
+.pr-0 {
+  padding-right: var(--space-0);
+}
+
+.pr-1 {
+  padding-right: var(--space-4);
+}
+
+.pr-2 {
+  padding-right: var(--space-8);
+}
+
+.pr-3 {
+  padding-right: var(--space-12);
+}
+
+.pr-4 {
+  padding-right: var(--space-16);
+}
+
+/* Padding horizontal/vertical */
+.px-0 {
+  padding-left: var(--space-0);
+  padding-right: var(--space-0);
+}
+
+.px-1 {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+.px-2 {
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+
+.px-3 {
+  padding-left: var(--space-12);
+  padding-right: var(--space-12);
+}
+
+.px-4 {
+  padding-left: var(--space-16);
+  padding-right: var(--space-16);
+}
+
+.px-5 {
+  padding-left: var(--space-20);
+  padding-right: var(--space-20);
+}
+
+.px-6 {
+  padding-left: var(--space-24);
+  padding-right: var(--space-24);
+}
+
+.py-0 {
+  padding-top: var(--space-0);
+  padding-bottom: var(--space-0);
+}
+
+.py-1 {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+
+.py-2 {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
+}
+
+.py-3 {
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-12);
+}
+
+.py-4 {
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-16);
+}
+
+.py-5 {
+  padding-top: var(--space-20);
+  padding-bottom: var(--space-20);
+}
+
+/* Gap utilities for flexbox and grid */
+.gap-0 {
+  gap: var(--space-0);
+}
+
+.gap-1 {
+  gap: var(--space-4);
+}
+
+.gap-2 {
+  gap: var(--space-8);
+}
+
+.gap-3 {
+  gap: var(--space-12);
+}
+
+.gap-4 {
+  gap: var(--space-16);
+}
+
+.gap-5 {
+  gap: var(--space-20);
+}
+
+.gap-6 {
+  gap: var(--space-24);
+}
+
+.gap-8 {
+  gap: var(--space-32);
+}
+
+/* Container classes */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding-md);
+  padding-right: var(--container-padding-md);
+}
+
+.container-sm {
+  max-width: var(--container-sm);
+}
+
+.container-md {
+  max-width: var(--container-md);
+}
+
+.container-lg {
+  max-width: var(--container-lg);
+}
+
+.container-xl {
+  max-width: var(--container-xl);
+}
+
+.container-2xl {
+  max-width: var(--container-2xl);
+}
+
+/* Width utilities */
+.w-full {
+  width: 100%;
+}
+
+.w-auto {
+  width: auto;
+}
+
+.w-fit {
+  width: fit-content;
+}
+
+.w-screen {
+  width: 100vw;
+}
+
+/* Height utilities */
+.h-full {
+  height: 100%;
+}
+
+.h-auto {
+  height: auto;
+}
+
+.h-fit {
+  height: fit-content;
+}
+
+.h-screen {
+  height: 100vh;
+}
+
+/* Min/Max width utilities */
+.min-w-0 {
+  min-width: 0;
+}
+
+.min-w-full {
+  min-width: 100%;
+}
+
+.max-w-none {
+  max-width: none;
+}
+
+.max-w-full {
+  max-width: 100%;
+}
+
+/* Min/Max height utilities */
+.min-h-0 {
+  min-height: 0;
+}
+
+.min-h-full {
+  min-height: 100%;
+}
+
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.max-h-full {
+  max-height: 100%;
+}
+
+.max-h-screen {
+  max-height: 100vh;
+}
+
+/* ===============================
+ * ACCESSIBILITY
+ * Улучшения доступности
+ * =============================== */
+
+/* Скрытие элементов с сохранением доступности */
+.sr-only {
+  position: absolute;
+  width: var(--space-1);
+  height: var(--space-1);
+  padding: var(--space-0);
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: var(--space-0);
+}
+
+/* Минимальные размеры для touch устройств */
+@media (pointer: coarse) {
+  .touch-target {
+    min-width: var(--min-touch-target);
+    min-height: var(--min-touch-target);
+  }
+}

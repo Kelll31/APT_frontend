@@ -1,605 +1,442 @@
 /**
- * Header.js - Управление адаптивным header и его функциональностью
- * IP Roast Enterprise 4.0
+ * core/scripts/header.js
+ * HeaderManager — Основной менеджer header для IP Roast Enterprise 4.0
+ * 
+ * Зависит от:
+ * - window.ThemeManager (конструктор)
+ * - window.NotificationSystem (конструктор)
  */
+(function () {
+    'use strict';
 
-class HeaderManager {
-    constructor() {
-        this.elements = {
-            header: null,
-            pageTitle: null,
-            breadcrumb: null,
-            notificationsBtn: null,
-            fullscreenBtn: null,
-            userBtn: null,
-            userMenu: null
-        };
-
-        this.state = {
-            isFullscreen: false,
-            notificationsCount: 0,
-            isUserMenuOpen: false
-        };
-
-        this.notifications = [];
-        this.init();
+    // Проверяем, не был ли уже загружен HeaderManager
+    if (typeof window.HeaderManager !== 'undefined') {
+        console.log('⚠️ HeaderManager уже загружен, пропускаем инициализацию');
+        return;
     }
 
-    /**
-     * Инициализация header менеджера
-     */
-    init() {
-        this.findElements();
-        this.setupEventListeners();
-        this.updateNotificationBadge();
-        this.setupFullscreen();
-        this.startPeriodicUpdates();
+    class HeaderManager {
+        constructor() {
+            // Основные элементы header
+            this.elements = {
+                header: document.getElementById('main-header'),
+                pageTitle: document.getElementById('page-title'),
+                breadcrumb: document.getElementById('breadcrumb'),
+                notificationsBtn: document.getElementById('notifications-btn'),
+                notificationsPopup: document.getElementById('notifications-popup'),
+                fullscreenBtn: document.getElementById('fullscreen-btn'),
+                userBtn: document.getElementById('user-btn'),
+                userMenu: document.getElementById('user-menu'),
+                themeToggleBtn: document.getElementById('theme-toggle-btn')
+            };
 
-        console.log('✅ Header менеджер инициализирован');
-    }
+            // Состояние header
+            this.state = {
+                isFullscreen: false,
+                isUserMenuOpen: false
+            };
 
-    /**
-     * Поиск DOM элементов
-     */
-    findElements() {
-        // Не ищем через header-container, напрямую ищем ID-шники
-        this.elements.header = document.getElementById('main-header');
-        this.elements.pageTitle = document.getElementById('page-title');
-        this.elements.breadcrumb = document.getElementById('breadcrumb');
-        this.elements.notificationsBtn = document.getElementById('notifications-btn');
-        this.elements.fullscreenBtn = document.getElementById('fullscreen-btn');
-        this.elements.userBtn = document.getElementById('user-btn');
-        this.elements.userMenu = document.getElementById('user-menu');
-
-        if (!this.elements.header) {
-            console.error('❌ HeaderManager: элемент #main-header не найден');
-            return;
+            // Инициализация систем с проверками
+            this.initializeSystems();
+            this.init();
         }
-        console.log('🔍 Header элементы найдены');
-    }
 
-    /**
-     * Настройка обработчиков событий
-     */
-    setupEventListeners() {
-        // Кнопка уведомлений
-        if (this.elements.notificationsBtn) {
-            this.elements.notificationsBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.toggleNotifications();
+        /**
+         * Безопасная инициализация систем
+         */
+        initializeSystems() {
+            // Проверяем доступность ThemeManager
+            if (window.ThemeManager && typeof window.ThemeManager === 'function') {
+                try {
+                    this.themeManager = new window.ThemeManager();
+                    console.log('✅ ThemeManager инициализирован в HeaderManager');
+                } catch (error) {
+                    console.error('❌ Ошибка создания ThemeManager:', error);
+                    this.themeManager = null;
+                }
+            } else {
+                console.warn('⚠️ ThemeManager не найден, создаем заглушку');
+                this.themeManager = this.createThemeManagerStub();
+            }
+
+            // Проверяем доступность NotificationSystem
+            if (window.NotificationSystem && typeof window.NotificationSystem === 'function') {
+                try {
+                    this.notifications = new window.NotificationSystem();
+                    console.log('✅ NotificationSystem инициализирован в HeaderManager');
+                } catch (error) {
+                    console.error('❌ Ошибка создания NotificationSystem:', error);
+                    this.notifications = null;
+                }
+            } else {
+                console.warn('⚠️ NotificationSystem не найден, создаем заглушку');
+                this.notifications = this.createNotificationSystemStub();
+            }
+        }
+
+        /**
+         * Заглушка для ThemeManager
+         */
+        createThemeManagerStub() {
+            return {
+                toggleTheme: () => {
+                    console.warn('⚠️ ThemeManager заглушка: toggleTheme вызван');
+                    // Простое переключение темы
+                    const root = document.documentElement;
+                    const currentTheme = root.getAttribute('data-theme') || 'light';
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    root.setAttribute('data-theme', newTheme);
+                    root.style.colorScheme = newTheme;
+
+                    // Обновляем кнопку
+                    const btn = document.getElementById('theme-toggle-btn');
+                    if (btn) {
+                        btn.textContent = newTheme === 'light' ? '🌙' : '☀️';
+                    }
+                },
+                getCurrentTheme: () => document.documentElement.getAttribute('data-theme') || 'light',
+                setTheme: (theme) => {
+                    document.documentElement.setAttribute('data-theme', theme);
+                    document.documentElement.style.colorScheme = theme;
+                }
+            };
+        }
+
+        /**
+         * Заглушка для NotificationSystem
+         */
+        createNotificationSystemStub() {
+            return {
+                show: (message, type = 'info') => {
+                    console.warn('⚠️ NotificationSystem заглушка:', message, type);
+                    // Простое уведомление через alert (временно)
+                    if (type === 'error') {
+                        alert(`Ошибка: ${message}`);
+                    }
+                    return Date.now().toString();
+                },
+                success: (message) => this.show(message, 'success'),
+                error: (message) => this.show(message, 'error'),
+                warning: (message) => this.show(message, 'warning'),
+                info: (message) => this.show(message, 'info'),
+                getLast: () => [],
+                delete: () => { },
+                clear: () => { },
+                markAsRead: () => { },
+                getUnreadCount: () => 0
+            };
+        }
+
+        /**
+         * Инициализация HeaderManager
+         */
+        init() {
+            console.log('🚀 HeaderManager инициализируется...');
+
+            if (!this.elements.header) {
+                console.error('HeaderManager: элемент #main-header не найден');
+                return;
+            }
+
+            this.setupEventListeners();
+            this.setupFullscreen();
+            this.updateNotificationBadge();
+
+            console.log('✅ HeaderManager полностью инициализирован');
+        }
+
+        /**
+         * ИСПРАВЛЕНО: Добавлен метод addNotification для совместимости с IPRoastApp
+         */
+        addNotification(options) {
+            if (!this.notifications) {
+                console.warn('⚠️ NotificationSystem недоступен');
+                return null;
+            }
+
+            const { title, message, type = 'info' } = options;
+
+            // Формируем сообщение с заголовком если есть
+            const fullMessage = title ? `${title}: ${message}` : message;
+
+            // Показываем уведомление через NotificationSystem
+            return this.notifications.show(fullMessage, type, {
+                title: title,
+                closable: true,
+                duration: type === 'error' ? 8000 : 5000
             });
         }
 
-        // Кнопка полноэкранного режима
-        if (this.elements.fullscreenBtn) {
-            this.elements.fullscreenBtn.addEventListener('click', (e) => {
+        /**
+         * Обновление заголовка страницы
+         */
+        updatePageTitle(title) {
+            if (this.elements.pageTitle) {
+                this.elements.pageTitle.textContent = title;
+                console.log(`📄 Заголовок страницы обновлен: ${title}`);
+            }
+        }
+
+        /**
+         * Установка состояния загрузки
+         */
+        setLoading(isLoading) {
+            if (this.elements.header) {
+                if (isLoading) {
+                    this.elements.header.classList.add('loading');
+                } else {
+                    this.elements.header.classList.remove('loading');
+                }
+            }
+        }
+
+        /**
+         * Настройка обработчиков событий
+         */
+        setupEventListeners() {
+            // Переключение темы
+            this.elements.themeToggleBtn?.addEventListener('click', e => {
+                e.preventDefault();
+                if (this.themeManager) {
+                    this.themeManager.toggleTheme();
+                }
+            });
+
+            // Dropdown уведомлений
+            this.elements.notificationsBtn?.addEventListener('click', e => {
+                e.preventDefault();
+                this.toggleNotificationsPopup();
+            });
+
+            // Fullscreen
+            this.elements.fullscreenBtn?.addEventListener('click', e => {
                 e.preventDefault();
                 this.toggleFullscreen();
             });
-        }
 
-        // Меню пользователя
-        if (this.elements.userBtn) {
-            this.elements.userBtn.addEventListener('click', (e) => {
+            // User menu
+            this.elements.userBtn?.addEventListener('click', e => {
                 e.preventDefault();
                 this.toggleUserMenu();
             });
-        }
 
-        // Слушатель изменения полноэкранного режима
-        document.addEventListener('fullscreenchange', () => {
-            this.handleFullscreenChange();
-        });
+            // Закрытие при клике вне
+            document.addEventListener('click', e => this.handleOutsideClick(e));
 
-        // Закрытие меню при клике вне
-        document.addEventListener('click', (e) => {
-            this.handleClickOutside(e);
-        });
-
-        // Клавиатурные шортакты
-        document.addEventListener('keydown', (e) => {
-            this.handleKeydown(e);
-        });
-
-        console.log('⚡ Header обработчики событий настроены');
-    }
-
-    /**
-     * Обновление заголовка страницы
-     */
-    updatePageTitle(title, subtitle = null) {
-        if (this.elements.pageTitle) {
-            this.elements.pageTitle.textContent = title;
-            document.title = `${title} - IP Roast Enterprise`;
-        }
-
-        this.updateBreadcrumb(title, subtitle);
-        console.log(`📄 Заголовок обновлен: ${title}`);
-    }
-
-    /**
-     * Обновление breadcrumb навигации
-     */
-    updateBreadcrumb(current, parent = null) {
-        if (!this.elements.breadcrumb) return;
-
-        const breadcrumbItems = [];
-
-        // Главная всегда первая
-        breadcrumbItems.push({
-            text: 'Главная',
-            active: false,
-            href: '#dashboard'
-        });
-
-        // Родительский элемент если есть
-        if (parent) {
-            breadcrumbItems.push({
-                text: parent,
-                active: false,
-                href: '#'
-            });
-        }
-
-        // Текущая страница
-        breadcrumbItems.push({
-            text: current,
-            active: true,
-            href: null
-        });
-
-        // Создаем HTML
-        const breadcrumbHTML = breadcrumbItems.map((item, index) => {
-            const isLast = index === breadcrumbItems.length - 1;
-            const itemHTML = item.active ?
-                `<span class="breadcrumb-item active">${item.text}</span>` :
-                `<a href="${item.href}" class="breadcrumb-item">${item.text}</a>`;
-
-            const separatorHTML = isLast ? '' : '<span class="breadcrumb-separator">/</span>';
-
-            return itemHTML + separatorHTML;
-        }).join('');
-
-        this.elements.breadcrumb.innerHTML = breadcrumbHTML;
-    }
-
-    /**
-     * Управление уведомлениями
-     */
-    addNotification(notification) {
-        const id = Date.now().toString();
-        const newNotification = {
-            id,
-            title: notification.title,
-            message: notification.message,
-            type: notification.type || 'info',
-            timestamp: new Date(),
-            read: false
-        };
-
-        this.notifications.unshift(newNotification);
-
-        // Ограничиваем количество уведомлений
-        if (this.notifications.length > 50) {
-            this.notifications = this.notifications.slice(0, 50);
-        }
-
-        this.updateNotificationBadge();
-        this.showToast(newNotification);
-
-        console.log('🔔 Добавлено уведомление:', newNotification.title);
-    }
-
-    /**
-     * Показ toast уведомления
-     */
-    showToast(notification) {
-        const toast = this.createToastElement(notification);
-        const container = this.getToastContainer();
-
-        container.appendChild(toast);
-
-        // Анимация появления
-        requestAnimationFrame(() => {
-            toast.classList.add('show');
-        });
-
-        // Автоматическое скрытие
-        setTimeout(() => {
-            this.hideToast(toast);
-        }, 5000);
-    }
-
-    /**
-     * Создание элемента toast
-     */
-    createToastElement(notification) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${notification.type}`;
-        toast.dataset.id = notification.id;
-
-        const icons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
-        };
-
-        toast.innerHTML = `
-      <div class="toast-icon">${icons[notification.type] || icons.info}</div>
-      <div class="toast-content">
-        <div class="toast-title">${notification.title}</div>
-        <div class="toast-message">${notification.message}</div>
-      </div>
-      <button class="toast-close" aria-label="Закрыть">×</button>
-    `;
-
-        // Обработчик закрытия
-        const closeBtn = toast.querySelector('.toast-close');
-        closeBtn.addEventListener('click', () => {
-            this.hideToast(toast);
-        });
-
-        return toast;
-    }
-
-    /**
-     * Скрытие toast
-     */
-    hideToast(toast) {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }
-
-    /**
-     * Получение контейнера для toast
-     */
-    getToastContainer() {
-        let container = document.querySelector('.toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.className = 'toast-container';
-            document.body.appendChild(container);
-        }
-        return container;
-    }
-
-    /**
-     * Обновление бейджа уведомлений
-     */
-    updateNotificationBadge() {
-        const unreadCount = this.notifications.filter(n => !n.read).length;
-        this.state.notificationsCount = unreadCount;
-
-        if (this.elements.notificationsBtn) {
-            const badge = this.elements.notificationsBtn.querySelector('.notification-badge');
-            if (badge) {
-                if (unreadCount > 0) {
-                    badge.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
+            // Escape
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    this.closeNotificationsPopup();
+                    if (this.state.isUserMenuOpen) this.toggleUserMenu();
                 }
-            }
-        }
-    }
-
-    /**
-     * Переключение панели уведомлений
-     */
-    toggleNotifications() {
-        // Здесь можно открыть модальное окно или выдвижную панель с уведомлениями
-        console.log('🔔 Открытие панели уведомлений');
-
-        // Помечаем все уведомления как прочитанные
-        this.notifications.forEach(n => n.read = true);
-        this.updateNotificationBadge();
-
-        // Пример: создание простого списка уведомлений
-        this.showNotificationsModal();
-    }
-
-    /**
-     * Показ модального окна с уведомлениями
-     */
-    showNotificationsModal() {
-        const modal = document.createElement('div');
-        modal.className = 'notifications-modal';
-        modal.innerHTML = `
-      <div class="modal-overlay">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>Уведомления</h3>
-            <button class="modal-close">×</button>
-          </div>
-          <div class="modal-body">
-            ${this.renderNotificationsList()}
-          </div>
-        </div>
-      </div>
-    `;
-
-        document.body.appendChild(modal);
-
-        // Обработчики закрытия
-        const closeBtn = modal.querySelector('.modal-close');
-        const overlay = modal.querySelector('.modal-overlay');
-
-        closeBtn.addEventListener('click', () => this.closeModal(modal));
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) this.closeModal(modal);
-        });
-
-        requestAnimationFrame(() => {
-            modal.classList.add('show');
-        });
-    }
-
-    /**
-     * Рендер списка уведомлений
-     */
-    renderNotificationsList() {
-        if (this.notifications.length === 0) {
-            return '<div class="empty-notifications">Нет уведомлений</div>';
-        }
-
-        return this.notifications.slice(0, 10).map(notification => `
-      <div class="notification-item ${notification.type}">
-        <div class="notification-header">
-          <span class="notification-title">${notification.title}</span>
-          <span class="notification-time">${this.formatTime(notification.timestamp)}</span>
-        </div>
-        <div class="notification-message">${notification.message}</div>
-      </div>
-    `).join('');
-    }
-
-    /**
-     * Форматирование времени
-     */
-    formatTime(timestamp) {
-        const now = new Date();
-        const diff = now - timestamp;
-        const minutes = Math.floor(diff / 60000);
-
-        if (minutes < 1) return 'только что';
-        if (minutes < 60) return `${minutes} мин назад`;
-
-        const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours} ч назад`;
-
-        const days = Math.floor(hours / 24);
-        return `${days} дн назад`;
-    }
-
-    /**
-     * Закрытие модального окна
-     */
-    closeModal(modal) {
-        modal.classList.remove('show');
-        setTimeout(() => {
-            if (modal.parentNode) {
-                modal.parentNode.removeChild(modal);
-            }
-        }, 300);
-    }
-
-    /**
-     * Управление полноэкранным режимом
-     */
-    toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                console.warn('Не удалось войти в полноэкранный режим:', err);
             });
-        } else {
-            document.exitFullscreen().catch(err => {
-                console.warn('Не удалось выйти из полноэкранного режима:', err);
-            });
-        }
-    }
 
-    /**
-     * Настройка полноэкранного режима
-     */
-    setupFullscreen() {
-        if (!document.fullscreenEnabled) {
-            if (this.elements.fullscreenBtn) {
-                this.elements.fullscreenBtn.style.display = 'none';
+            console.log('⚡ Обработчики событий header настроены');
+        }
+
+        /**
+         * Переключение dropdown уведомлений
+         */
+        toggleNotificationsPopup() {
+            const popup = this.elements.notificationsPopup;
+            if (!popup || !this.notifications) return;
+
+            const list = this.notifications.getLast(10);
+            const itemsHTML = list.length ? list.map(n => `
+                <div class="notification-item" data-id="${n.id}">
+                    <div class="icon">${this.getNotificationIcon(n.type)}</div>
+                    <div class="body">
+                        <div class="title">${n.title || 'Уведомление'}</div>
+                        <div class="message">${n.message}</div>
+                        <div class="time">${this.formatTime(n.timestamp)}</div>
+                    </div>
+                    <button class="delete-btn" onclick="window.headerManager?.deleteNotification('${n.id}')">&times;</button>
+                </div>
+            `).join('') : '<div style="padding: 16px; text-align: center; color: #666;">Нет уведомлений</div>';
+
+            popup.innerHTML = `
+                ${list.length ? '<button class="clear-all-btn" onclick="window.headerManager?.clearAllNotifications()">Очистить все</button>' : ''}
+                ${itemsHTML}
+            `;
+
+            popup.classList.toggle('active');
+        }
+
+        /**
+         * Закрытие popup уведомлений
+         */
+        closeNotificationsPopup() {
+            if (this.elements.notificationsPopup) {
+                this.elements.notificationsPopup.classList.remove('active');
             }
         }
-    }
 
-    /**
-     * Обработка изменения полноэкранного режима
-     */
-    handleFullscreenChange() {
-        this.state.isFullscreen = !!document.fullscreenElement;
-
-        if (this.elements.fullscreenBtn) {
-            const icon = this.elements.fullscreenBtn.querySelector('.btn-icon');
-            if (icon) {
-                icon.textContent = this.state.isFullscreen ? '⛶' : '⛶';
+        /**
+         * Удаление уведомления
+         */
+        deleteNotification(id) {
+            if (this.notifications) {
+                this.notifications.delete(id);
+                this.updateNotificationBadge();
+                this.toggleNotificationsPopup(); // Обновляем popup
             }
         }
 
-        console.log('🖥️ Полноэкранный режим:', this.state.isFullscreen);
-    }
-
-    /**
-     * Переключение меню пользователя
-     */
-    toggleUserMenu() {
-        this.state.isUserMenuOpen = !this.state.isUserMenuOpen;
-
-        if (this.elements.userBtn) {
-            this.elements.userBtn.setAttribute('aria-expanded', this.state.isUserMenuOpen.toString());
-        }
-
-        if (this.state.isUserMenuOpen) {
-            this.showUserMenu();
-        } else {
-            this.hideUserMenu();
-        }
-    }
-
-    /**
-     * Показ меню пользователя
-     */
-    showUserMenu() {
-        // Удаляем существующее меню
-        this.hideUserMenu();
-
-        const menu = document.createElement('div');
-        menu.className = 'user-dropdown-menu';
-        menu.innerHTML = `
-      <div class="user-menu-item">
-        <span class="menu-icon">👤</span>
-        <span class="menu-text">Профиль</span>
-      </div>
-      <div class="user-menu-item">
-        <span class="menu-icon">⚙️</span>
-        <span class="menu-text">Настройки</span>
-      </div>
-      <div class="user-menu-item">
-        <span class="menu-icon">🌙</span>
-        <span class="menu-text">Темная тема</span>
-      </div>
-      <div class="user-menu-divider"></div>
-      <div class="user-menu-item">
-        <span class="menu-icon">🚪</span>
-        <span class="menu-text">Выход</span>
-      </div>
-    `;
-
-        // Позиционируем меню
-        const userBtn = this.elements.userBtn;
-        const rect = userBtn.getBoundingClientRect();
-        menu.style.position = 'fixed';
-        menu.style.top = `${rect.bottom + 8}px`;
-        menu.style.right = `${window.innerWidth - rect.right}px`;
-        menu.style.zIndex = '9999';
-
-        document.body.appendChild(menu);
-
-        // Анимация появления
-        requestAnimationFrame(() => {
-            menu.classList.add('show');
-        });
-
-        this.elements.userMenu = menu;
-    }
-
-    /**
-     * Скрытие меню пользователя
-     */
-    hideUserMenu() {
-        if (this.elements.userMenu) {
-            this.elements.userMenu.remove();
-            this.elements.userMenu = null;
-        }
-        this.state.isUserMenuOpen = false;
-
-        if (this.elements.userBtn) {
-            this.elements.userBtn.setAttribute('aria-expanded', 'false');
-        }
-    }
-
-    /**
-     * Обработка клика вне элементов
-     */
-    handleClickOutside(e) {
-        // Закрытие меню пользователя
-        if (this.state.isUserMenuOpen &&
-            !this.elements.userBtn?.contains(e.target) &&
-            !this.elements.userMenu?.contains(e.target)) {
-            this.hideUserMenu();
-        }
-    }
-
-    /**
-     * Обработка нажатий клавиш
-     */
-    handleKeydown(e) {
-        // F11 - полноэкранный режим
-        if (e.key === 'F11') {
-            e.preventDefault();
-            this.toggleFullscreen();
-        }
-
-        // Escape - закрытие меню
-        if (e.key === 'Escape') {
-            if (this.state.isUserMenuOpen) {
-                this.hideUserMenu();
+        /**
+         * Очистка всех уведомлений
+         */
+        clearAllNotifications() {
+            if (this.notifications) {
+                this.notifications.clear();
+                this.updateNotificationBadge();
+                this.closeNotificationsPopup();
             }
         }
-    }
 
-    /**
-     * Периодические обновления
-     */
-    startPeriodicUpdates() {
-        // Обновляем время в уведомлениях каждую минуту
-        setInterval(() => {
-            const modal = document.querySelector('.notifications-modal');
-            if (modal) {
-                const body = modal.querySelector('.modal-body');
-                if (body) {
-                    body.innerHTML = this.renderNotificationsList();
-                }
-            }
-        }, 60000);
-    }
-
-    /**
-     * Установка состояния загрузки
-     */
-    setLoading(isLoading) {
-        if (this.elements.header) {
-            if (isLoading) {
-                this.elements.header.classList.add('loading');
+        /**
+         * Переключение fullscreen режима
+         */
+        toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    this.state.isFullscreen = true;
+                    this.updateFullscreenButton();
+                }).catch(err => {
+                    console.warn('⚠️ Не удалось войти в fullscreen:', err);
+                });
             } else {
-                this.elements.header.classList.remove('loading');
+                document.exitFullscreen().then(() => {
+                    this.state.isFullscreen = false;
+                    this.updateFullscreenButton();
+                }).catch(err => {
+                    console.warn('⚠️ Не удалось выйти из fullscreen:', err);
+                });
             }
+        }
+
+        /**
+         * Настройка fullscreen
+         */
+        setupFullscreen() {
+            document.addEventListener('fullscreenchange', () => {
+                this.state.isFullscreen = !!document.fullscreenElement;
+                this.updateFullscreenButton();
+            });
+        }
+
+        /**
+         * Обновление кнопки fullscreen
+         */
+        updateFullscreenButton() {
+            if (this.elements.fullscreenBtn) {
+                const icon = this.state.isFullscreen ? '⛶' : '⛶';
+                this.elements.fullscreenBtn.innerHTML = `<span class="btn-icon">${icon}</span>`;
+                this.elements.fullscreenBtn.title = this.state.isFullscreen ? 'Выйти из полноэкранного режима' : 'Полноэкранный режим';
+            }
+        }
+
+        /**
+         * Переключение user menu
+         */
+        toggleUserMenu() {
+            this.state.isUserMenuOpen = !this.state.isUserMenuOpen;
+
+            if (this.elements.userBtn) {
+                this.elements.userBtn.setAttribute('aria-expanded', this.state.isUserMenuOpen.toString());
+            }
+
+            if (this.elements.userMenu) {
+                if (this.state.isUserMenuOpen) {
+                    this.elements.userMenu.classList.add('active');
+                } else {
+                    this.elements.userMenu.classList.remove('active');
+                }
+            }
+        }
+
+        /**
+         * Обновление бейджа уведомлений
+         */
+        updateNotificationBadge() {
+            if (!this.elements.notificationsBtn || !this.notifications) return;
+
+            const count = this.notifications.getUnreadCount();
+            let badge = this.elements.notificationsBtn.querySelector('.notification-badge');
+
+            if (count > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'notification-badge';
+                    this.elements.notificationsBtn.appendChild(badge);
+                }
+                badge.textContent = count > 99 ? '99+' : count.toString();
+            } else if (badge) {
+                badge.remove();
+            }
+        }
+
+        /**
+         * Обработка клика вне элементов
+         */
+        handleOutsideClick(e) {
+            // Закрываем notifications popup
+            if (this.elements.notificationsPopup &&
+                this.elements.notificationsPopup.classList.contains('active') &&
+                !this.elements.notificationsBtn?.contains(e.target) &&
+                !this.elements.notificationsPopup.contains(e.target)) {
+                this.closeNotificationsPopup();
+            }
+
+            // Закрываем user menu
+            if (this.state.isUserMenuOpen &&
+                !this.elements.userBtn?.contains(e.target) &&
+                !this.elements.userMenu?.contains(e.target)) {
+                this.toggleUserMenu();
+            }
+        }
+
+        /**
+         * Получение иконки уведомления
+         */
+        getNotificationIcon(type) {
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            return icons[type] || icons.info;
+        }
+
+        /**
+         * Форматирование времени
+         */
+        formatTime(timestamp) {
+            const now = new Date();
+            const time = new Date(timestamp);
+            const diff = now - time;
+
+            if (diff < 60000) { // менее минуты
+                return 'только что';
+            } else if (diff < 3600000) { // менее часа
+                return `${Math.floor(diff / 60000)} мин назад`;
+            } else if (diff < 86400000) { // менее дня
+                return `${Math.floor(diff / 3600000)} ч назад`;
+            } else {
+                return time.toLocaleDateString();
+            }
+        }
+
+        /**
+         * Уничтожение HeaderManager
+         */
+        destroy() {
+            // Очищаем интервалы и слушатели
+            console.log('🗑️ HeaderManager уничтожен');
         }
     }
 
-    /**
-     * Получение состояния header
-     */
-    getState() {
-        return {
-            ...this.state,
-            notificationsCount: this.notifications.filter(n => !n.read).length
-        };
-    }
-
-    /**
-     * Уничтожение header менеджера
-     */
-    destroy() {
-        // Удаляем обработчики событий
-        document.removeEventListener('fullscreenchange', this.handleFullscreenChange);
-        document.removeEventListener('click', this.handleClickOutside);
-        document.removeEventListener('keydown', this.handleKeydown);
-
-        // Очищаем элементы
-        this.hideUserMenu();
-
-        console.log('🗑️ Header менеджер уничтожен');
-    }
-}
-
-// Экспорт
-window.HeaderManager = HeaderManager;
-
-// Автоинициализация
-document.addEventListener('DOMContentLoaded', () => {
-    if (!window.headerManager) {
-        window.headerManager = new HeaderManager();
-    }
-});
+    // Экспорт в глобальную область
+    window.HeaderManager = HeaderManager;
+    console.log('✅ HeaderManager модуль загружен (исправленная версия с addNotification)');
+})();

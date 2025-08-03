@@ -1,750 +1,550 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="IP Roast Enterprise 4.0 - Панель управления системой сетевой безопасности">
-    <title>Панель управления - IP Roast Enterprise 4.0</title>
+    <meta name="description" content="IP Roast Enterprise - Панель управления безопасностью сети">
+    <title>Dashboard | IP Roast Enterprise 4.0</title>
 
-    <!-- Подключение стилей -->
-    <link rel="stylesheet" href="dashboard.css">
-
-    <!-- Подключение Chart.js для графиков -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Критические стили -->
+    <link rel="stylesheet" href="../../shared/styles/index.css">
 
     <!-- Preload критических ресурсов -->
-    <link rel="preload" href="dashboard.js" as="script">
-    <link rel="preload" href="dashboard.css" as="style">
+    <link rel="preload" href="../../shared/styles/tokens/colors.css" as="style">
+    <link rel="preload" href="../../shared/styles/base/reset.css" as="style">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/icons/icon-32x32.png" sizes="32x32">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="../../manifest.json">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#218a8d">
+
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
 </head>
 
-<body class="dashboard">
-    <!-- Заголовок панели управления -->
-    <header class="dashboard-header fade-in">
-        <div class="dashboard-header-content">
-            <div class="header-main">
-                <h1 class="dashboard-title">Панель управления</h1>
-                <p class="dashboard-subtitle">IP Roast Enterprise 4.0</p>
+<body class="bg-background text-text font-sans leading-normal">
 
-                <div class="system-status">
-                    <div class="status-indicator" aria-label="Система работает нормально"></div>
-                    <span class="status-text">Система работает нормально</span>
-                    <span class="status-separator">•</span>
-                    <span class="last-update">
-                        Обновлено: <time class="last-update-time" datetime="">только что</time>
-                    </span>
+    <!-- Skip Link для доступности -->
+    <a href="#main-content" class="skip-link sr-only focus:not-sr-only">
+        Перейти к основному содержимому
+    </a>
+
+    <!-- Главный контейнер -->
+    <div class="min-h-screen flex flex-col">
+
+        <!-- Header Section -->
+        <header class="bg-primary text-btn-primary-text shadow-lg" role="banner">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <h1 class="text-3xl font-semibold mb-2 tracking-tight">
+                            Состояние безопасности
+                        </h1>
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 bg-success rounded-full shadow-glow animate-pulse"></div>
+                            <span class="text-lg font-medium">Система защищена</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-4xl font-bold font-mono mb-1">95</div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm opacity-90">Уровень безопасности</span>
+                            <span class="text-success font-semibold">+5% за неделю</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Контролы панели -->
-    <section class="dashboard-controls slide-up" style="animation-delay: 0.1s">
-        <div class="controls-group">
-            <div class="auto-refresh-toggle">
-                <label for="auto-refresh" class="sr-only">Автообновление</label>
-                <input type="checkbox" id="auto-refresh" class="sr-only" checked>
-                <div class="toggle-switch active" role="switch" aria-checked="true" aria-labelledby="auto-refresh-label"
-                    tabindex="0">
-                </div>
-                <span id="auto-refresh-label" class="toggle-label">Автообновление</span>
-            </div>
-
-            <div class="period-selector">
-                <label for="period-select" class="sr-only">Период отображения данных</label>
-                <select id="period-select" class="period-dropdown" aria-label="Выберите период">
-                    <option value="1h">Последний час</option>
-                    <option value="6h">Последние 6 часов</option>
-                    <option value="24h" selected>Последние 24 часа</option>
-                    <option value="7d">Последняя неделя</option>
-                    <option value="30d">Последний месяц</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="controls-group">
-            <button class="refresh-button" type="button" aria-label="Обновить данные">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path
-                        d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
-                </svg>
-                Обновить
-            </button>
-        </div>
-    </section>
-
-    <!-- Сетка метрик -->
-    <section class="metrics-grid slide-up" style="animation-delay: 0.2s" role="region"
-        aria-label="Ключевые метрики системы">
-        <!-- Карточка: Состояние безопасности -->
-        <article class="metric-card" data-metric="security" tabindex="0" role="button"
-            aria-label="Показать детали состояния безопасности">
-            <div class="metric-header">
-                <div class="metric-icon security" aria-hidden="true">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z" />
-                    </svg>
-                </div>
-                <div class="metric-menu">
-                    <button class="metric-menu-button" aria-label="Меню метрики безопасности">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <h3 class="metric-title">Состояние безопасности</h3>
-            <div class="metric-value" aria-label="95 из 100">95</div>
-            <p class="metric-description">Система защищена</p>
-
-            <div class="metric-trend trend-positive">
-                <span class="trend-icon" aria-hidden="true">↗</span>
-                <span class="trend-text">+5% за неделю</span>
-            </div>
-        </article>
-
-        <!-- Карточка: Сетевая активность -->
-        <article class="metric-card" data-metric="network" tabindex="0" role="button"
-            aria-label="Показать детали сетевой активности">
-            <div class="metric-header">
-                <div class="metric-icon network" aria-hidden="true">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M17,3A2,2 0 0,1 19,5V15A2,2 0 0,1 17,17H13V19H14A1,1 0 0,1 15,20H22V22H15A1,1 0 0,1 14,23H10A1,1 0 0,1 9,22H2V20H9A1,1 0 0,1 10,19H11V17H7A2,2 0 0,1 5,15V5A2,2 0 0,1 7,3H17Z" />
-                    </svg>
-                </div>
-                <div class="metric-menu">
-                    <button class="metric-menu-button" aria-label="Меню метрики сетевой активности">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <h3 class="metric-title">Сетевая активность</h3>
-            <div class="metric-value" aria-label="247 активных устройств">247</div>
-            <p class="metric-description">в сети обнаружено</p>
-
-            <div class="metric-trend trend-neutral">
-                <span class="trend-icon" aria-hidden="true">→</span>
-                <span class="trend-text">Без изменений</span>
-            </div>
-        </article>
-
-        <!-- Карточка: Уязвимости -->
-        <article class="metric-card" data-metric="vulnerabilities" tabindex="0" role="button"
-            aria-label="Показать детали об уязвимостях">
-            <div class="metric-header">
-                <div class="metric-icon vulnerability" aria-hidden="true">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12,2L1,21H23M12,6L19.53,19H4.47M11,10V14H13V10M11,16V18H13V16" />
-                    </svg>
-                </div>
-                <div class="metric-menu">
-                    <button class="metric-menu-button" aria-label="Меню метрики уязвимостей">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <h3 class="metric-title">Уязвимости</h3>
-            <div class="metric-value" aria-label="12 критических уязвимостей">12</div>
-            <p class="metric-description">требуют внимания</p>
-
-            <div class="metric-trend trend-negative">
-                <span class="trend-icon" aria-hidden="true">↘</span>
-                <span class="trend-text">-3 за день</span>
-            </div>
-        </article>
-
-        <!-- Карточка: Сканирования -->
-        <article class="metric-card" data-metric="scans" tabindex="0" role="button"
-            aria-label="Показать детали сканирований">
-            <div class="metric-header">
-                <div class="metric-icon scanning" aria-hidden="true">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
-                    </svg>
-                </div>
-                <div class="metric-menu">
-                    <button class="metric-menu-button" aria-label="Меню метрики сканирований">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <h3 class="metric-title">Сканирования</h3>
-            <div class="metric-value" aria-label="89 завершенных сканирований">89</div>
-            <p class="metric-description">завершено сегодня</p>
-
-            <div class="metric-trend trend-positive">
-                <span class="trend-icon" aria-hidden="true">↗</span>
-                <span class="trend-text">+12% скорость</span>
-            </div>
-        </article>
-    </section>
-
-    <!-- Секция: Активность сети -->
-    <section class="dashboard-section slide-up" style="animation-delay: 0.3s">
-        <header class="section-header">
-            <h2 class="section-title">Активность сети</h2>
-            <div class="section-actions">
-                <button class="action-button" type="button" aria-label="Экспорт данных">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path
-                            d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-                    </svg>
-                    Экспорт
-                </button>
-                <button class="action-button primary" type="button" aria-label="Открыть детальный анализ">
-                    Подробнее
-                </button>
             </div>
         </header>
 
-        <div class="section-content">
-            <div class="chart-container" role="img" aria-label="График сетевой активности за последние 24 часа">
-                <canvas id="network-activity-chart"
-                    aria-label="Линейный график показывающий входящий трафик, исходящий трафик и подозрительную активность"></canvas>
+        <!-- Navigation -->
+        <nav class="bg-surface border-b border-border" role="navigation" aria-label="Основная навигация">
+            <div class="container mx-auto px-6">
+                <ul class="nav nav--pills flex gap-1">
+                    <li class="nav-item">
+                        <a href="#overview" class="nav-link active" aria-current="page">Обзор</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#devices" class="nav-link">Устройства</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#scans" class="nav-link">Сканирования</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#threats" class="nav-link">Угрозы</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#reports" class="nav-link">Отчеты</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-                <!-- Индикатор загрузки -->
-                <div class="chart-loading" role="status" aria-label="Загрузка графика">
-                    <div class="chart-spinner" aria-hidden="true"></div>
-                    <span>Загрузка данных...</span>
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 py-8" role="main">
+            <div class="container mx-auto px-6">
+
+                <!-- Controls Panel -->
+                <section class="card mb-8" aria-label="Панель управления">
+                    <div class="card__body">
+                        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <div class="form-switch">
+                                        <input type="checkbox" class="form-switch-input" checked>
+                                        <div class="form-switch-slider"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">Автообновление</span>
+                                </label>
+
+                                <div class="form-group">
+                                    <select class="form-control form-control--select form-control--sm min-w-36">
+                                        <option value="1m">1 минута</option>
+                                        <option value="5m" selected>5 минут</option>
+                                        <option value="15m">15 минут</option>
+                                        <option value="1h">1 час</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <button class="btn btn--secondary btn--sm" type="button">
+                                    <span>📊</span>
+                                    <span>Экспорт</span>
+                                </button>
+                                <button class="btn btn--primary btn--sm" type="button">
+                                    <span>🔄</span>
+                                    <span>Обновить</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Metrics Grid -->
+                <section class="cards-grid cards-grid--4-col mb-8" aria-label="Ключевые метрики">
+
+                    <!-- Security Status Card -->
+                    <article class="card card--stat card--success">
+                        <div class="stat__value">95</div>
+                        <div class="stat__label">Система защищена</div>
+                        <div class="stat__change stat__change--positive">+5%</div>
+                    </article>
+
+                    <!-- Network Devices Card -->
+                    <article class="card card--stat card--info">
+                        <div class="stat__value">247</div>
+                        <div class="stat__label">В сети обнаружено</div>
+                        <div class="stat__change">+12 устройств</div>
+                    </article>
+
+                    <!-- Attention Required Card -->
+                    <article class="card card--stat card--warning">
+                        <div class="stat__value">3</div>
+                        <div class="stat__label">Требуют внимания</div>
+                        <div class="stat__change stat__change--negative">+1 новая</div>
+                    </article>
+
+                    <!-- Completed Today Card -->
+                    <article class="card card--stat card--primary">
+                        <div class="stat__value">18</div>
+                        <div class="stat__label">Завершено сегодня</div>
+                        <div class="stat__change stat__change--positive">+6 задач</div>
+                    </article>
+
+                </section>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+                    <!-- Left Column - 2/3 width -->
+                    <div class="xl:col-span-2 space-y-8">
+
+                        <!-- Active Scans Table -->
+                        <section class="card" aria-label="Активные сканирования">
+                            <div class="card__header card__header--flex">
+                                <h2 class="card__title">Активные сканирования</h2>
+                                <div class="card__header-actions">
+                                    <button class="btn btn--ghost btn--sm" type="button">Все сканирования</button>
+                                </div>
+                            </div>
+                            <div class="card__body overflow-x-auto">
+                                <table class="data-table w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-left">Цель</th>
+                                            <th class="text-left">Тип сканирования</th>
+                                            <th class="text-left">Статус</th>
+                                            <th class="text-left">Прогресс</th>
+                                            <th class="text-left">Время начала</th>
+                                            <th class="text-left">Длительность</th>
+                                            <th class="text-center">Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="font-mono text-sm">192.168.1.0/24</td>
+                                            <td>Полное сканирование</td>
+                                            <td><span class="status-badge online">Завершено</span></td>
+                                            <td>
+                                                <div class="progress-container">
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill progress-fill-low"
+                                                            style="width: 100%"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-sm text-secondary">12:34</td>
+                                            <td class="font-mono text-sm">2 мин 15 сек</td>
+                                            <td class="text-center">
+                                                <div class="table-actions">
+                                                    <button class="action-button"
+                                                        title="Просмотр результатов">👁️</button>
+                                                    <button class="action-button" title="Скачать отчет">⬇️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-mono text-sm">10.0.0.0/16</td>
+                                            <td>Быстрое сканирование</td>
+                                            <td><span class="status-badge warning">В процессе</span></td>
+                                            <td>
+                                                <div class="progress-container">
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill progress-fill-medium animate-pulse"
+                                                            style="width: 65%"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-sm text-secondary">12:45</td>
+                                            <td class="font-mono text-sm">1 мин 32 сек</td>
+                                            <td class="text-center">
+                                                <div class="table-actions">
+                                                    <button class="action-button" title="Приостановить">⏸️</button>
+                                                    <button class="action-button" title="Остановить">⏹️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-mono text-sm">172.16.0.0/12</td>
+                                            <td>Сканирование портов</td>
+                                            <td><span class="status-badge offline">Ошибка</span></td>
+                                            <td>
+                                                <div class="progress-container">
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill progress-fill-critical"
+                                                            style="width: 30%"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-sm text-secondary">12:50</td>
+                                            <td class="font-mono text-sm">45 сек</td>
+                                            <td class="text-center">
+                                                <div class="table-actions">
+                                                    <button class="action-button" title="Перезапустить">🔄</button>
+                                                    <button class="action-button" title="Посмотреть лог">📋</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <!-- Network Devices Table -->
+                        <section class="card" aria-label="Устройства в сети">
+                            <div class="card__header card__header--flex">
+                                <h2 class="card__title">Устройства в сети</h2>
+                                <div class="card__header-actions">
+                                    <button class="btn btn--ghost btn--sm" type="button">Топология сети</button>
+                                </div>
+                            </div>
+                            <div class="card__body overflow-x-auto">
+                                <table class="data-table w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-left">IP адрес</th>
+                                            <th class="text-left">Hostname</th>
+                                            <th class="text-left">MAC адрес</th>
+                                            <th class="text-left">Статус</th>
+                                            <th class="text-left">ОС</th>
+                                            <th class="text-left">Последняя активность</th>
+                                            <th class="text-center">Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><code class="bg-secondary px-2 py-1 rounded text-xs">192.168.1.1</code>
+                                            </td>
+                                            <td class="font-medium">router.local</td>
+                                            <td><code
+                                                    class="bg-secondary px-2 py-1 rounded text-xs">aa:bb:cc:dd:ee:ff</code>
+                                            </td>
+                                            <td><span class="status-badge online">Онлайн</span></td>
+                                            <td class="text-sm text-secondary">RouterOS</td>
+                                            <td class="text-sm text-secondary">2 мин назад</td>
+                                            <td class="text-center">
+                                                <div class="table-actions">
+                                                    <button class="action-button primary"
+                                                        title="Сканировать">🔍</button>
+                                                    <button class="action-button" title="Детали">ℹ️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><code
+                                                    class="bg-secondary px-2 py-1 rounded text-xs">192.168.1.100</code>
+                                            </td>
+                                            <td class="font-medium">workstation-01</td>
+                                            <td><code
+                                                    class="bg-secondary px-2 py-1 rounded text-xs">11:22:33:44:55:66</code>
+                                            </td>
+                                            <td><span class="status-badge online">Онлайн</span></td>
+                                            <td class="text-sm text-secondary">Windows 11</td>
+                                            <td class="text-sm text-secondary">5 мин назад</td>
+                                            <td class="text-center">
+                                                <div class="table-actions">
+                                                    <button class="action-button primary"
+                                                        title="Сканировать">🔍</button>
+                                                    <button class="action-button" title="Детали">ℹ️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><code
+                                                    class="bg-secondary px-2 py-1 rounded text-xs">192.168.1.200</code>
+                                            </td>
+                                            <td class="font-medium">server-db</td>
+                                            <td><code
+                                                    class="bg-secondary px-2 py-1 rounded text-xs">77:88:99:aa:bb:cc</code>
+                                            </td>
+                                            <td><span class="status-badge warning">Предупреждение</span></td>
+                                            <td class="text-sm text-secondary">Ubuntu Server</td>
+                                            <td class="text-sm text-secondary">1 час назад</td>
+                                            <td class="text-center">
+                                                <div class="table-actions">
+                                                    <button class="action-button" title="Сканировать">🔍</button>
+                                                    <button class="action-button" title="Исправить">🔧</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Right Column - 1/3 width -->
+                    <div class="space-y-8">
+
+                        <!-- Security Status Card -->
+                        <section class="card card--security" aria-label="Статус безопасности">
+                            <div class="card__header">
+                                <h2 class="card__title">Статус безопасности</h2>
+                            </div>
+                            <div class="card__body">
+                                <div class="security__status">
+                                    <div class="security__indicator security__indicator--secure"></div>
+                                    <div>
+                                        <div class="security__level">Защищено</div>
+                                        <div class="security__details">
+                                            Система работает в штатном режиме. Все критические компоненты защищены.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6">
+                                    <h3 class="text-sm font-semibold mb-3">Последние проверки</h3>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span>Сканирование портов</span>
+                                            <span class="text-success">✓</span>
+                                        </div>
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span>Проверка уязвимостей</span>
+                                            <span class="text-success">✓</span>
+                                        </div>
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span>Анализ трафика</span>
+                                            <span class="text-warning">⚠️</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Recent Activity Feed -->
+                        <section class="card" aria-label="Лента активности">
+                            <div class="card__header">
+                                <h2 class="card__title">Активность</h2>
+                            </div>
+                            <div class="card__body">
+                                <div class="activity-feed">
+
+                                    <article class="activity-item">
+                                        <div class="activity-icon info">🔍</div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Обнаружено 15 новых устройств в подсети
+                                                192.168.1.0/24</div>
+                                            <div class="activity-description">Автоматическое сканирование</div>
+                                            <div class="activity-time">13:24</div>
+                                        </div>
+                                    </article>
+
+                                    <article class="activity-item">
+                                        <div class="activity-icon warning">⚠️</div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Устройство 192.168.1.200 имеет открытый SSH порт
+                                                с устаревшей версией</div>
+                                            <div class="activity-description">Требуется внимание</div>
+                                            <div class="activity-time">12:56</div>
+                                        </div>
+                                    </article>
+
+                                    <article class="activity-item">
+                                        <div class="activity-icon success">✅</div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Загружено 1,247 новых сигнатур вредоносного ПО
+                                            </div>
+                                            <div class="activity-description">Подпись обновлена</div>
+                                            <div class="activity-time">10:23</div>
+                                        </div>
+                                    </article>
+
+                                    <article class="activity-item">
+                                        <div class="activity-icon error">🚨</div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">IP адрес 203.0.113.42 пытался получить
+                                                несанкционированный доступ</div>
+                                            <div class="activity-description">Заблокирован</div>
+                                            <div class="activity-time">09:45</div>
+                                        </div>
+                                    </article>
+
+                                    <article class="activity-item">
+                                        <div class="activity-icon info">🔄</div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">IP Roast Enterprise обновлен до версии 4.0.1 с
+                                                исправлениями безопасности</div>
+                                            <div class="activity-description">Система</div>
+                                            <div class="activity-time">08:30</div>
+                                        </div>
+                                    </article>
+
+                                </div>
+
+                                <div class="mt-6">
+                                    <button class="btn btn--ghost btn--block" type="button">
+                                        Показать всю активность
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Quick Actions -->
+                        <section class="card" aria-label="Быстрые действия">
+                            <div class="card__header">
+                                <h2 class="card__title">Быстрые действия</h2>
+                            </div>
+                            <div class="card__body">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button
+                                        class="btn btn--outline btn--sm flex flex-col items-center gap-2 p-4 h-auto">
+                                        <span class="text-xl">🔍</span>
+                                        <span class="text-xs">Новое сканирование</span>
+                                    </button>
+                                    <button
+                                        class="btn btn--outline btn--sm flex flex-col items-center gap-2 p-4 h-auto">
+                                        <span class="text-xl">📊</span>
+                                        <span class="text-xs">Создать отчет</span>
+                                    </button>
+                                    <button
+                                        class="btn btn--outline btn--sm flex flex-col items-center gap-2 p-4 h-auto">
+                                        <span class="text-xl">⚙️</span>
+                                        <span class="text-xs">Настройки</span>
+                                    </button>
+                                    <button
+                                        class="btn btn--outline btn--sm flex flex-col items-center gap-2 p-4 h-auto">
+                                        <span class="text-xl">📈</span>
+                                        <span class="text-xs">Аналитика</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
                 </div>
             </div>
+        </main>
 
-            <!-- Легенда графика -->
-            <div class="chart-legend" role="list" aria-label="Легенда графика">
-                <div class="legend-item" role="listitem">
-                    <div class="legend-color" style="background-color: #3B82F6" aria-hidden="true"></div>
-                    <span>Входящий трафик</span>
+        <!-- Footer -->
+        <footer class="bg-surface border-t border-border py-6 print:hidden" role="contentinfo">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-sm text-secondary">
+                        © 2025 IP Roast Enterprise 4.0. Все права защищены.
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <button class="btn btn--ghost btn--sm" type="button">Справка</button>
+                        <button class="btn btn--ghost btn--sm" type="button">Поддержка</button>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-secondary">Версия:</span>
+                            <code class="bg-secondary px-2 py-1 rounded text-xs">4.0.1</code>
+                        </div>
+                    </div>
                 </div>
-                <div class="legend-item" role="listitem">
-                    <div class="legend-color" style="background-color: #10B981" aria-hidden="true"></div>
-                    <span>Исходящий трафик</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Theme Switcher (fixed position) -->
+    <div class="fixed bottom-6 left-6 z-50 print:hidden">
+        <button class="btn btn--fab btn--primary shadow-xl" type="button" id="theme-toggle"
+            aria-label="Переключить тему" title="Переключить тему">
+            <span class="text-xl">🌙</span>
+        </button>
+    </div>
+
+    <!-- Loading Overlay (скрыт по умолчанию) -->
+    <div id="loading-overlay" class="fixed inset-0 bg-backdrop backdrop-blur-sm z-max hidden">
+        <div class="flex items-center justify-center h-full">
+            <div class="card p-8 text-center">
+                <div
+                    class="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4">
                 </div>
-                <div class="legend-item" role="listitem">
-                    <div class="legend-color" style="background-color: #EF4444" aria-hidden="true"></div>
-                    <span>Подозрительная активность</span>
-                </div>
+                <div class="font-medium">Загрузка данных...</div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Секция: Анализ угроз -->
-    <section class="dashboard-section slide-up" style="animation-delay: 0.4s">
-        <header class="section-header">
-            <h2 class="section-title">Анализ угроз</h2>
-            <div class="section-actions">
-                <button class="action-button" type="button" aria-label="Настройки фильтров">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path
-                            d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
-                    </svg>
-                    Фильтры
-                </button>
-            </div>
-        </header>
-
-        <div class="section-content">
-            <div class="metrics-grid">
-                <div class="threat-metric">
-                    <div class="threat-value">1,247</div>
-                    <div class="threat-label">Заблокировано угроз</div>
-                    <div class="threat-trend trend-positive">+23%</div>
-                </div>
-
-                <div class="threat-metric">
-                    <div class="threat-value">18</div>
-                    <div class="threat-label">Обнаружено вредоносного ПО</div>
-                    <div class="threat-trend trend-negative">-7%</div>
-                </div>
-
-                <div class="threat-metric">
-                    <div class="threat-value">3</div>
-                    <div class="threat-label">Попыток вторжения</div>
-                    <div class="threat-trend trend-neutral">0%</div>
-                </div>
-
-                <div class="threat-metric">
-                    <div class="threat-value">12</div>
-                    <div class="threat-label">Ложных срабатываний</div>
-                    <div class="threat-trend trend-positive">-15%</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Секция: Состояние уязвимостей -->
-    <section class="dashboard-section slide-up" style="animation-delay: 0.5s">
-        <header class="section-header">
-            <h2 class="section-title">Состояние уязвимостей</h2>
-            <div class="section-actions">
-                <button class="action-button primary" type="button" aria-label="Создать отчет по уязвимостям">
-                    Создать отчет
-                </button>
-            </div>
-        </header>
-
-        <div class="section-content">
-            <div class="vulnerability-grid">
-                <div class="vulnerability-category">
-                    <h3 class="category-title">Критические уязвимости</h3>
-                    <div class="progress-container">
-                        <div class="progress-header">
-                            <span class="progress-label">Исправлено</span>
-                            <span class="progress-value">12 / 24</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill critical" style="width: 50%" aria-valuenow="50" aria-valuemin="0"
-                                aria-valuemax="100" role="progressbar"
-                                aria-label="50% критических уязвимостей исправлено"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vulnerability-category">
-                    <h3 class="category-title">Высокий приоритет</h3>
-                    <div class="progress-container">
-                        <div class="progress-header">
-                            <span class="progress-label">Исправлено</span>
-                            <span class="progress-value">45 / 67</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill high" style="width: 67%" aria-valuenow="67" aria-valuemin="0"
-                                aria-valuemax="100" role="progressbar"
-                                aria-label="67% уязвимостей высокого приоритета исправлено"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vulnerability-category">
-                    <h3 class="category-title">Средний приоритет</h3>
-                    <div class="progress-container">
-                        <div class="progress-header">
-                            <span class="progress-label">Исправлено</span>
-                            <span class="progress-value">128 / 156</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill medium" style="width: 82%" aria-valuenow="82" aria-valuemin="0"
-                                aria-valuemax="100" role="progressbar"
-                                aria-label="82% уязвимостей среднего приоритета исправлено"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="vulnerability-category">
-                    <h3 class="category-title">Низкий приоритет</h3>
-                    <div class="progress-container">
-                        <div class="progress-header">
-                            <span class="progress-label">Исправлено</span>
-                            <span class="progress-value">234 / 245</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill low" style="width: 96%" aria-valuenow="96" aria-valuemin="0"
-                                aria-valuemax="100" role="progressbar"
-                                aria-label="96% уязвимостей низкого приоритета исправлено"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- График распределения уязвимостей -->
-            <div class="chart-container" role="img"
-                aria-label="Круговая диаграмма распределения уязвимостей по критичности">
-                <canvas id="vulnerability-chart"
-                    aria-label="Диаграмма показывающая распределение критических, высокого, среднего и низкого приоритета уязвимостей"></canvas>
-            </div>
-        </div>
-    </section>
-
-    <!-- Секция: Последние сканирования -->
-    <section class="dashboard-section slide-up" style="animation-delay: 0.6s">
-        <header class="section-header">
-            <h2 class="section-title">Последние сканирования</h2>
-            <div class="section-actions">
-                <button class="action-button primary" type="button" aria-label="Запустить новое сканирование">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-                    </svg>
-                    Новое сканирование
-                </button>
-            </div>
-        </header>
-
-        <div class="section-content">
-            <div class="table-container">
-                <table class="data-table" id="recent-scans-table" role="table"
-                    aria-label="Таблица последних сканирований">
-                    <thead>
-                        <tr>
-                            <th scope="col">Цель</th>
-                            <th scope="col">Тип сканирования</th>
-                            <th scope="col">Статус</th>
-                            <th scope="col">Прогресс</th>
-                            <th scope="col">Время начала</th>
-                            <th scope="col">Длительность</th>
-                            <th scope="col">Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>192.168.1.0/24</td>
-                            <td>Полное сканирование</td>
-                            <td><span class="status-badge online"><span class="status-dot"
-                                        aria-hidden="true"></span>Завершено</span></td>
-                            <td>
-                                <div class="progress-bar">
-                                    <div class="progress-fill low" style="width: 100%" aria-valuenow="100"
-                                        aria-valuemin="0" aria-valuemax="100" role="progressbar"
-                                        aria-label="Сканирование завершено на 100%"></div>
-                                </div>
-                            </td>
-                            <td><time datetime="2025-08-03T01:30:00">01:30</time></td>
-                            <td>2 мин 15 сек</td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="action-button" type="button"
-                                        aria-label="Просмотреть результаты сканирования 192.168.1.0/24">Результаты</button>
-                                    <button class="action-button" type="button"
-                                        aria-label="Повторить сканирование 192.168.1.0/24">Повторить</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>10.0.0.0/16</td>
-                            <td>Быстрое сканирование</td>
-                            <td><span class="status-badge online"><span class="status-dot" aria-hidden="true"></span>В
-                                    процессе</span></td>
-                            <td>
-                                <div class="progress-bar">
-                                    <div class="progress-fill medium" style="width: 67%" aria-valuenow="67"
-                                        aria-valuemin="0" aria-valuemax="100" role="progressbar"
-                                        aria-label="Сканирование выполнено на 67%"></div>
-                                </div>
-                            </td>
-                            <td><time datetime="2025-08-03T01:45:00">01:45</time></td>
-                            <td>1 мин 32 сек</td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="action-button" type="button"
-                                        aria-label="Остановить сканирование 10.0.0.0/16">Остановить</button>
-                                    <button class="action-button" type="button"
-                                        aria-label="Мониторинг сканирования 10.0.0.0/16">Мониторинг</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>172.16.0.0/12</td>
-                            <td>Сканирование портов</td>
-                            <td><span class="status-badge warning"><span class="status-dot"
-                                        aria-hidden="true"></span>Ошибка</span></td>
-                            <td>
-                                <div class="progress-bar">
-                                    <div class="progress-fill critical" style="width: 23%" aria-valuenow="23"
-                                        aria-valuemin="0" aria-valuemax="100" role="progressbar"
-                                        aria-label="Сканирование прервано на 23%"></div>
-                                </div>
-                            </td>
-                            <td><time datetime="2025-08-03T01:20:00">01:20</time></td>
-                            <td>45 сек</td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="action-button" type="button"
-                                        aria-label="Просмотреть логи ошибок для 172.16.0.0/12">Логи</button>
-                                    <button class="action-button primary" type="button"
-                                        aria-label="Перезапустить сканирование 172.16.0.0/12">Перезапуск</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <!-- Секция: Активные устройства -->
-    <section class="dashboard-section slide-up" style="animation-delay: 0.7s">
-        <header class="section-header">
-            <h2 class="section-title">Активные устройства</h2>
-            <div class="section-actions">
-                <button class="action-button" type="button" aria-label="Экспорт списка устройств">Экспорт</button>
-                <button class="action-button" type="button" aria-label="Фильтры для устройств">Фильтры</button>
-            </div>
-        </header>
-
-        <div class="section-content">
-            <div class="table-container">
-                <table class="data-table" id="active-devices-table" role="table"
-                    aria-label="Таблица активных сетевых устройств">
-                    <thead>
-                        <tr>
-                            <th scope="col">IP адрес</th>
-                            <th scope="col">Hostname</th>
-                            <th scope="col">MAC адрес</th>
-                            <th scope="col">Статус</th>
-                            <th scope="col">ОС</th>
-                            <th scope="col">Последняя активность</th>
-                            <th scope="col">Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code class="font-mono">192.168.1.1</code></td>
-                            <td>router.local</td>
-                            <td><code class="font-mono">aa:bb:cc:dd:ee:ff</code></td>
-                            <td><span class="status-badge online"><span class="status-dot"
-                                        aria-hidden="true"></span>Онлайн</span></td>
-                            <td>RouterOS</td>
-                            <td><time datetime="2025-08-03T02:00:00">только что</time></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="action-button" type="button"
-                                        aria-label="Просканировать устройство 192.168.1.1">Сканировать</button>
-                                    <button class="action-button" type="button"
-                                        aria-label="Детали устройства 192.168.1.1">Детали</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td><code class="font-mono">192.168.1.100</code></td>
-                            <td>workstation-01</td>
-                            <td><code class="font-mono">11:22:33:44:55:66</code></td>
-                            <td><span class="status-badge online"><span class="status-dot"
-                                        aria-hidden="true"></span>Онлайн</span></td>
-                            <td>Windows 11</td>
-                            <td><time datetime="2025-08-03T01:58:00">2 мин назад</time></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="action-button" type="button"
-                                        aria-label="Просканировать устройство 192.168.1.100">Сканировать</button>
-                                    <button class="action-button" type="button"
-                                        aria-label="Детали устройства 192.168.1.100">Детали</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td><code class="font-mono">192.168.1.200</code></td>
-                            <td>server-db</td>
-                            <td><code class="font-mono">77:88:99:aa:bb:cc</code></td>
-                            <td><span class="status-badge warning"><span class="status-dot"
-                                        aria-hidden="true"></span>Предупреждение</span></td>
-                            <td>Ubuntu Server</td>
-                            <td><time datetime="2025-08-03T01:45:00">15 мин назад</time></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="action-button" type="button"
-                                        aria-label="Просканировать устройство 192.168.1.200">Сканировать</button>
-                                    <button class="action-button primary" type="button"
-                                        aria-label="Диагностировать проблему 192.168.1.200">Диагностика</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <!-- Секция: Лента активности -->
-    <section class="dashboard-section slide-up" style="animation-delay: 0.8s">
-        <header class="section-header">
-            <h2 class="section-title">Лента активности</h2>
-            <div class="section-actions">
-                <button class="action-button" type="button" aria-label="Очистить ленту активности">Очистить</button>
-                <button class="action-button" type="button" aria-label="Настройки уведомлений">Настройки</button>
-            </div>
-        </header>
-
-        <div class="section-content">
-            <div class="activity-feed" role="log" aria-label="Лента активности системы" aria-live="polite">
-                <article class="activity-item">
-                    <div class="activity-icon success" aria-hidden="true">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z" />
-                        </svg>
-                    </div>
-                    <div class="activity-content">
-                        <h3 class="activity-title">Сканирование завершено успешно</h3>
-                        <p class="activity-description">Обнаружено 15 новых устройств в подсети 192.168.1.0/24</p>
-                        <time class="activity-time" datetime="2025-08-03T01:30:00">01:30:15</time>
-                    </div>
-                </article>
-
-                <article class="activity-item">
-                    <div class="activity-icon warning" aria-hidden="true">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12,2L1,21H23M12,6L19.53,19H4.47M11,10V14H13V10M11,16V18H13V16" />
-                        </svg>
-                    </div>
-                    <div class="activity-content">
-                        <h3 class="activity-title">Обнаружена потенциальная уязвимость</h3>
-                        <p class="activity-description">Устройство 192.168.1.200 имеет открытый SSH порт с устаревшей
-                            версией</p>
-                        <time class="activity-time" datetime="2025-08-03T01:25:00">01:25:43</time>
-                    </div>
-                </article>
-
-                <article class="activity-item">
-                    <div class="activity-icon info" aria-hidden="true">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" />
-                        </svg>
-                    </div>
-                    <div class="activity-content">
-                        <h3 class="activity-title">Обновление базы данных угроз</h3>
-                        <p class="activity-description">Загружено 1,247 новых сигнатур вредоносного ПО</p>
-                        <time class="activity-time" datetime="2025-08-03T01:20:00">01:20:10</time>
-                    </div>
-                </article>
-
-                <article class="activity-item">
-                    <div class="activity-icon error" aria-hidden="true">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z" />
-                        </svg>
-                    </div>
-                    <div class="activity-content">
-                        <h3 class="activity-title">Заблокирована попытка вторжения</h3>
-                        <p class="activity-description">IP адрес 203.0.113.42 пытался получить несанкционированный
-                            доступ</p>
-                        <time class="activity-time" datetime="2025-08-03T01:15:00">01:15:28</time>
-                    </div>
-                </article>
-
-                <article class="activity-item">
-                    <div class="activity-icon success" aria-hidden="true">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z" />
-                        </svg>
-                    </div>
-                    <div class="activity-content">
-                        <h3 class="activity-title">Система обновлена</h3>
-                        <p class="activity-description">IP Roast Enterprise обновлен до версии 4.0.1 с исправлениями
-                            безопасности</p>
-                        <time class="activity-time" datetime="2025-08-03T01:10:00">01:10:05</time>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <!-- Секция: Топология сети (краткий обзор) -->
-    <section class="dashboard-section slide-up" style="animation-delay: 0.9s">
-        <header class="section-header">
-            <h2 class="section-title">Топология сети</h2>
-            <div class="section-actions">
-                <button class="action-button primary" type="button" aria-label="Открыть полную карту топологии">
-                    Полная карта
-                </button>
-            </div>
-        </header>
-
-        <div class="section-content">
-            <div class="topology-overview">
-                <div class="topology-stats">
-                    <div class="topology-stat">
-                        <div class="stat-value">24</div>
-                        <div class="stat-label">Узлов</div>
-                    </div>
-                    <div class="topology-stat">
-                        <div class="stat-value">47</div>
-                        <div class="stat-label">Соединений</div>
-                    </div>
-                    <div class="topology-stat">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Подсетей</div>
-                    </div>
-                </div>
-
-                <div class="chart-container" role="img" aria-label="Мини-карта топологии сети">
-                    <canvas id="topology-chart" aria-label="Упрощенная схема сетевых подключений"></canvas>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Подключение JavaScript -->
-    <script src="dashboard.js"></script>
-
-    <!-- Инициализация Dashboard -->
+    <!-- Scripts -->
+    <script src="./dashboard.js" defer></script>
     <script>
-        // Проверяем готовность DOM
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDashboard);
-        } else {
-            initDashboard();
-        }
-
-        function initDashboard() {
-            console.log('🚀 Инициализация IP Roast Enterprise Dashboard 4.0');
-
-            // Создаем экземпляр Dashboard если класс доступен
-            if (typeof IPRoastDashboard !== 'undefined') {
-                window.dashboard = new IPRoastDashboard();
-                console.log('✅ Dashboard инициализирован');
-            } else {
-                console.error('❌ Класс IPRoastDashboard не найден');
-            }
-        }
-
-        // Обработка темы
-        function toggleTheme() {
+        // Базовая функциональность переключения темы
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
             const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
 
-            // Сохраняем выбор темы
-            localStorage.setItem('ip-roast-theme', newTheme);
+            // Определение текущей темы
+            const currentTheme = localStorage.getItem('theme') ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
-            // Уведомляем Dashboard о смене темы
-            if (window.dashboard) {
-                document.dispatchEvent(new CustomEvent('dashboard-theme-changed', {
-                    detail: { theme: newTheme }
-                }));
-            }
-        }
+            html.setAttribute('data-theme', currentTheme);
 
-        // Восстанавливаем тему из localStorage
-        const savedTheme = localStorage.getItem('ip-roast-theme');
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        }
+            // Переключение темы
+            themeToggle?.addEventListener('click', () => {
+                const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
 
-        // Добавляем переключатель темы (можно вызвать из консоли)
-        window.toggleTheme = toggleTheme;
-
-        // Обработка ошибок
-        window.addEventListener('error', function (e) {
-            console.error('Dashboard Error:', e.error);
-        });
-
-        window.addEventListener('unhandledrejection', function (e) {
-            console.error('Dashboard Promise Rejection:', e.reason);
+                // Обновление иконки
+                themeToggle.querySelector('span').textContent = newTheme === 'light' ? '🌙' : '☀️';
+            });
         });
     </script>
 </body>

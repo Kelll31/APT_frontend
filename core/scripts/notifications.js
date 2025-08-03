@@ -1,282 +1,429 @@
 /**
- * IP Roast Enterprise 4.0 - Notification System
- * Modular toast notifications with enterprise features
+ * core/scripts/notifications.js
+ * NotificationSystem — Система уведомлений для IP Roast Enterprise 4.0
+ * Экспортируется как window.NotificationSystem
  */
 
-class NotificationSystem {
-    constructor() {
-        this.container = null;
-        this.notifications = new Map();
-        this.defaults = {
-            duration: 5000,
-            persistent: false,
-            closable: true,
-            progress: true,
-            sound: false
-        };
-        this.init();
-    }
+(function () {
+    'use strict';
 
-    /**
-     * Initialize the notification system
-     */
-    init() {
-        this.createContainer();
-        this.setupEventListeners();
-        console.log('🔔 IP Roast Notification System initialized');
-    }
+    class NotificationSystem {
+        constructor() {
+            this.notifications = new Map();
+            this.toastContainer = null;
+            this.defaults = {
+                duration: 5000,
+                persistent: false,
+                closable: true,
+                progress: true,
+                sound: false
+            };
+            this.maxNotifications = 50; // Увеличиваем лимит для истории
+            this.init();
+        }
 
-    /**
-     * Create the toast container
-     */
-    createContainer() {
-        if (this.container) return;
+        /**
+         * Инициализация системы уведомлений
+         */
+        init() {
+            console.log('🔔 NotificationSystem инициализируется...');
+            this.createToastContainer();
+            this.setupEventListeners();
+            console.log('✅ NotificationSystem инициализирован');
+        }
 
-        this.container = document.createElement('div');
-        this.container.className = 'toast-container';
-        this.container.setAttribute('aria-live', 'polite');
-        this.container.setAttribute('aria-label', 'Notifications');
-        document.body.appendChild(this.container);
-    }
+        /**
+         * Создание контейнера для toast уведомлений
+         */
+        createToastContainer() {
+            if (this.toastContainer) return;
 
-    /**
-     * Setup global event listeners
-     */
-    setupEventListeners() {
-        // Close notifications on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeAll();
+            this.toastContainer = document.createElement('div');
+            this.toastContainer.className = 'toast-container';
+            this.toastContainer.setAttribute('aria-live', 'polite');
+            this.toastContainer.setAttribute('aria-label', 'Notifications');
+
+            // Стили контейнера
+            this.toastContainer.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        pointer-events: none;
+      `;
+
+            document.body.appendChild(this.toastContainer);
+        }
+
+        /**
+         * Настройка обработчиков событий
+         */
+        setupEventListeners() {
+            // Закрытие уведомлений по Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.closeAll();
+                }
+            });
+
+            // Пауза при смене вкладки
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    this.pauseAll();
+                } else {
+                    this.resumeAll();
+                }
+            });
+        }
+
+        /**
+         * Показ уведомления
+         */
+        show(message, type = 'info', options = {}) {
+            const config = { ...this.defaults, ...options };
+            const id = this.generateId();
+
+            const notification = {
+                id,
+                message,
+                type,
+                title: config.title,
+                timestamp: new Date(),
+                duration: config.duration,
+                persistent: config.persistent,
+                closable: config.closable,
+                progress: config.progress,
+                actions: config.actions || [],
+                onClose: config.onClose,
+                onClick: config.onClick,
+                read: false
+            };
+
+            // Ограничиваем количество уведомлений в истории
+            if (this.notifications.size >= this.maxNotifications) {
+                const oldestId = Array.from(this.notifications.keys())[0];
+                this.notifications.delete(oldestId);
             }
-        });
 
-        // Handle visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                this.pauseAll();
-            } else {
-                this.resumeAll();
+            this.notifications.set(id, notification);
+            this.renderToast(notification);
+
+            // Автозакрытие
+            if (!notification.persistent && notification.duration > 0) {
+                setTimeout(() => {
+                    this.close(id);
+                }, notification.duration);
             }
-        });
-    }
 
-    /**
-     * Show a notification
-     * @param {string} message - The notification message
-     * @param {string} type - The notification type (success, error, warning, info)
-     * @param {object} options - Additional options
-     */
-    show(message, type = 'info', options = {}) {
-        const config = { ...this.defaults, ...options };
-        const id = this.generateId();
+            // Звук
+            if (config.sound) {
+                this.playNotificationSound(type);
+            }
 
-        const notification = {
-            id,
-            message,
-            type,
-            title: config.title,
-            timestamp: new Date(),
-            duration: config.duration,
-            persistent: config.persistent,
-            closable: config.closable,
-            progress: config.progress,
-            actions: config.actions || [],
-            onClose: config.onClose,
-            onClick: config.onClick
-        };
-
-        this.notifications.set(id, notification);
-        this.render(notification);
-
-        // Auto-close if not persistent
-        if (!notification.persistent && notification.duration > 0) {
-            setTimeout(() => {
-                this.close(id);
-            }, notification.duration);
+            console.log(`🔔 Показано уведомление: ${message} (${type})`);
+            return id;
         }
 
-        // Play sound if enabled
-        if (config.sound) {
-            this.playNotificationSound(type);
-        }
+        /**
+         * Рендер toast уведомления
+         */
+        renderToast(notification) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${notification.type}`;
+            toast.setAttribute('data-id', notification.id);
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
 
-        return id;
-    }
+            // Стили toast
+            toast.style.cssText = `
+        pointer-events: auto;
+        margin-bottom: 10px;
+        min-width: 300px;
+        max-width: 400px;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        background: var(--toast-bg, #fff);
+        border: 1px solid var(--toast-border, #e0e0e0);
+        color: var(--toast-text, #333);
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+      `;
 
-    /**
-     * Render a notification
-     */
-    render(notification) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${notification.type}`;
-        toast.setAttribute('data-id', notification.id);
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
+            if (notification.progress && !notification.persistent) {
+                toast.classList.add('with-progress');
+            }
 
-        // Add progress class if enabled
-        if (notification.progress && !notification.persistent) {
-            toast.classList.add('with-progress');
-        }
+            const icon = this.getIcon(notification.type);
 
-        const icon = this.getIcon(notification.type);
-
-        toast.innerHTML = `
-            <div class="toast-icon">${icon}</div>
-            <div class="toast-content">
-                ${notification.title ? `<div class="toast-title">${this.escapeHtml(notification.title)}</div>` : ''}
-                <div class="toast-message">${this.escapeHtml(notification.message)}</div>
-                ${this.renderActions(notification.actions)}
-            </div>
-            ${notification.closable ? `<button class="toast-close" aria-label="Close notification">&times;</button>` : ''}
-            ${notification.progress && !notification.persistent ? `
-                <div class="toast-progress">
-                    <div class="toast-progress-bar" style="animation-duration: ${notification.duration}ms"></div>
-                </div>
-            ` : ''}
+            let actionsHTML = '';
+            if (notification.actions && notification.actions.length > 0) {
+                actionsHTML = `
+          <div class="toast-actions" style="margin-top: 12px; display: flex; gap: 8px;">
+            ${notification.actions.map(action =>
+                    `<button class="toast-action" data-action="${action.id}" style="
+                padding: 6px 12px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background: #f5f5f5;
+                color: #333;
+                cursor: pointer;
+                font-size: 12px;
+              ">${action.label}</button>`
+                ).join('')}
+          </div>
         `;
-
-        // Add event listeners
-        this.addToastEventListeners(toast, notification);
-
-        // Insert at the top of container
-        this.container.insertBefore(toast, this.container.firstChild);
-
-        // Animate in
-        requestAnimationFrame(() => {
-            toast.classList.add('show');
-        });
-    }
-
-    /**
-     * Add event listeners to toast
-     */
-    addToastEventListeners(toast, notification) {
-        // Close button
-        const closeBtn = toast.querySelector('.toast-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.close(notification.id);
-            });
-        }
-
-        // Click handler
-        if (notification.onClick) {
-            toast.addEventListener('click', () => {
-                notification.onClick(notification);
-            });
-            toast.style.cursor = 'pointer';
-        }
-
-        // Action buttons
-        const actionBtns = toast.querySelectorAll('.toast-action');
-        actionBtns.forEach((btn, index) => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const action = notification.actions[index];
-                if (action.handler) {
-                    action.handler(notification);
-                }
-                if (action.closeOnClick !== false) {
-                    this.close(notification.id);
-                }
-            });
-        });
-    }
-
-    /**
-     * Render action buttons
-     */
-    renderActions(actions) {
-        if (!actions || actions.length === 0) return '';
-
-        const buttons = actions.map(action =>
-            `<button class="toast-action ${action.primary ? 'toast-action--primary' : ''}">${this.escapeHtml(action.text)}</button>`
-        ).join('');
-
-        return `<div class="toast-actions">${buttons}</div>`;
-    }
-
-    /**
-     * Close a notification
-     */
-    close(id) {
-        const notification = this.notifications.get(id);
-        if (!notification) return;
-
-        const toast = this.container.querySelector(`[data-id="${id}"]`);
-        if (!toast) return;
-
-        // Animate out
-        toast.classList.remove('show');
-
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
             }
-            this.notifications.delete(id);
 
-            // Call onClose callback
+            toast.innerHTML = `
+        <div class="toast-content" style="display: flex; align-items: flex-start;">
+          <div class="toast-icon" style="margin-right: 12px; font-size: 18px; flex-shrink: 0;">${icon}</div>
+          <div class="toast-body" style="flex: 1;">
+            ${notification.title ? `<div class="toast-title" style="font-weight: 600; margin-bottom: 4px;">${notification.title}</div>` : ''}
+            <div class="toast-message">${notification.message}</div>
+            ${actionsHTML}
+          </div>
+          ${notification.closable ? `<button class="toast-close" aria-label="Close" style="
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+          ">×</button>` : ''}
+        </div>
+        ${notification.progress && !notification.persistent ? `<div class="toast-progress" style="
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          height: 3px;
+          background: ${this.getProgressColor(notification.type)};
+          animation: toastProgress ${notification.duration}ms linear forwards;
+        "></div>` : ''}
+      `;
+
+            // Добавляем CSS анимации если их нет
+            if (!document.querySelector('#toast-animations')) {
+                const style = document.createElement('style');
+                style.id = 'toast-animations';
+                style.textContent = `
+          @keyframes toastProgress {
+            from { width: 100%; }
+            to { width: 0%; }
+          }
+          .toast-show {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+          }
+          .toast-hide {
+            opacity: 0 !important;
+            transform: translateX(100%) !important;
+          }
+        `;
+                document.head.appendChild(style);
+            }
+
+            // Обработчики событий
+            if (notification.closable) {
+                const closeBtn = toast.querySelector('.toast-close');
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.close(notification.id);
+                });
+            }
+
+            if (notification.onClick) {
+                toast.addEventListener('click', notification.onClick);
+            }
+
+            // Обработка действий
+            notification.actions.forEach(action => {
+                const actionBtn = toast.querySelector(`[data-action="${action.id}"]`);
+                if (actionBtn) {
+                    actionBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (action.handler) {
+                            action.handler(notification);
+                        }
+                        if (action.closeOnClick !== false) {
+                            this.close(notification.id);
+                        }
+                    });
+                }
+            });
+
+            this.toastContainer.appendChild(toast);
+
+            // Анимация появления
+            requestAnimationFrame(() => {
+                toast.classList.add('toast-show');
+            });
+        }
+
+        /**
+         * Закрытие уведомления
+         */
+        close(id) {
+            const notification = this.notifications.get(id);
+            if (!notification) return;
+
+            const toast = this.toastContainer.querySelector(`[data-id="${id}"]`);
+            if (toast) {
+                toast.classList.remove('toast-show');
+                toast.classList.add('toast-hide');
+
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }
+
+            // Не удаляем из Map - оставляем в истории
             if (notification.onClose) {
                 notification.onClose(notification);
             }
-        }, 300);
-    }
 
-    /**
-     * Close all notifications
-     */
-    closeAll() {
-        Array.from(this.notifications.keys()).forEach(id => {
+            console.log(`🔔 Уведомление закрыто: ${id}`);
+        }
+
+        /**
+         * Закрытие всех активных уведомлений
+         */
+        closeAll() {
+            const activeToasts = this.toastContainer.querySelectorAll('.toast');
+            activeToasts.forEach(toast => {
+                const id = toast.getAttribute('data-id');
+                this.close(id);
+            });
+            console.log('🔔 Все уведомления закрыты');
+        }
+
+        /**
+         * Получение последних N уведомлений для dropdown
+         */
+        getLast(count = 10) {
+            const items = Array.from(this.notifications.values())
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, count);
+
+            return items.map(n => ({
+                id: n.id,
+                message: n.message,
+                title: n.title,
+                type: n.type,
+                icon: this.getIcon(n.type),
+                time: this.formatTime(n.timestamp),
+                read: n.read
+            }));
+        }
+
+        /**
+         * Удаление уведомления
+         */
+        delete(id) {
             this.close(id);
-        });
-    }
+            this.notifications.delete(id);
+            console.log(`🗑️ Уведомление удалено: ${id}`);
+        }
 
-    /**
-     * Pause all notifications
-     */
-    pauseAll() {
-        const toasts = this.container.querySelectorAll('.toast');
-        toasts.forEach(toast => {
-            const progressBar = toast.querySelector('.toast-progress-bar');
-            if (progressBar) {
-                progressBar.style.animationPlayState = 'paused';
+        /**
+         * Очистка всех уведомлений
+         */
+        clear() {
+            this.closeAll();
+            this.notifications.clear();
+            console.log('🗑️ Все уведомления очищены');
+        }
+
+        /**
+         * Отметка как прочитанное
+         */
+        markAsRead(id) {
+            const notification = this.notifications.get(id);
+            if (notification) {
+                notification.read = true;
             }
-        });
-    }
+        }
 
-    /**
-     * Resume all notifications
-     */
-    resumeAll() {
-        const toasts = this.container.querySelectorAll('.toast');
-        toasts.forEach(toast => {
-            const progressBar = toast.querySelector('.toast-progress-bar');
-            if (progressBar) {
-                progressBar.style.animationPlayState = 'running';
-            }
-        });
-    }
+        /**
+         * Получение количества непрочитанных
+         */
+        getUnreadCount() {
+            return Array.from(this.notifications.values()).filter(n => !n.read).length;
+        }
 
-    /**
-     * Get icon for notification type
-     */
-    getIcon(type) {
-        const icons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
-        };
-        return icons[type] || icons.info;
-    }
+        /**
+         * Генерация ID
+         */
+        generateId() {
+            return `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
 
-    /**
-     * Play notification sound
-     */
-    playNotificationSound(type) {
-        // Create audio context if supported
-        if (window.AudioContext || window.webkitAudioContext) {
+        /**
+         * Иконки для типов уведомлений
+         */
+        getIcon(type) {
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            return icons[type] || icons.info;
+        }
+
+        /**
+         * Цвета прогресс-бара
+         */
+        getProgressColor(type) {
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                warning: '#f59e0b',
+                info: '#3b82f6'
+            };
+            return colors[type] || colors.info;
+        }
+
+        /**
+         * Форматирование времени
+         */
+        formatTime(timestamp) {
+            const now = new Date();
+            const diff = now - timestamp;
+
+            if (diff < 60000) return 'Только что';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} мин назад`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)} ч назад`;
+
+            return timestamp.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        /**
+         * Воспроизведение звука
+         */
+        playNotificationSound(type) {
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
@@ -285,7 +432,6 @@ class NotificationSystem {
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
 
-                // Different frequencies for different types
                 const frequencies = {
                     success: 800,
                     error: 400,
@@ -293,85 +439,48 @@ class NotificationSystem {
                     info: 500
                 };
 
-                oscillator.frequency.setValueAtTime(frequencies[type] || 500, audioContext.currentTime);
+                oscillator.frequency.value = frequencies[type] || frequencies.info;
+                oscillator.type = 'sine';
+
                 gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
 
                 oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.1);
+                oscillator.stop(audioContext.currentTime + 0.3);
             } catch (error) {
-                console.warn('Could not play notification sound:', error);
+                console.warn('⚠️ Не удалось воспроизвести звук уведомления:', error);
             }
         }
-    }
 
-    /**
-     * Generate unique ID
-     */
-    generateId() {
-        return `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    /**
-     * Escape HTML to prevent XSS
-     */
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    /**
-     * Get notification count
-     */
-    getCount() {
-        return this.notifications.size;
-    }
-
-    /**
-     * Check if notifications are supported
-     */
-    isSupported() {
-        return typeof document !== 'undefined' && document.body;
-    }
-
-    /**
-     * Destroy the notification system
-     */
-    destroy() {
-        this.closeAll();
-        if (this.container && this.container.parentNode) {
-            this.container.remove();
+        pauseAll() {
+            console.log('⏸️ Уведомления приостановлены');
         }
-        this.container = null;
-        this.notifications.clear();
+
+        resumeAll() {
+            console.log('▶️ Уведомления возобновлены');
+        }
+
+        // Shortcuts
+        success(message, options) { return this.show(message, 'success', options); }
+        error(message, options) { return this.show(message, 'error', { ...options, persistent: true, duration: 8000 }); }
+        warning(message, options) { return this.show(message, 'warning', { ...options, duration: 6000 }); }
+        info(message, options) { return this.show(message, 'info', options); }
+
+        /**
+         * Уничтожение системы
+         */
+        destroy() {
+            this.closeAll();
+            if (this.toastContainer) {
+                this.toastContainer.remove();
+            }
+            this.notifications.clear();
+            console.log('🗑️ NotificationSystem уничтожен');
+        }
     }
-}
 
-// Create global instance
-const notifications = new NotificationSystem();
+    // Экспорт как конструктор в глобальную область
+    window.NotificationSystem = NotificationSystem;
+    console.log('🔔 NotificationSystem загружен и доступен как window.NotificationSystem');
 
-// Export convenience methods
-window.notify = {
-    success: (message, options) => notifications.show(message, 'success', options),
-    error: (message, options) => notifications.show(message, 'error', options),
-    warning: (message, options) => notifications.show(message, 'warning', options),
-    info: (message, options) => notifications.show(message, 'info', options),
-    show: (message, type, options) => notifications.show(message, type, options),
-    close: (id) => notifications.close(id),
-    closeAll: () => notifications.closeAll(),
-    getCount: () => notifications.getCount()
-};
-
-// Also export the class for advanced usage
-window.NotificationSystem = NotificationSystem;
-window.notifications = notifications;
-
-// Auto-initialize on DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('🚀 IP Roast Enterprise Notifications ready');
-    });
-} else {
-    console.log('🚀 IP Roast Enterprise Notifications ready');
-}
+})();
