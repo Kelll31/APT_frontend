@@ -309,16 +309,34 @@ async function initializeAttackConstructor() {
     }
 
     try {
+        // Создаем экземпляр приложения
         attackConstructorApp = new AttackConstructorApp();
         await attackConstructorApp.initialize();
 
-        // Делаем доступным глобально
+        // Делаем экземпляр доступным глобально
         window.attackConstructorApp = attackConstructorApp;
 
         return attackConstructorApp;
     } catch (error) {
         console.error('❌ Ошибка инициализации Attack Constructor:', error);
         throw error;
+    }
+}
+
+// Получаем DOM-элемент для отображения модулей
+const componentsList = document.getElementById('components-list');
+
+if (componentsList) {
+    const core = this.getCore();
+    if (core && core.getAvailableModules) {
+        const modules = core.getAvailableModules();
+        modules.forEach(module => {
+            const moduleItem = document.createElement('div');
+            moduleItem.className = 'component-item';
+            moduleItem.dataset.category = module.category;
+            moduleItem.textContent = module.name;
+            componentsList.appendChild(moduleItem);
+        });
     }
 }
 
