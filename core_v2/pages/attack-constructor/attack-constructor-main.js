@@ -1,359 +1,496 @@
 /**
- * Attack Constructor Main Integration Module
- * Интегрирует все модули Attack Constructor для работы в SPA
- * Version: 2.0.0-SPA-Ready
+ * IP Roast Enterprise 4.0 - Attack Constructor Main Integration
+ * Главный файл интеграции всех модулей конструктора атак
+ * Version: 4.1.0-Complete-Production
  */
 
-class AttackConstructorApp {
+console.log('🏗️ Loading Attack Constructor Complete System v4.1.0');
+
+class AttackConstructorMainSystem {
     constructor() {
-        this.version = '2.0.0-SPA-Ready';
+        this.version = '4.1.0-Complete-Production';
         this.modules = new Map();
         this.isInitialized = false;
-        this.initPromise = null;
+        this.core = null;
 
-        console.log(`🎯 Attack Constructor App v${this.version} создан`);
+        // Состояние системы
+        this.state = {
+            currentScenario: null,
+            activeNodes: new Map(),
+            connections: new Map(),
+            selectedTool: null,
+            isExecuting: false
+        };
+
+        console.log('🎯 Attack Constructor Main System initialized');
     }
 
     /**
-     * Инициализация всех модулей
+     * Полная инициализация всех модулей
      */
     async initialize() {
-        if (this.initPromise) {
-            return this.initPromise;
-        }
-
-        if (this.isInitialized) {
-            console.log('✅ Attack Constructor уже инициализирован');
-            return true;
-        }
-
-        this.initPromise = this._performInitialization();
-        return this.initPromise;
-    }
-
-    /**
-     * Выполнение инициализации
-     */
-    async _performInitialization() {
         try {
-            console.log('🚀 Начало инициализации Attack Constructor...');
+            console.log('🚀 Starting complete system initialization...');
 
-            // 1. Загружаем Core (приоритетный модуль)
-            await this.loadCoreModule();
+            // 1. Инициализация Core модуля
+            await this.initializeCore();
 
-            // 2. Загружаем UI Manager для интерфейса
-            await this.loadUIManager();
+            // 2. Загрузка UI Manager
+            await this.initializeUIManager();
 
-            // 3. Загружаем Canvas Manager для визуализации
-            await this.loadCanvasManager();
+            // 3. Загрузка Canvas Manager
+            await this.initializeCanvasManager();
 
-            // 4. Загружаем остальные модули
-            await this.loadSupportingModules();
+            // 4. Загрузка Connection Manager
+            await this.initializeConnectionManager();
 
-            // 5. Инициализируем модули в правильном порядке
-            await this.initializeModules();
+            // 5. Загрузка Signature Components
+            await this.initializeSignatureComponents();
 
-            // 6. Настраиваем взаимосвязи
-            this.setupModuleConnections();
+            // 6. Загрузка Rule Templates
+            await this.initializeRuleTemplates();
+
+            // 7. Загрузка Rule Generator
+            await this.initializeRuleGenerator();
+
+            // 8. Загрузка Test Manager
+            await this.initializeTestManager();
+
+            // 9. Интеграция модулей
+            this.integrateModules();
+
+            // 10. Настройка UI
+            await this.setupUserInterface();
 
             this.isInitialized = true;
-            console.log('✅ Attack Constructor полностью инициализирован');
+            console.log('✅ Complete system initialization successful!');
 
-            // Эмитируем событие готовности
-            this.emit('initialized');
-
-            return true;
+            // Уведомляем о готовности
+            this.notifySystemReady();
 
         } catch (error) {
-            console.error('❌ Ошибка инициализации Attack Constructor:', error);
-            this.isInitialized = false;
+            console.error('❌ System initialization failed:', error);
             throw error;
         }
     }
 
     /**
-     * Загрузка Core модуля
+     * Инициализация Core модуля
      */
-    async loadCoreModule() {
+    async initializeCore() {
+        console.log('🔧 Initializing Core Module...');
+
+        if (window.AttackConstructorCore) {
+            this.core = new window.AttackConstructorCore();
+            await this.core.initialize();
+        } else if (window.signatureConstructor) {
+            this.core = window.signatureConstructor;
+        } else {
+            throw new Error('Core module not available');
+        }
+
+        this.modules.set('core', this.core);
+        console.log('✅ Core Module initialized');
+    }
+
+    /**
+     * Инициализация UI Manager
+     */
+    async initializeUIManager() {
+        console.log('🎨 Initializing UI Manager...');
+
+        const uiManager = new UIManager(this.core);
+        await uiManager.initialize();
+
+        // Настройка основных панелей
+        uiManager.setupToolboxPanel();
+        uiManager.setupPropertiesPanel();
+        uiManager.setupResultsPanel();
+        uiManager.setupMenuSystem();
+
+        this.modules.set('uiManager', uiManager);
+        console.log('✅ UI Manager initialized');
+    }
+
+    /**
+     * Инициализация Canvas Manager
+     */
+    async initializeCanvasManager() {
+        console.log('🖼️ Initializing Canvas Manager...');
+
+        const canvasManager = new CanvasManager('rule-canvas');
+        await canvasManager.initialize();
+
+        // Настройка canvas
+        canvasManager.setupGrid();
+        canvasManager.setupZoomControls();
+        canvasManager.setupDragAndDrop();
+
+        this.modules.set('canvasManager', canvasManager);
+        console.log('✅ Canvas Manager initialized');
+    }
+
+    /**
+     * Инициализация Connection Manager
+     */
+    async initializeConnectionManager() {
+        console.log('🔗 Initializing Connection Manager...');
+
+        const connectionManager = new ConnectionManager(
+            this.modules.get('canvasManager')
+        );
+        await connectionManager.initialize();
+
+        this.modules.set('connectionManager', connectionManager);
+        console.log('✅ Connection Manager initialized');
+    }
+
+    /**
+     * Инициализация Signature Components
+     */
+    async initializeSignatureComponents() {
+        console.log('📦 Initializing Signature Components...');
+
+        const sigComponents = new SignatureComponentsManager();
+        await sigComponents.initialize();
+
+        // Загрузка компонентов атак
+        await sigComponents.loadAttackModules();
+
+        this.modules.set('signatureComponents', sigComponents);
+        console.log('✅ Signature Components initialized');
+    }
+
+    /**
+     * Инициализация Rule Templates
+     */
+    async initializeRuleTemplates() {
+        console.log('📋 Initializing Rule Templates...');
+
+        const ruleTemplates = new RuleTemplateManager();
+        await ruleTemplates.initialize();
+
+        // Загрузка шаблонов
+        await ruleTemplates.loadTemplatesFromDirectory('./templates/');
+
+        this.modules.set('ruleTemplates', ruleTemplates);
+        console.log('✅ Rule Templates initialized');
+    }
+
+    /**
+     * Инициализация Rule Generator
+     */
+    async initializeRuleGenerator() {
+        console.log('⚙️ Initializing Rule Generator...');
+
+        const ruleGenerator = new RuleGenerator(this.core);
+        await ruleGenerator.initialize();
+
+        this.modules.set('ruleGenerator', ruleGenerator);
+        console.log('✅ Rule Generator initialized');
+    }
+
+    /**
+     * Инициализация Test Manager
+     */
+    async initializeTestManager() {
+        console.log('🧪 Initializing Test Manager...');
+
+        const testManager = new TestManager(this.core);
+        await testManager.initialize();
+
+        this.modules.set('testManager', testManager);
+        console.log('✅ Test Manager initialized');
+    }
+
+    /**
+     * Интеграция всех модулей
+     */
+    integrateModules() {
+        console.log('🔗 Integrating all modules...');
+
+        const canvas = this.modules.get('canvasManager');
+        const connections = this.modules.get('connectionManager');
+        const ui = this.modules.get('uiManager');
+        const components = this.modules.get('signatureComponents');
+
+        // Связываем Canvas и Connections
+        canvas.setConnectionManager(connections);
+        connections.setCanvas(canvas);
+
+        // Связываем UI с остальными модулями
+        ui.setCanvasManager(canvas);
+        ui.setConnectionManager(connections);
+        ui.setSignatureComponents(components);
+
+        // Настраиваем обработчики событий между модулями
+        this.setupModuleEventHandlers();
+
+        console.log('✅ Module integration completed');
+    }
+
+    /**
+     * Настройка обработчиков событий между модулями
+     */
+    setupModuleEventHandlers() {
+        const canvas = this.modules.get('canvasManager');
+        const ui = this.modules.get('uiManager');
+        const components = this.modules.get('signatureComponents');
+
+        // События Canvas -> UI
+        canvas.on('nodeSelected', (node) => {
+            ui.updatePropertiesPanel(node);
+        });
+
+        canvas.on('nodeAdded', (node) => {
+            ui.updateNodeCount();
+        });
+
+        // События UI -> Canvas
+        ui.on('toolSelected', (tool) => {
+            canvas.setActiveTool(tool);
+        });
+
+        // События компонентов
+        components.on('componentDropped', (component, position) => {
+            canvas.addNode(component, position);
+        });
+    }
+
+    /**
+     * Настройка пользовательского интерфейса
+     */
+    async setupUserInterface() {
+        console.log('🎨 Setting up user interface...');
+
+        const ui = this.modules.get('uiManager');
+        const components = this.modules.get('signatureComponents');
+        const templates = this.modules.get('ruleTemplates');
+
+        // Заполнение панели инструментов
+        await ui.populateToolbox(components.getAllComponents());
+
+        // Заполнение шаблонов
+        await ui.populateTemplates(templates.getAllTemplates());
+
+        // Настройка меню действий
+        ui.setupActionMenu([
+            {
+                id: 'new-scenario',
+                label: 'Новый сценарий',
+                action: () => this.createNewScenario()
+            },
+            {
+                id: 'save-scenario',
+                label: 'Сохранить сценарий',
+                action: () => this.saveCurrentScenario()
+            },
+            {
+                id: 'load-scenario',
+                label: 'Загрузить сценарий',
+                action: () => this.loadScenario()
+            },
+            {
+                id: 'execute-scenario',
+                label: 'Выполнить сценарий',
+                action: () => this.executeScenario()
+            }
+        ]);
+
+        console.log('✅ User interface setup completed');
+    }
+
+    /**
+     * Создание нового сценария атак
+     */
+    createNewScenario() {
+        console.log('📋 Creating new attack scenario...');
+
+        const canvas = this.modules.get('canvasManager');
+        canvas.clearCanvas();
+
+        this.state.currentScenario = {
+            id: `scenario_${Date.now()}`,
+            name: 'Новый сценарий атак',
+            description: '',
+            created: new Date(),
+            modules: [],
+            connections: []
+        };
+
+        // Обновляем UI
+        const ui = this.modules.get('uiManager');
+        ui.updateScenarioInfo(this.state.currentScenario);
+    }
+
+    /**
+     * Сохранение текущего сценария
+     */
+    async saveCurrentScenario() {
+        console.log('💾 Saving current scenario...');
+
+        if (!this.state.currentScenario) {
+            alert('Нет активного сценария для сохранения');
+            return;
+        }
+
+        const canvas = this.modules.get('canvasManager');
+        const connections = this.modules.get('connectionManager');
+
+        // Собираем данные сценария
+        const scenarioData = {
+            ...this.state.currentScenario,
+            modules: canvas.getAllNodes(),
+            connections: connections.getAllConnections(),
+            savedAt: new Date()
+        };
+
+        // Сохраняем в localStorage (в production можно использовать API)
+        const scenarioKey = `attack_scenario_${scenarioData.id}`;
+        localStorage.setItem(scenarioKey, JSON.stringify(scenarioData));
+
+        alert('Сценарий успешно сохранен!');
+    }
+
+    /**
+     * Выполнение сценария атак
+     */
+    async executeScenario() {
+        console.log('🚀 Executing attack scenario...');
+
+        if (this.state.isExecuting) {
+            alert('Сценарий уже выполняется');
+            return;
+        }
+
+        const canvas = this.modules.get('canvasManager');
+        const testManager = this.modules.get('testManager');
+        const ui = this.modules.get('uiManager');
+
+        const nodes = canvas.getAllNodes();
+        if (nodes.length === 0) {
+            alert('Добавьте модули атак в сценарий');
+            return;
+        }
+
         try {
-            // Загружаем скрипт если еще не загружен
-            if (!window.SignatureAnalysisConstructor) {
-                await this.loadScript('./pages/attack-constructor/attack-constructor-core.js');
+            this.state.isExecuting = true;
+            ui.showExecutionProgress();
+
+            // Валидация сценария
+            const validation = await this.validateScenario();
+            if (!validation.isValid) {
+                throw new Error(`Ошибка валидации: ${validation.errors.join(', ')}`);
             }
 
-            if (window.SignatureAnalysisConstructor) {
-                const core = new window.SignatureAnalysisConstructor();
-                this.modules.set('core', core);
-                console.log('✅ Core модуль загружен');
-            } else {
-                throw new Error('SignatureAnalysisConstructor не найден после загрузки скрипта');
-            }
+            // Выполнение через Test Manager
+            const results = await testManager.executeScenario({
+                nodes,
+                connections: this.modules.get('connectionManager').getAllConnections()
+            });
+
+            // Отображение результатов
+            ui.displayExecutionResults(results);
+
         } catch (error) {
-            console.error('❌ Ошибка загрузки Core модуля:', error);
-            throw error;
+            console.error('❌ Scenario execution failed:', error);
+            alert(`Ошибка выполнения: ${error.message}`);
+        } finally {
+            this.state.isExecuting = false;
+            ui.hideExecutionProgress();
         }
     }
 
     /**
-     * Загрузка UI Manager
+     * Валидация сценария перед выполнением
      */
-    async loadUIManager() {
-        try {
-            if (!window.UIManager) {
-                await this.loadScript('./pages/attack-constructor/ui-manager.js');
-            }
+    async validateScenario() {
+        const canvas = this.modules.get('canvasManager');
+        const connections = this.modules.get('connectionManager');
 
-            if (window.UIManager) {
-                const uiManager = new window.UIManager();
-                this.modules.set('ui', uiManager);
-                console.log('✅ UI Manager загружен');
-            } else {
-                throw new Error('UIManager не найден');
-            }
-        } catch (error) {
-            console.error('❌ Ошибка загрузки UI Manager:', error);
-            throw error;
+        const validation = {
+            isValid: true,
+            errors: [],
+            warnings: []
+        };
+
+        const nodes = canvas.getAllNodes();
+
+        // Проверка наличия узлов
+        if (nodes.length === 0) {
+            validation.errors.push('Сценарий должен содержать хотя бы один модуль');
+            validation.isValid = false;
         }
+
+        // Проверка конфигурации узлов
+        for (const node of nodes) {
+            if (!node.isConfigured) {
+                validation.errors.push(`Модуль "${node.name}" не сконфигурирован`);
+                validation.isValid = false;
+            }
+        }
+
+        // Проверка связей
+        const nodeConnections = connections.getAllConnections();
+        if (nodes.length > 1 && nodeConnections.length === 0) {
+            validation.warnings.push('Модули не связаны между собой');
+        }
+
+        return validation;
     }
 
     /**
-     * Загрузка Canvas Manager
+     * Уведомление о готовности системы
      */
-    async loadCanvasManager() {
-        try {
-            if (!window.CanvasManager) {
-                await this.loadScript('./pages/attack-constructor/canvas-manager.js');
-            }
-
-            if (window.CanvasManager) {
-                const canvasManager = new window.CanvasManager();
-                this.modules.set('canvas', canvasManager);
-                console.log('✅ Canvas Manager загружен');
-            } else {
-                throw new Error('CanvasManager не найден');
-            }
-        } catch (error) {
-            console.error('❌ Ошибка загрузки Canvas Manager:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Загрузка поддерживающих модулей
-     */
-    async loadSupportingModules() {
-        const moduleConfigs = [
-            { key: 'connection', file: 'connection-manager.js', className: 'ConnectionManager' },
-            { key: 'rules', file: 'rule-generator.js', className: 'RuleGenerator' },
-            { key: 'templates', file: 'rule-templates.js', className: 'RuleTemplateManager' },
-            { key: 'components', file: 'signature-components.js', className: 'SignatureComponentsManager' },
-            { key: 'test', file: 'test-manager.js', className: 'TestManager' }
-        ];
-
-        for (const config of moduleConfigs) {
-            try {
-                if (!window[config.className]) {
-                    await this.loadScript(`./pages/attack-constructor/${config.file}`);
-                }
-
-                if (window[config.className]) {
-                    const instance = new window[config.className]();
-                    this.modules.set(config.key, instance);
-                    console.log(`✅ ${config.className} загружен`);
-                } else {
-                    console.warn(`⚠️ ${config.className} не найден, пропускаем`);
-                }
-            } catch (error) {
-                console.warn(`⚠️ Ошибка загрузки ${config.className}:`, error);
-            }
-        }
-    }
-
-    /**
-     * Инициализация модулей
-     */
-    async initializeModules() {
-        const initOrder = ['core', 'ui', 'canvas', 'connection', 'components', 'templates', 'rules', 'test'];
-
-        for (const moduleKey of initOrder) {
-            const module = this.modules.get(moduleKey);
-            if (module && typeof module.initialize === 'function') {
-                try {
-                    await module.initialize();
-                    console.log(`✅ Модуль ${moduleKey} инициализирован`);
-                } catch (error) {
-                    console.warn(`⚠️ Ошибка инициализации модуля ${moduleKey}:`, error);
-                }
-            }
-        }
-    }
-
-    /**
-     * Настройка связей между модулями
-     */
-    setupModuleConnections() {
-        const core = this.modules.get('core');
-        if (!core) return;
-
-        // Связываем все модули с Core
-        this.modules.forEach((module, key) => {
-            if (key !== 'core' && module) {
-                core[key + 'Manager'] = module;
-                if (module.setCore && typeof module.setCore === 'function') {
-                    module.setCore(core);
-                }
+    notifySystemReady() {
+        // Отправляем событие готовности
+        const event = new CustomEvent('attackConstructorSystemReady', {
+            detail: {
+                version: this.version,
+                modules: Array.from(this.modules.keys()),
+                timestamp: Date.now()
             }
         });
 
-        console.log('🔗 Связи между модулями настроены');
+        document.dispatchEvent(event);
+
+        // Показываем уведомление пользователю
+        if (window.app?.showSuccessNotification) {
+            window.app.showSuccessNotification(
+                'Конструктор атак полностью загружен и готов к работе!'
+            );
+        }
     }
 
     /**
-     * Динамическая загрузка скрипта
+     * Получение статуса системы
      */
-    loadScript(src) {
-        return new Promise((resolve, reject) => {
-            // Проверяем, не загружен ли уже скрипт
-            const existingScript = document.querySelector(`script[src="${src}"]`);
-            if (existingScript) {
-                resolve();
-                return;
-            }
-
-            const script = document.createElement('script');
-            script.src = src;
-            script.async = true;
-
-            script.onload = () => {
-                console.log(`📄 Скрипт загружен: ${src}`);
-                resolve();
-            };
-
-            script.onerror = (error) => {
-                console.error(`❌ Ошибка загрузки скрипта: ${src}`, error);
-                reject(new Error(`Failed to load script: ${src}`));
-            };
-
-            document.head.appendChild(script);
-        });
-    }
-
-    /**
-     * Получение модуля
-     */
-    getModule(key) {
-        return this.modules.get(key);
-    }
-
-    /**
-     * Получение Core модуля
-     */
-    getCore() {
-        return this.modules.get('core');
-    }
-
-    /**
-     * Система событий
-     */
-    emit(event, data) {
-        const customEvent = new CustomEvent(`attackConstructor:${event}`, {
-            detail: { ...data, app: this }
-        });
-        document.dispatchEvent(customEvent);
-    }
-
-    /**
-     * Получение статуса
-     */
-    getStatus() {
+    getSystemStatus() {
         return {
             version: this.version,
             isInitialized: this.isInitialized,
-            modules: Array.from(this.modules.keys()),
-            moduleCount: this.modules.size
+            modules: Object.fromEntries(
+                Array.from(this.modules.entries()).map(([name, module]) => [
+                    name,
+                    {
+                        loaded: !!module,
+                        initialized: module.isInitialized || false
+                    }
+                ])
+            ),
+            state: this.state
         };
     }
-
-    /**
-     * Уничтожение
-     */
-    async destroy() {
-        console.log('🗑️ Уничтожение Attack Constructor App...');
-
-        // Уничтожаем все модули
-        for (const [key, module] of this.modules) {
-            if (module && typeof module.destroy === 'function') {
-                try {
-                    await module.destroy();
-                } catch (error) {
-                    console.warn(`⚠️ Ошибка уничтожения модуля ${key}:`, error);
-                }
-            }
-        }
-
-        this.modules.clear();
-        this.isInitialized = false;
-        this.initPromise = null;
-
-        console.log('✅ Attack Constructor App уничтожен');
-    }
 }
 
-// Глобальная инициализация для SPA
-let attackConstructorApp = null;
+// Создаем и экспортируем глобальный экземпляр
+window.attackConstructorMainSystem = new AttackConstructorMainSystem();
 
-async function initializeAttackConstructor() {
-    if (attackConstructorApp) {
-        console.log('✅ Attack Constructor уже инициализирован');
-        return attackConstructorApp;
-    }
-
+// Автоматическая инициализация
+document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Создаем экземпляр приложения
-        attackConstructorApp = new AttackConstructorApp();
-        await attackConstructorApp.initialize();
-
-        // Делаем экземпляр доступным глобально
-        window.attackConstructorApp = attackConstructorApp;
-
-        return attackConstructorApp;
+        await window.attackConstructorMainSystem.initialize();
     } catch (error) {
-        console.error('❌ Ошибка инициализации Attack Constructor:', error);
-        throw error;
+        console.error('Failed to initialize Attack Constructor System:', error);
     }
-}
-
-// Получаем DOM-элемент для отображения модулей
-const componentsList = document.getElementById('components-list');
-
-if (componentsList) {
-    const core = this.getCore();
-    if (core && core.getAvailableModules) {
-        const modules = core.getAvailableModules();
-        modules.forEach(module => {
-            const moduleItem = document.createElement('div');
-            moduleItem.className = 'component-item';
-            moduleItem.dataset.category = module.category;
-            moduleItem.textContent = module.name;
-            componentsList.appendChild(moduleItem);
-        });
-    }
-}
-
-// Экспорт для ES6 модулей
-export { AttackConstructorApp, initializeAttackConstructor };
-
-// Глобальный доступ для legacy кода
-window.AttackConstructorApp = AttackConstructorApp;
-window.initializeAttackConstructor = initializeAttackConstructor;
-
-// Автоинициализация при загрузке
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('📄 DOM загружен, Attack Constructor готов к инициализации');
-    });
-} else {
-    console.log('📄 DOM уже загружен, Attack Constructor готов к инициализации');
-}
-
-console.log('✅ Attack Constructor Main загружен');
+});

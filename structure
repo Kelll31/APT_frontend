@@ -69,8 +69,8 @@
 │   ├── js/
 │   │   ├── app.js (22.5KB)
 │   │   ├── component-base.js (9.8KB)
-│   │   ├── enhanced-page-manager-integration.js (6.8KB)
-│   │   ├── enhanced-page-manager.js (22.1KB)
+│   │   ├── enhanced-page-manager-integration.js (1.8KB)
+│   │   ├── enhanced-page-manager.js (26.9KB)
 │   │   ├── page-manager.js (20.7KB)
 │   │   ├── spa-app.js (29.5KB)
 │   │   ├── spa-navigator.js (13.6KB)
@@ -78,15 +78,18 @@
 │   │   └── theme-manager.js (17.7KB)
 │   ├── pages/
 │   │   ├── attack-constructor/
+│   │   │   ├── modules/
+│   │   │   │   └── ssh-enumeration.js (495.0B)
 │   │   │   ├── templates/
 │   │   │   │   ├── data-exfiltration-dns.json (2.1KB)
 │   │   │   │   ├── index.json (1.9KB)
 │   │   │   │   ├── malware-detection-basic.json (2.1KB)
 │   │   │   │   └── network-anomaly-advanced.json (2.4KB)
-│   │   │   ├── attack-constructor-core.js (126.2KB)
+│   │   │   ├── attack-constructor-core.js (82.1KB)
+│   │   │   ├── attack-constructor-main.js (12.3KB)
 │   │   │   ├── attack-constructor.css (33.2KB)
-│   │   │   ├── attack-constructor.html (26.0KB)
-│   │   │   ├── attack-constructor.js (38.9KB)
+│   │   │   ├── attack-constructor.html (13.9KB)
+│   │   │   ├── attack-constructor.js (67.7KB)
 │   │   │   ├── canvas-manager.js (69.2KB)
 │   │   │   ├── connection-manager.js (60.5KB)
 │   │   │   ├── rule-generator.js (58.3KB)
