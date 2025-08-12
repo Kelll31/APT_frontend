@@ -1,0 +1,11 @@
+.settings-page {
+    padding: var(--space-24);
+}
+
+.settings-header {
+    margin-bottom: var(--space-32);
+}
+
+.settings-content {
+    max-width: 600px;
+}

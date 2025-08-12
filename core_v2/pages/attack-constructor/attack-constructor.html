@@ -1,0 +1,265 @@
+<!-- Attack Constructor Page Content для SPA -->
+<div class="signature-constructor-page">
+
+    <!-- Заголовок страницы -->
+    <header class="page-header">
+        <div class="header-content">
+            <div class="header-main">
+                <h1 class="page-title">
+                    <span class="title-icon">⚔️</span>
+                    Конструктор модулей атак
+                </h1>
+                <p class="page-subtitle">
+                    Создавайте, настраивайте и запускайте сценарии автоматизированного пентеста с визуальным
+                    планированием атак
+                </p>
+            </div>
+            <div class="header-actions">
+                <button id="btn-save-rule" class="btn btn-primary" title="Сохранить сценарий">
+                    💾 Сохранить
+                </button>
+                <button id="btn-load-template" class="btn btn-secondary" title="Загрузить плейбук">
+                    📂 Плейбук
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной layout -->
+    <main class="signature-constructor-layout">
+
+        <!-- Верхняя строка: библиотека + панель управления -->
+        <div class="constructor-top-row">
+
+            <!-- Левая секция: библиотека модулей атак -->
+            <section class="components-library-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">🎯</span>
+                        Модули атак
+                    </h2>
+                </div>
+
+                <div class="section-content components-library">
+                    <!-- Поиск и фильтрация -->
+                    <div class="library-controls">
+                        <input type="text" id="component-search" class="form-control form-control--sm"
+                            placeholder="Поиск модулей атак..." autocomplete="off">
+                        <select id="component-category" class="form-control form-control--sm">
+                            <option value="">Все категории</option>
+                            <option value="discovery">Разведка</option>
+                            <option value="enum">Перечисление</option>
+                            <option value="brute">Bruteforce</option>
+                            <option value="exploit">Эксплуатация</option>
+                            <option value="lateral">Lateral Movement</option>
+                            <option value="post">Post-Exploitation</option>
+                            <option value="persistence">Персистентность</option>
+                            <option value="exfiltration">Экфильтрация</option>
+                        </select>
+                    </div>
+
+                    <!-- Аккордеон с модулями -->
+                    <div class="components-accordion" id="components-list">
+                        <!-- Динамически заполняется через JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Правая секция: управление и мониторинг -->
+            <section class="properties-testing-section">
+                <div class="section-header">
+                    <div class="section-tabs">
+                        <button id="tab-properties" class="tab-button active">Конфигурация</button>
+                        <button id="tab-testing" class="tab-button">Выполнение</button>
+                        <button id="tab-output" class="tab-button">Результаты</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка конфигурации -->
+                <div id="tab-content-properties" class="tab-content active">
+                    <div id="selected-component" class="no-selection">
+                        <div class="no-selection-icon">⚙️</div>
+                        <h4>Выберите модуль атаки</h4>
+                        <p>Щелкните на модуль в сценарии для настройки его параметров</p>
+                    </div>
+                </div>
+
+                <!-- Вкладка выполнения -->
+                <div id="tab-content-testing" class="tab-content">
+                    <div class="test-controls">
+                        <div class="form-group">
+                            <label for="target-range" class="form-label">Диапазон целей</label>
+                            <input type="text" id="target-range" class="form-control"
+                                placeholder="192.168.1.0/24, 10.0.0.1-10.0.0.100" value="192.168.1.0/24">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" id="safe-mode" checked>
+                                Safe Mode (только неразрушающие тесты)
+                            </label>
+                        </div>
+
+                        <div class="test-actions">
+                            <button id="run-validation" class="btn btn-success btn-lg">
+                                ▶️ Запустить сценарий
+                            </button>
+                            <button id="run-simulation" class="btn btn-outline">
+                                🧪 Dry Run
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="test-results" class="test-results">
+                        <div class="no-results">
+                            <span class="no-results-icon">📊</span>
+                            <p>Результаты появятся после выполнения сценария</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка результатов -->
+                <div id="tab-content-output" class="tab-content">
+                    <div class="form-group">
+                        <label for="output-format" class="form-label">Формат экспорта</label>
+                        <select id="output-format" class="form-control">
+                            <option value="json">JSON</option>
+                            <option value="yaml">YAML</option>
+                            <option value="python">Python Script</option>
+                            <option value="bash">Bash Script</option>
+                        </select>
+                    </div>
+
+                    <div class="code-preview">
+                        <div class="preview-header">
+                            <h5>Сгенерированный сценарий</h5>
+                            <div class="preview-actions">
+                                <button id="btn-copy-rule" class="btn btn-icon">📋</button>
+                            </div>
+                        </div>
+                        <pre id="rule-output">Сценарий будет сгенерирован автоматически</pre>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Нижняя секция: конструктор сценариев -->
+        <section class="rule-constructor-section">
+            <div class="section-header">
+                <div class="header-left">
+                    <div class="rule-metadata-inline">
+                        <input type="text" id="rule-name" class="form-control form-control--inline"
+                            placeholder="Название сценария атаки" value="SSH Enumeration & Brute Force">
+
+                        <select id="rule-type" class="form-control form-control--inline">
+                            <option value="network">Network Penetration</option>
+                            <option value="webapp">Web Application</option>
+                            <option value="iot">IoT & Embedded</option>
+                            <option value="infrastructure">Infrastructure</option>
+                            <option value="wireless">Wireless</option>
+                        </select>
+
+                        <select id="rule-priority" class="form-control form-control--inline">
+                            <option value="info">Информационный</option>
+                            <option value="low">Низкий риск</option>
+                            <option value="medium">Средний риск</option>
+                            <option value="high">Высокий риск</option>
+                            <option value="critical">Критический</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="rule-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Модулей</span>
+                            <span id="components-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Связей</span>
+                            <span id="connections-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Сложность</span>
+                            <span id="rule-complexity" class="stat-value">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas для построения сценария -->
+            <div id="rule-canvas" class="rule-canvas">
+                <div id="canvas-empty" class="canvas-empty">
+                    <span class="empty-icon">🎯</span>
+                    <h4>Перетащите модули атак для создания сценария</h4>
+                    <p>Используйте drag & drop из библиотеки модулей для построения последовательности атак</p>
+                    <div class="empty-tips">
+                        <div class="tip-item">
+                            <span class="tip-icon">💡</span>
+                            <span>Начните с модулей разведки (Discovery)</span>
+                        </div>
+                        <div class="tip-item">
+                            <span class="tip-icon">🔗</span>
+                            <span>Соединяйте модули для передачи данных</span>
+                        </div>
+                        <div class="tip-item">
+                            <span class="tip-icon">⚙️</span>
+                            <span>Настраивайте параметры каждого модуля</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SVG слой для соединений -->
+                <svg id="connection-layer" class="connection-layer">
+                    <!-- Соединения рендерятся динамически -->
+                </svg>
+            </div>
+
+            <!-- Панель логического выражения -->
+            <div class="logic-expression-bar">
+                <div class="logic-header">
+                    <span class="logic-label">Поток выполнения:</span>
+                    <button id="btn-validate-scenario" class="btn btn-outline btn-sm">
+                        ✓ Валидировать
+                    </button>
+                </div>
+                <div id="logic-expression" class="logic-expression">
+                    <span class="expression-placeholder">Сценарий пуст</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<script type="module">
+    // Инициализация Attack Constructor через новый интегратор
+    import { initializeAttackConstructor } from './attack-constructor-main.js';
+
+    // Инициализация при загрузке в SPA
+    (async () => {
+        try {
+            console.log('🎯 Запуск Attack Constructor...');
+            const app = await initializeAttackConstructor();
+            console.log('✅ Attack Constructor успешно запущен', app.getStatus());
+        } catch (error) {
+            console.error('❌ Ошибка запуска Attack Constructor:', error);
+
+            // Показываем ошибку пользователю
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'attack-constructor-error';
+            errorDiv.innerHTML = `
+      <div class="error-content">
+        <h4>Ошибка загрузки конструктора атак</h4>
+        <p>Не удалось инициализировать модули. Проверьте консоль браузера.</p>
+        <button onclick="location.reload()" class="btn btn-primary">Перезагрузить</button>
+      </div>
+    `;
+
+            const container = document.querySelector('.signature-constructor-page');
+            if (container) {
+                container.prepend(errorDiv);
+            }
+        }
+    })();
+</script>

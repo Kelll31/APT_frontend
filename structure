@@ -44,25 +44,72 @@
 │   └── routes.js (0.0B)
 ├── core/
 │   ├── components/
-│   │   ├── header.html (1.6KB)
+│   │   ├── header.html (1.8KB)
 │   │   └── sidebar.html (3.9KB)
 │   ├── scripts/
-│   │   ├── component-loader.js (14.4KB)
-│   │   ├── header.js (19.1KB)
-│   │   ├── main.js (20.2KB)
-│   │   ├── notifications.js (11.3KB)
-│   │   ├── page-loader.js (28.4KB)
-│   │   └── sidebar.js (23.2KB)
+│   │   ├── component-loader.js (13.8KB)
+│   │   ├── header.js (18.9KB)
+│   │   ├── main.js (24.6KB)
+│   │   ├── notifications.js (18.0KB)
+│   │   ├── page-loader.js (16.9KB)
+│   │   ├── sidebar.js (25.2KB)
+│   │   └── theme-manager.js (10.9KB)
 │   ├── styles/
 │   │   ├── header.css (33.9KB)
 │   │   ├── layout.css (36.5KB)
 │   │   ├── main.css (36.0KB)
-│   │   ├── notifications.css (7.0KB)
+│   │   ├── notifications.css (8.7KB)
 │   │   ├── page-loader-styles.css (30.0KB)
 │   │   └── sidebar.css (40.1KB)
-│   └── index.html (11.7KB)
-├── dist/
-│   └── style.css (199.5KB)
+│   ├── dashboard.html (28.8KB)
+│   └── index.html (6.9KB)
+├── core_v2/
+│   ├── css/
+│   │   └── style.css (30.8KB)
+│   ├── js/
+│   │   ├── app.js (22.5KB)
+│   │   ├── component-base.js (9.8KB)
+│   │   ├── enhanced-page-manager-integration.js (6.8KB)
+│   │   ├── enhanced-page-manager.js (22.1KB)
+│   │   ├── page-manager.js (20.7KB)
+│   │   ├── spa-app.js (29.5KB)
+│   │   ├── spa-navigator.js (13.6KB)
+│   │   ├── spa-router.js (15.7KB)
+│   │   └── theme-manager.js (17.7KB)
+│   ├── pages/
+│   │   ├── attack-constructor/
+│   │   │   ├── templates/
+│   │   │   │   ├── data-exfiltration-dns.json (2.1KB)
+│   │   │   │   ├── index.json (1.9KB)
+│   │   │   │   ├── malware-detection-basic.json (2.1KB)
+│   │   │   │   └── network-anomaly-advanced.json (2.4KB)
+│   │   │   ├── attack-constructor-core.js (126.2KB)
+│   │   │   ├── attack-constructor.css (33.2KB)
+│   │   │   ├── attack-constructor.html (26.0KB)
+│   │   │   ├── attack-constructor.js (38.9KB)
+│   │   │   ├── canvas-manager.js (69.2KB)
+│   │   │   ├── connection-manager.js (60.5KB)
+│   │   │   ├── rule-generator.js (58.3KB)
+│   │   │   ├── rule-templates.js (42.7KB)
+│   │   │   ├── signature-components.js (57.1KB)
+│   │   │   ├── test-manager.js (81.0KB)
+│   │   │   └── ui-manager.js (78.7KB)
+│   │   ├── dashboard/
+│   │   │   ├── dashboard.css (776.0B)
+│   │   │   ├── dashboard.html (1.9KB)
+│   │   │   └── dashboard.js (2.6KB)
+│   │   ├── reports/
+│   │   ├── scanner/
+│   │   │   ├── scanner.css (384.0B)
+│   │   │   ├── scanner.html (1.3KB)
+│   │   │   └── scanner.js (1.0KB)
+│   │   └── settings/
+│   │       ├── settings.css (151.0B)
+│   │       ├── settings.html (1.3KB)
+│   │       └── settings.js (1.0KB)
+│   └── index.html (23.5KB)
+├── docs/
+│   └── main.txt (23.3KB)
 ├── legacy/
 │   ├── modules/
 │   │   ├── attack-constructor/
@@ -124,13 +171,9 @@
 │   ├── themes.css (41.5KB)
 │   └── variables.css (39.8KB)
 ├── pages/
-│   ├── attack-constructor/
-│   │   ├── attack-constructor.css (0.0B)
-│   │   ├── attack-constructor.html (61.8KB)
-│   │   └── attack-constructor.js (0.0B)
 │   ├── dashboard/
 │   │   ├── dashboard.css (22.3KB)
-│   │   ├── dashboard.html (43.3KB)
+│   │   ├── dashboard.html (29.6KB)
 │   │   └── dashboard.js (25.7KB)
 │   ├── network-topology/
 │   │   ├── network-topology.css (0.0B)
@@ -158,7 +201,7 @@
 │   │   └── navigation.js (5.2KB)
 │   ├── styles/
 │   │   ├── base/
-│   │   │   ├── globals.css (10.9KB)
+│   │   │   ├── globals.css (11.0KB)
 │   │   │   ├── reset.css (5.9KB)
 │   │   │   └── utilities.css (29.9KB)
 │   │   ├── components/
@@ -166,6 +209,15 @@
 │   │   │   ├── cards.css (15.7KB)
 │   │   │   ├── forms.css (22.6KB)
 │   │   │   └── navigation.css (22.4KB)
+│   │   ├── fonts/
+│   │   │   ├── BerkeleyMono-Bold.woff (46.9KB)
+│   │   │   ├── BerkeleyMono-Bold.woff2 (34.3KB)
+│   │   │   ├── BerkeleyMono-BoldItalic.woff (48.7KB)
+│   │   │   ├── BerkeleyMono-BoldItalic.woff2 (35.9KB)
+│   │   │   ├── BerkeleyMono-Italic.woff (47.9KB)
+│   │   │   ├── BerkeleyMono-Italic.woff2 (35.4KB)
+│   │   │   ├── BerkeleyMono-Regular.woff (46.2KB)
+│   │   │   └── BerkeleyMono-Regular.woff2 (33.9KB)
 │   │   ├── themes/
 │   │   │   ├── dark.css (8.2KB)
 │   │   │   └── light.css (7.9KB)
@@ -174,12 +226,11 @@
 │   │   │   ├── effects.css (19.8KB)
 │   │   │   ├── spacing.css (15.4KB)
 │   │   │   └── typography.css (12.0KB)
-│   │   └── index.css (470.0B)
+│   │   └── index.css (3.6KB)
 │   └── utils/
 │       ├── api.js (27.6KB)
 │       ├── constants.js (22.5KB)
 │       └── helpers.js (34.8KB)
 ├── manifest.json (636.0B)
-├── structure (0.0B)
-├── sw.js (0.0B)
+├── structure (8.0KB)
 └── walk.py (4.3KB)

@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "name": "IP Roast Template Index",
+  "description": "Индекс всех доступных шаблонов правил",
+  "created": "2024-01-15T10:00:00Z",
+  "templates": [
+    {
+      "id": "malware-detection-basic",
+      "name": "Basic Malware Detection",
+      "file": "malware-detection-basic.json",
+      "category": "security",
+      "description": "Базовое обнаружение вредоносного ПО по хешам и поведению",
+      "tags": ["malware", "basic", "hash"],
+      "featured": true
+    },
+    {
+      "id": "network-anomaly-advanced",
+      "name": "Advanced Network Anomaly",
+      "file": "network-anomaly-advanced.json", 
+      "category": "network",
+      "description": "Продвинутое обнаружение сетевых аномалий",
+      "tags": ["network", "advanced", "anomaly"],
+      "featured": true
+    },
+    {
+      "id": "data-exfiltration-dns",
+      "name": "DNS Data Exfiltration",
+      "file": "data-exfiltration-dns.json",
+      "category": "network", 
+      "description": "Обнаружение экфильтрации данных через DNS",
+      "tags": ["dns", "exfiltration", "advanced"],
+      "featured": false
+    },
+    {
+      "id": "brute-force-detection",
+      "name": "Brute Force Detection",
+      "file": "brute-force-detection.json",
+      "category": "security",
+      "description": "Обнаружение атак методом перебора",
+      "tags": ["brute-force", "login", "security"],
+      "featured": false
+    },
+    {
+      "id": "file-integrity-monitoring",
+      "name": "File Integrity Monitoring", 
+      "file": "file-integrity-monitoring.json",
+      "category": "file",
+      "description": "Мониторинг целостности критических файлов",
+      "tags": ["file", "integrity", "monitoring"],
+      "featured": false
+    }
+  ]
+}

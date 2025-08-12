@@ -1,0 +1,95 @@
+{
+  "id": "network-anomaly-advanced", 
+  "name": "Advanced Network Anomaly Detection",
+  "description": "Продвинутое правило для обнаружения сетевых аномалий с анализом трафика и поведенческими паттернами",
+  "version": "2.1.0",
+  "author": "IP Roast Network Team",
+  "category": "network",
+  "tags": ["network", "advanced", "anomaly", "traffic"],
+  "created": "2024-01-08T11:20:00Z", 
+  "updated": "2024-01-14T16:45:00Z",
+  "components": [
+    {
+      "type": "ip-address",
+      "parameters": {
+        "address": "10.0.0.0/8",
+        "direction": "src",
+        "negation": false
+      }
+    },
+    {
+      "type": "port-range",
+      "parameters": {
+        "ports": "1-1024",
+        "protocol": "tcp",
+        "direction": "dst"
+      }
+    },
+    {
+      "type": "payload-size",
+      "parameters": {
+        "size": 10,
+        "unit": "MB", 
+        "operator": "gt"
+      }
+    },
+    {
+      "type": "frequency-analysis",
+      "parameters": {
+        "event_type": "connection",
+        "threshold": 50,
+        "time_window": 300,
+        "operator": "gt"
+      }
+    },
+    {
+      "type": "threshold-check",
+      "parameters": {
+        "metric": "bytes_transferred",
+        "threshold": 1000000,
+        "operator": "gt",
+        "time_window": 300
+      }
+    }
+  ],
+  "connections": [
+    {
+      "from": { "index": 0, "pointType": "output" },
+      "to": { "index": 1, "pointType": "input" },
+      "operator": "AND"
+    },
+    {
+      "from": { "index": 1, "pointType": "output" },
+      "to": { "index": 2, "pointType": "input" },
+      "operator": "AND"
+    },
+    {
+      "from": { "index": 2, "pointType": "output" },
+      "to": { "index": 3, "pointType": "input" },
+      "operator": "OR"
+    },
+    {
+      "from": { "index": 3, "pointType": "output" },
+      "to": { "index": 4, "pointType": "input" },
+      "operator": "AND"
+    }
+  ],
+  "settings": {
+    "rule": {
+      "type": "detection",
+      "priority": "medium"
+    },
+    "layout": {
+      "startX": 50,
+      "startY": 80,
+      "spacing": 280
+    }
+  },
+  "metadata": {
+    "complexity": "complex",
+    "estimatedMatches": "medium", 
+    "falsePositiveRate": "low",
+    "performanceImpact": "medium",
+    "documentation": "https://docs.iproast.com/templates/network-advanced"
+  }
+}

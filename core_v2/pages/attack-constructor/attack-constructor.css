@@ -1,0 +1,1471 @@
+/**
+ * IP Roast Enterprise 4.0 - Attack Constructor Styles
+ * Улучшенная компоновка: верх (библиотека + свойства), низ (конструктор во всю ширину)
+ * Версия: 4.0.0-Enhanced-Layout
+ */
+
+/* ========================================
+   Основные стили страницы
+======================================== */
+
+.signature-constructor-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: var(--space-24);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-family-base);
+    gap: var(--space-24);
+}
+
+/* ========================================
+   Заголовок страницы (неизменный)
+======================================== */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: var(--space-20);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-24);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: var(--space-32);
+}
+
+.header-main {
+    flex: 1;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin: 0 0 var(--space-8) 0;
+    line-height: var(--line-height-tight);
+}
+
+.title-icon {
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+}
+
+.page-subtitle {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+    max-width: 600px;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--space-12);
+    flex-shrink: 0;
+    align-items: center;
+}
+
+/* ========================================
+   НОВАЯ КОМПОНОВКА: двухэтажная сетка
+======================================== */
+
+.signature-constructor-layout {
+    display: grid;
+    grid-template-rows: minmax(400px, 45vh) 1fr;
+    gap: var(--space-24);
+    flex: 1;
+    min-height: 0;
+}
+
+/* Верхняя строка: две колонки */
+.constructor-top-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-24);
+    min-height: 400px;
+}
+
+/* ========================================
+   Секция библиотеки компонентов (левая)
+======================================== */
+
+.components-library-section {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+/* ========================================
+   Секция свойств и тестирования (правая)  
+======================================== */
+
+.properties-testing-section {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+/* ========================================
+   Секция конструктора правил (нижняя, во всю ширину)
+======================================== */
+
+.rule-constructor-section {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    min-height: 500px;
+}
+
+/* ========================================
+   Общие стили заголовков секций
+======================================== */
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-16);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-elevated);
+    flex-shrink: 0;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.section-icon {
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+}
+
+.section-content {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.section-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.section-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.section-content::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+}
+
+/* ========================================
+   Элементы управления библиотекой
+======================================== */
+
+.library-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    min-width: 200px;
+}
+
+.form-control--sm {
+    padding: var(--space-6) var(--space-8);
+    font-size: var(--font-size-xs);
+}
+
+/* ========================================
+   Система табов для правой панели
+======================================== */
+
+.section-tabs {
+    display: flex;
+    background: var(--color-background);
+    border-radius: var(--radius-base);
+    padding: var(--space-2);
+    gap: var(--space-2);
+}
+
+.tab-button {
+    padding: var(--space-6) var(--space-12);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    transition: var(--transition-all);
+    white-space: nowrap;
+}
+
+.tab-button:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+}
+
+.tab-button.active {
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
+}
+
+.tab-content {
+    display: none;
+    padding: var(--space-16);
+    flex: 1;
+    overflow-y: auto;
+}
+
+.tab-content.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========================================
+   Заголовок конструктора правил
+======================================== */
+
+.rule-constructor-section .section-header {
+    flex-wrap: wrap;
+    gap: var(--space-16);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-24);
+    flex: 1;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    flex-wrap: wrap;
+}
+
+.rule-stats {
+    display: flex;
+    gap: var(--space-16);
+    align-items: center;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.stat-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: var(--font-weight-medium);
+}
+
+.stat-value {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    font-family: var(--font-family-mono);
+}
+
+.rule-metadata-inline {
+    display: flex;
+    gap: var(--space-8);
+    align-items: center;
+}
+
+.form-control--inline {
+    min-width: 150px;
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--font-size-sm);
+}
+
+.constructor-controls {
+    display: flex;
+    gap: var(--space-8);
+}
+
+/* ========================================
+   Canvas правил (основная рабочая область)
+======================================== */
+
+.rule-canvas {
+    position: relative;
+    flex: 1;
+    min-height: 400px;
+    margin: var(--space-16);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-background);
+    background-image: 
+        radial-gradient(circle, var(--color-border-light) 1px, transparent 1px);
+    background-size: 20px 20px;
+    overflow: auto;
+    transition: var(--transition-all);
+}
+
+.rule-canvas.drag-over {
+    border-color: var(--color-primary);
+    background-color: rgba(var(--color-primary-rgb), 0.02);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+/* ========================================
+   Пустое состояние canvas (неизменное)
+======================================== */
+
+.canvas-empty {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--color-text-secondary);
+    max-width: 500px;
+    padding: var(--space-32);
+}
+
+.empty-icon {
+    font-size: var(--font-size-6xl);
+    margin-bottom: var(--space-24);
+    opacity: 0.3;
+    display: block;
+}
+
+.canvas-empty h4 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin: 0 0 var(--space-12) 0;
+}
+
+.canvas-empty p {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+    margin: 0 0 var(--space-20) 0;
+}
+
+.empty-tips {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    text-align: left;
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-8);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.tip-icon {
+    font-size: var(--font-size-base);
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   Логическое выражение (внизу canvas)
+======================================== */
+
+.logic-expression-bar {
+    padding: var(--space-12) var(--space-16);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-elevated);
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    flex-wrap: wrap;
+}
+
+.logic-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+}
+
+.logic-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.logic-expression {
+    flex: 1;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    padding: var(--space-8) var(--space-12);
+    min-height: 32px;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+}
+
+.expression-placeholder {
+    color: var(--color-text-secondary);
+    font-style: italic;
+    font-size: var(--font-size-xs);
+}
+
+/* ========================================
+   Узлы на canvas (неизменные стили)
+======================================== */
+
+.canvas-node {
+    position: absolute;
+    width: 220px;
+    min-height: 100px;
+    background: var(--color-surface-elevated);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    cursor: move;
+    user-select: none;
+    transition: var(--transition-all);
+    z-index: 10;
+    overflow: hidden;
+}
+
+.canvas-node:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.canvas-node.selected {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2), var(--shadow-lg);
+    z-index: 20;
+}
+
+.node-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-12) var(--space-16);
+    background: var(--color-surface-hover);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.node-icon {
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+    margin-right: var(--space-8);
+}
+
+.node-title {
+    flex: 1;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    line-height: var(--line-height-tight);
+}
+
+.node-actions {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.node-config-btn,
+.node-delete-btn {
+    background: transparent;
+    border: none;
+    padding: var(--space-4);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+    transition: var(--transition-all);
+}
+
+.node-config-btn:hover {
+    background: var(--color-surface);
+    color: var(--color-primary);
+}
+
+.node-delete-btn:hover {
+    background: var(--color-error);
+    color: white;
+}
+
+.node-content {
+    padding: var(--space-16);
+}
+
+.node-description {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-8);
+}
+
+.node-type {
+    display: inline-block;
+    padding: var(--space-2) var(--space-6);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    background: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary);
+    border-radius: var(--radius-sm);
+}
+
+/* ========================================
+   Стили компонентов (сохраняются из предыдущих версий)
+======================================== */
+
+.components-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    padding: var(--space-16);
+}
+
+.component-category {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    overflow: hidden;
+    transition: var(--transition-all);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-12) var(--space-16);
+    background: var(--color-surface-elevated);
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition-all);
+}
+
+.category-header:hover {
+    background: var(--color-surface-hover);
+}
+
+.category-icon {
+    font-size: var(--font-size-lg);
+    margin-right: var(--space-12);
+    color: var(--color-primary);
+}
+
+.category-name {
+    flex: 1;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.category-count {
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
+    font-size: var(--font-size-xs);
+    padding: var(--space-2) var(--space-6);
+    border-radius: var(--radius-full);
+    min-width: 24px;
+    text-align: center;
+    font-weight: var(--font-weight-semibold);
+}
+
+.category-toggle {
+    margin-left: var(--space-8);
+    color: var(--color-text-secondary);
+    transition: var(--transition-transform);
+    font-size: var(--font-size-sm);
+}
+
+.component-category.expanded .category-toggle {
+    transform: rotate(180deg);
+}
+
+.components-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s var(--ease-standard);
+    background: var(--color-background);
+}
+
+.components-list.collapsed {
+    max-height: 0;
+}
+
+.component-category.expanded .components-list {
+    max-height: 1000px;
+}
+
+.component-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    padding: var(--space-12);
+    border-bottom: 1px solid var(--color-border-light);
+    cursor: grab;
+    user-select: none;
+    transition: var(--transition-all);
+    background: var(--color-background);
+}
+
+.component-item:last-child {
+    border-bottom: none;
+}
+
+.component-item:hover {
+    background: var(--color-surface);
+    transform: translateX(var(--space-2));
+}
+
+.component-item:active {
+    cursor: grabbing;
+    transform: translateX(var(--space-2)) scale(0.98);
+}
+
+.component-icon {
+    font-size: var(--font-size-xl);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.component-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.component-name {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+    line-height: var(--line-height-tight);
+}
+
+.component-description {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.component-badge {
+    padding: var(--space-2) var(--space-6);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+}
+
+.component-badge[data-type="network"] {
+    background: rgba(var(--color-info-rgb), 0.1);
+    color: var(--color-info);
+}
+
+.component-badge[data-type="file"] {
+    background: rgba(var(--color-warning-rgb), 0.1);
+    color: var(--color-warning);
+}
+
+.component-badge[data-type="content"] {
+    background: rgba(var(--color-success-rgb), 0.1);
+    color: var(--color-success);
+}
+
+.component-badge[data-type="behavioral"] {
+    background: rgba(var(--color-purple-rgb), 0.1);
+    color: var(--color-purple);
+}
+
+.component-badge[data-type="temporal"] {
+    background: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary);
+}
+
+/* ========================================
+   Формы и элементы управления
+======================================== */
+
+.form-control {
+    padding: var(--space-8) var(--space-12);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    font-size: var(--font-size-sm);
+    background: var(--color-background);
+    color: var(--color-text);
+    transition: var(--transition-all);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.form-control::placeholder {
+    color: var(--color-text-secondary);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-16);
+}
+
+.form-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+}
+
+/* ========================================
+   Панель "Нет выбора"
+======================================== */
+
+.no-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: var(--space-32);
+    height: 100%;
+}
+
+.no-selection-icon {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--space-16);
+    opacity: 0.3;
+}
+
+.no-selection h4 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin: 0 0 var(--space-8) 0;
+}
+
+.no-selection p {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+    max-width: 280px;
+}
+
+/* ========================================
+   Тестирование и вывод
+======================================== */
+
+.test-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    margin-bottom: var(--space-24);
+}
+
+.test-actions {
+    display: flex;
+    gap: var(--space-8);
+}
+
+.code-preview {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    padding: var(--space-16);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-12);
+}
+
+.preview-header h5 {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.preview-actions {
+    display: flex;
+    gap: var(--space-8);
+}
+
+/* ========================================
+   Валидация правил
+======================================== */
+
+.rule-validation {
+    margin: var(--space-16);
+    padding: var(--space-16);
+    border-radius: var(--radius-base);
+    border: 1px solid;
+    display: none;
+}
+
+.validation-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    margin-bottom: var(--space-12);
+    font-weight: var(--font-weight-semibold);
+}
+
+.validation-icon {
+    font-size: var(--font-size-lg);
+}
+
+/* ========================================
+   Адаптивность для новой компоновки
+======================================== */
+
+@media (max-width: 1200px) {
+    .signature-constructor-layout {
+        grid-template-rows: minmax(350px, 50vh) 1fr;
+    }
+    
+    .constructor-top-row {
+        min-height: 350px;
+    }
+    
+    .header-left,
+    .header-right {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-12);
+    }
+    
+    .rule-metadata-inline {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .signature-constructor-page {
+        padding: var(--space-16);
+        gap: var(--space-16);
+    }
+    
+    .signature-constructor-layout {
+        grid-template-rows: auto 1fr;
+        gap: var(--space-16);
+    }
+    
+    .constructor-top-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-16);
+        min-height: auto;
+    }
+    
+    .components-library-section,
+    .properties-testing-section {
+        min-height: 300px;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-16);
+    }
+    
+    .header-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-12);
+    }
+    
+    .logic-expression-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-8);
+    }
+    
+    .canvas-node {
+        width: 180px;
+        min-height: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .signature-constructor-page {
+        padding: var(--space-12);
+    }
+    
+    .page-title {
+        font-size: var(--font-size-xl);
+    }
+    
+    .section-tabs {
+        flex-direction: column;
+    }
+    
+    .constructor-controls {
+        flex-wrap: wrap;
+    }
+    
+    .canvas-node {
+        width: 160px;
+        font-size: var(--font-size-xs);
+    }
+}
+
+/* ========================================
+   Остальные стили (точки соединения, SVG, модальные окна)
+   остаются без изменений...
+======================================== */
+
+/* Точки соединения узлов */
+.node-connection-points {
+    position: relative;
+}
+
+.connection-input,
+.connection-output {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    border: 2px solid var(--color-surface-elevated);
+    cursor: crosshair;
+    opacity: 0;
+    transition: var(--transition-all);
+    z-index: 25;
+}
+
+.canvas-node:hover .connection-input,
+.canvas-node:hover .connection-output {
+    opacity: 1;
+}
+
+.connection-input {
+    top: 50%;
+    left: -8px;
+    transform: translateY(-50%);
+}
+
+.connection-output {
+    top: 50%;
+    right: -8px;
+    transform: translateY(-50%);
+}
+
+.connection-input:hover,
+.connection-output:hover {
+    transform: translateY(-50%) scale(1.2);
+    box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.2);
+}
+
+/* SVG слой соединений */
+.connection-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.connection-line {
+    stroke: var(--color-primary);
+    stroke-width: 2;
+    fill: none;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.connection-line.temporary {
+    stroke-dasharray: 5, 5;
+    opacity: 0.7;
+}
+
+
+/* ========================================
+   Модальные окна
+======================================== */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.modal-dialog {
+    position: relative;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    max-width: 600px;
+    max-height: 90vh;
+    width: 90%;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s var(--ease-standard);
+}
+
+.modal-dialog.modal-large {
+    max-width: 900px;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-20);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-elevated);
+}
+
+.modal-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: var(--font-size-xl);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: var(--space-4);
+    border-radius: var(--radius-sm);
+    transition: var(--transition-all);
+}
+
+.modal-close:hover {
+    background: var(--color-error);
+    color: white;
+}
+
+.modal-body {
+    padding: var(--space-20);
+    flex: 1;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-12);
+    padding: var(--space-20);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-elevated);
+}
+
+/* ========================================
+   Сетка шаблонов
+======================================== */
+
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-20);
+}
+
+.template-card {
+    padding: var(--space-20);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: var(--transition-all);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.template-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transition: var(--transition-transform);
+}
+
+.template-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-4px);
+}
+
+.template-card:hover::before {
+    transform: scaleX(1);
+}
+
+.template-icon {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--space-16);
+    display: block;
+}
+
+.template-card h4 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin: 0 0 var(--space-8) 0;
+}
+
+.template-card p {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin: 0 0 var(--space-16) 0;
+}
+
+.template-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-8);
+}
+
+.template-complexity,
+.template-components {
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+}
+
+.template-complexity.low {
+    background: rgba(var(--color-success-rgb), 0.1);
+    color: var(--color-success);
+}
+
+.template-complexity.medium {
+    background: rgba(var(--color-warning-rgb), 0.1);
+    color: var(--color-warning);
+}
+
+.template-complexity.high {
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error);
+}
+
+.template-components {
+    background: var(--color-secondary);
+    color: var(--color-text);
+}
+
+/* ========================================
+   Адаптивность
+======================================== */
+
+@media (max-width: 1400px) {
+    .signature-constructor-grid {
+        grid-template-columns: 320px 1fr 360px;
+        gap: var(--space-20);
+    }
+}
+
+@media (max-width: 1200px) {
+    .signature-constructor-grid {
+        grid-template-columns: 300px 1fr;
+        grid-template-rows: 1fr auto;
+    }
+
+    .properties-panel {
+        grid-column: 1 / -1;
+        max-height: 400px;
+    }
+
+    .components-library {
+        max-height: calc(100vh - 300px);
+    }
+}
+
+@media (max-width: 768px) {
+    .signature-constructor-page {
+        padding: var(--space-16);
+        gap: var(--space-16);
+    }
+
+    .signature-constructor-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-16);
+        height: auto;
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-16);
+    }
+
+    .header-actions {
+        justify-content: center;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .canvas-node {
+        width: 180px;
+        min-height: 80px;
+    }
+
+    .templates-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rule-canvas {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .signature-constructor-page {
+        padding: var(--space-12);
+    }
+
+    .page-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .canvas-node {
+        width: 160px;
+        font-size: var(--font-size-xs);
+    }
+
+    .header-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/* ========================================
+   Анимации
+======================================== */
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* ========================================
+   Утилитарные классы
+======================================== */
+
+.hidden {
+    display: none !important;
+}
+
+.invisible {
+    visibility: hidden !important;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ========================================
+   Dark theme overrides
+======================================== */
+
+[data-theme="dark"] .rule-canvas {
+    background-image:
+        radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+}
+
+[data-theme="dark"] .canvas-node {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .canvas-node:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ========================================
+   Accessibility
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Высокий контраст */
+@media (prefers-contrast: high) {
+    .canvas-node {
+        border-width: 3px;
+    }
+
+    .connection-line {
+        stroke-width: 3;
+    }
+}
+
+/* Focus indicators */
+.form-control:focus-visible,
+.tab-button:focus-visible,
+.component-item:focus-visible,
+.canvas-node:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ========================================
+   Print styles
+======================================== */
+
+@media print {
+    .signature-constructor-page {
+        padding: 0;
+    }
+
+    .header-actions,
+    .canvas-controls,
+    .panel-tabs,
+    .preview-actions {
+        display: none;
+    }
+
+    .signature-constructor-grid {
+        display: block;
+    }
+
+    .rule-canvas {
+        border: 1px solid #ccc;
+        background: white;
+    }
+
+    .canvas-node {
+        box-shadow: none;
+        border: 1px solid #333;
+    }
+}

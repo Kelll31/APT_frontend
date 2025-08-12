@@ -1,0 +1,30 @@
+<div class="scanner-page">
+    <div class="scanner-header">
+        <h2>Модуль сканирования</h2>
+        <p>Сканирование сетевых ресурсов и поиск уязвимостей</p>
+    </div>
+
+    <div class="scanner-content">
+        <div class="card">
+            <div class="card__header">
+                <h3>Быстрое сканирование</h3>
+            </div>
+            <div class="card__body">
+                <div class="form-group">
+                    <label class="form-label" for="target-input">Цель сканирования</label>
+                    <input type="text" id="target-input" class="form-control" placeholder="192.168.1.1 или domain.com">
+                </div>
+                <button class="btn btn--primary" onclick="startScan()">Начать сканирование</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__header">
+                <h3>Результаты сканирования</h3>
+            </div>
+            <div class="card__body" id="scan-results">
+                <p class="text-muted">Результаты сканирования будут отображены здесь</p>
+            </div>
+        </div>
+    </div>
+</div>

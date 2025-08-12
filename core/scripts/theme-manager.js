@@ -9,6 +9,9 @@
 
     class ThemeManager {
         constructor() {
+            if (window.themeManagerInstance) {
+                return window.themeManagerInstance;
+            }
             this.currentTheme = 'light';
             this.themes = ['light', 'dark'];
             this.storageKey = 'ip-roast-theme';
@@ -17,6 +20,8 @@
                 toggleButton: null
             };
             this.eventListeners = new Map();
+            this.isInitialized = false;
+            this.isToggling = false;
             this.init();
         }
 
@@ -24,11 +29,16 @@
          * Инициализация системы тем
          */
         init() {
+            if (this.isInitialized) {
+                console.log('⚠️ ThemeManager уже инициализирован');
+                return;
+            }
             console.log('🎨 ThemeManager инициализируется...');
             this.loadSavedTheme();
             this.findElements();
             this.setupEventListeners();
             this.applyTheme(this.currentTheme);
+            this.isInitialized = true;
             console.log(`✅ ThemeManager инициализирован с темой: ${this.currentTheme}`);
         }
 
@@ -60,6 +70,12 @@
             for (const id of possibleIds) {
                 const element = document.getElementById(id);
                 if (element) {
+                    const oldHandler = element._themeToggleHandler;
+                    if (oldHandler) {
+                        element.removeEventListener('click', oldHandler);
+                        delete element._themeToggleHandler;
+                    }
+
                     this.elements.toggleButton = element;
                     console.log(`🔍 Найдена кнопка переключения темы: #${id}`);
                     break;
@@ -70,18 +86,29 @@
                 console.warn('⚠️ Кнопка переключения темы не найдена');
             }
         }
-
         /**
          * Настройка обработчиков событий
          */
         setupEventListeners() {
             // Кнопка переключения темы
             if (this.elements.toggleButton) {
-                this.elements.toggleButton.addEventListener('click', (e) => {
+                const handleToggle = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+
+                    // Предотвращаем множественные вызовы
+                    if (this.isToggling) {
+                        console.log('⏳ Переключение уже в процессе, игнорируем...');
+                        return;
+                    }
+
                     this.toggleTheme();
-                });
+                };
+
+                // Сохраняем ссылку на обработчик в элементе
+                this.elements.toggleButton._themeToggleHandler = handleToggle;
+                this.elements.toggleButton.addEventListener('click', handleToggle);
+                console.log('🔘 Обработчик кнопки темы установлен');
             }
 
             // Слушаем изменения системной темы
@@ -118,6 +145,12 @@
             // Устанавливаем data-theme на html элемент
             this.elements.root.setAttribute('data-theme', theme);
             this.elements.root.style.colorScheme = theme;
+
+            if (theme === 'dark') {
+                this.elements.root.classList.add('dark');
+            } else {
+                this.elements.root.classList.remove('dark');
+            }
 
             // Очищаем старые атрибуты
             document.body.removeAttribute('data-theme');

@@ -477,6 +477,37 @@
             this.notifications.clear();
             console.log('🗑️ NotificationSystem уничтожен');
         }
+
+        /**
+ * Получить N последних уведомлений в обратном порядке (новейшие первыми)
+ * @param {number} count
+ * @returns {Array} массив объектов уведомлений
+ */
+        getLast(count = 10) {
+            // this.notifications — Map<id, notification>
+            // Преобразуем записи в массив, отсортируем по timestamp и возьмем count последних
+            return Array.from(this.notifications.values())
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, count);
+        }
+
+        /**
+         * Удалить уведомление из истории
+         * @param {string} id
+         */
+        delete(id) {
+            this.close(id);         // убрать тост из UI
+            this.notifications.delete(id);
+        }
+
+        /**
+         * Очистить всю историю уведомлений
+         */
+        clear() {
+            // Закрыть все toast'ы
+            this.notifications.forEach((_, id) => this.close(id));
+            this.notifications.clear();
+        }
     }
 
     // Экспорт как конструктор в глобальную область

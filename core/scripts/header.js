@@ -238,29 +238,68 @@
          * Переключение dropdown уведомлений
          */
         toggleNotificationsPopup() {
+            const btn = this.elements.notificationsBtn;
             const popup = this.elements.notificationsPopup;
-            if (!popup || !this.notifications) return;
+            if (!btn || !popup || !this.notifications) return;
 
+            // Получаем последние уведомления
             const list = this.notifications.getLast(10);
-            const itemsHTML = list.length ? list.map(n => `
-                <div class="notification-item" data-id="${n.id}">
-                    <div class="icon">${this.getNotificationIcon(n.type)}</div>
-                    <div class="body">
-                        <div class="title">${n.title || 'Уведомление'}</div>
-                        <div class="message">${n.message}</div>
-                        <div class="time">${this.formatTime(n.timestamp)}</div>
+
+            // Генерируем HTML для каждого уведомления
+            const itemsHTML = list.length
+                ? list.map(item => {
+                    // Получаем иконку из NotificationSystem
+                    const iconHtml = typeof this.notifications.getIcon === 'function'
+                        ? this.notifications.getIcon(item.type)
+                        : '';
+
+                    const time = new Date(item.timestamp).toLocaleTimeString();
+
+                    return `
+                <div class="notification-item" data-id="${item.id}">
+                    <div class="notification-icon">${iconHtml}</div>
+                    <div class="notification-content">
+                        <div class="notification-title">${item.title || ''}</div>
+                        <div class="notification-message">${item.message}</div>
+                        <div class="notification-timestamp">${time}</div>
                     </div>
-                    <button class="delete-btn" onclick="window.headerManager?.deleteNotification('${n.id}')">&times;</button>
                 </div>
-            `).join('') : '<div style="padding: 16px; text-align: center; color: #666;">Нет уведомлений</div>';
-
-            popup.innerHTML = `
-                ${list.length ? '<button class="clear-all-btn" onclick="window.headerManager?.clearAllNotifications()">Очистить все</button>' : ''}
-                ${itemsHTML}
             `;
+                }).join('')
+                : `<div class="notification-empty">Нет новых уведомлений</div>`;
 
-            popup.classList.toggle('active');
+            // Вставляем в popup
+            popup.innerHTML = `
+        <div class="notifications-header">
+            <span>Уведомления</span>
+            <button class="notifications-clear-btn">Очистить</button>
+        </div>
+        <div class="notifications-list">
+            ${itemsHTML}
+        </div>
+    `;
+
+            // Показываем или скрываем popup
+            const isVisible = popup.classList.toggle('visible');
+
+            // Если показываем, навешиваем обработчики внутри popup
+            if (isVisible) {
+                // Очистка всех уведомлений
+                popup.querySelector('.notifications-clear-btn')
+                    .addEventListener('click', e => {
+                        e.stopPropagation();
+                        this.notifications.clear();
+                        popup.querySelector('.notifications-list').innerHTML = `<div class="notification-empty">Нет новых уведомлений</div>`;
+                    });
+
+                // Закрытие при клике вне popup
+                document.addEventListener('click', this.handleOutsideClick.bind(this));
+
+            } else {
+                document.removeEventListener('click', this.handleOutsideClick.bind(this));
+            }
         }
+
 
         /**
          * Закрытие popup уведомлений
