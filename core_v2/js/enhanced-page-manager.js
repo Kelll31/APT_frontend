@@ -1,11 +1,21 @@
 /**
  * Enhanced PageManager - Улучшенная система загрузки страниц
  * Поддерживает загрузку HTML, CSS и JS из папки pages/
- * Version: 3.0.0
+ * Version: 3.1.0-Fixed (12 Aug 2025)
+ * 
+ * ИСПРАВЛЕНИЯ:
+ * ✅ Добавлен метод registerPage для интеграции с модулями
+ * ✅ Добавлена система управления жизненным циклом страниц
+ * ✅ Улучшена обработка ошибок и событий
  */
+
 class EnhancedPageManager extends ComponentBase {
     constructor() {
         super('EnhancedPageManager');
+
+        // ===== НОВОЕ: Реестр зарегистрированных страниц =====
+        this.registeredPages = new Map();
+        this.pageInstances = new Map();
 
         // Кэш для всех ресурсов страниц
         this.cache = {
@@ -42,17 +52,98 @@ class EnhancedPageManager extends ComponentBase {
             styleContainer: null
         };
 
-        console.log('📄 Enhanced PageManager v3.0 создан');
+        console.log('📄 Enhanced PageManager v3.1-Fixed создан');
+    }
+
+    /**
+     * ===== НОВОЕ API: РЕГИСТРАЦИЯ СТРАНИЦ =====
+     * Регистрирует страницу с её конфигурацией и хуками жизненного цикла
+     */
+    registerPage(pageId, config = {}) {
+        try {
+            const pageConfig = {
+                title: config.title || pageId,
+                module: config.module || null,
+                activate: config.activate || (() => { }),
+                deactivate: config.deactivate || (() => { }),
+                cleanup: config.cleanup || (() => { }),
+                initialized: false,
+                ...config
+            };
+
+            this.registeredPages.set(pageId, pageConfig);
+
+            // Если есть модуль, сохраняем его экземпляр
+            if (config.module) {
+                this.pageInstances.set(pageId, config.module);
+            }
+
+            console.log(`📋 Страница зарегистрирована: ${pageId}`, pageConfig);
+            this.emit('pageRegistered', { pageId, config: pageConfig });
+
+            return true;
+        } catch (error) {
+            console.error(`❌ Ошибка регистрации страницы ${pageId}:`, error);
+            return false;
+        }
+    }
+
+    /**
+     * Получает конфигурацию зарегистрированной страницы
+     */
+    getPageConfig(pageId) {
+        return this.registeredPages.get(pageId) || null;
+    }
+
+    /**
+     * Получает экземпляр модуля страницы
+     */
+    getPageInstance(pageId) {
+        return this.pageInstances.get(pageId) || null;
+    }
+
+    /**
+     * Отменяет регистрацию страницы
+     */
+    unregisterPage(pageId) {
+        const config = this.registeredPages.get(pageId);
+        if (config) {
+            // Вызываем cleanup перед удалением
+            if (typeof config.cleanup === 'function') {
+                try {
+                    config.cleanup();
+                } catch (error) {
+                    console.warn(`⚠️ Ошибка cleanup при отмене регистрации ${pageId}:`, error);
+                }
+            }
+
+            this.registeredPages.delete(pageId);
+            this.pageInstances.delete(pageId);
+            this.emit('pageUnregistered', { pageId });
+            console.log(`🗑️ Страница отменена: ${pageId}`);
+            return true;
+        }
+        return false;
     }
 
     /**
      * Инициализация менеджера страниц
      */
     async doInit() {
-        this.findPageElements();
-        this.setupStyleContainer();
-        this.setupEventListeners();
-        console.log('✅ Enhanced PageManager инициализирован');
+        try {
+            this.findPageElements();
+            this.setupStyleContainer();
+            this.setupEventListeners();
+
+            // Инициализируем базовые стили для переходов
+            this.initializeTransitionStyles();
+
+            console.log('✅ Enhanced PageManager инициализирован');
+            this.emit('managerReady');
+        } catch (error) {
+            console.error('❌ Ошибка инициализации Enhanced PageManager:', error);
+            throw error;
+        }
     }
 
     /**
@@ -60,13 +151,13 @@ class EnhancedPageManager extends ComponentBase {
      */
     findPageElements() {
         // Ищем контейнер для страниц
-        this.elements.container = document.querySelector('#page-container') || 
-                                 document.querySelector('.page-container');
+        this.elements.container = document.querySelector('#page-container') ||
+            document.querySelector('.page-container');
 
         if (!this.elements.container) {
             const mainContent = document.querySelector('.main-content') ||
-                               document.querySelector('main') ||
-                               document.body;
+                document.querySelector('main') ||
+                document.body;
 
             this.elements.container = document.createElement('div');
             this.elements.container.id = 'page-container';
@@ -77,7 +168,7 @@ class EnhancedPageManager extends ComponentBase {
 
         // Создаем контент контейнер
         this.elements.content = this.elements.container.querySelector('#page-content') ||
-                               this.elements.container.querySelector('.page-content');
+            this.elements.container.querySelector('.page-content');
 
         if (!this.elements.content) {
             this.elements.content = document.createElement('div');
@@ -95,6 +186,7 @@ class EnhancedPageManager extends ComponentBase {
      */
     setupStyleContainer() {
         this.elements.styleContainer = document.getElementById('page-styles-container');
+
         if (!this.elements.styleContainer) {
             this.elements.styleContainer = document.createElement('div');
             this.elements.styleContainer.id = 'page-styles-container';
@@ -110,15 +202,8 @@ class EnhancedPageManager extends ComponentBase {
         this.elements.loading.id = 'page-loading';
         this.elements.loading.className = 'page-loading hidden';
         this.elements.loading.innerHTML = `
-            <div class="loading-content">
-                <div class="loading-spinner">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.416" stroke-dashoffset="31.416">
-                            <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
-                            <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
-                        </circle>
-                    </svg>
-                </div>
+            <div class="loading-spinner">
+                <div class="spinner"></div>
                 <p class="loading-text">Загрузка страницы...</p>
             </div>
         `;
@@ -126,44 +211,107 @@ class EnhancedPageManager extends ComponentBase {
     }
 
     /**
-     * Настройка обработчиков событий
+     * Инициализация базовых стилей для переходов
+     */
+    initializeTransitionStyles() {
+        const styleId = 'enhanced-page-manager-styles';
+        if (document.getElementById(styleId)) return;
+
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            .page-container {
+                position: relative;
+                width: 100%;
+                min-height: 400px;
+            }
+            .page-content {
+                transition: opacity ${this.config.transitionDuration}ms ease-in-out;
+            }
+            .page-loading {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(var(--bg-color-rgb, 255, 255, 255), 0.9);
+                z-index: 1000;
+                transition: opacity 200ms ease-in-out;
+            }
+            .page-loading.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+            .loading-spinner {
+                text-align: center;
+            }
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border: 3px solid rgba(var(--accent-color-rgb, 0, 123, 255), 0.2);
+                border-top: 3px solid var(--accent-color, #007bff);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 16px;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            .page-error {
+                padding: 20px;
+                background: #f8d7da;
+                border: 1px solid #f5c6cb;
+                border-radius: 8px;
+                color: #721c24;
+                margin: 20px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /**
+     * Настройка слушателей событий
      */
     setupEventListeners() {
-        // Слушаем события навигации от SPANavigator
-        document.addEventListener('navigationStart', (e) => {
-            this.handleNavigationStart(e.detail);
+        // Слушаем изменения в истории браузера
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.pageId) {
+                this.loadPage(event.state.pageId, { skipTransition: false });
+            }
         });
 
-        // Слушаем завершение навигации
-        document.addEventListener('navigationComplete', (e) => {
-            this.handleNavigationComplete(e.detail);
+        // Обработка ошибок загрузки ресурсов
+        window.addEventListener('error', (event) => {
+            if (event.target && event.target.src) {
+                console.warn('⚠️ Ошибка загрузки ресурса:', event.target.src);
+            }
         });
     }
 
     /**
-     * Загрузка страницы
+     * ===== ОСНОВНОЙ МЕТОД ЗАГРУЗКИ СТРАНИЦЫ (УЛУЧШЕННЫЙ) =====
      */
     async loadPage(pageId, options = {}) {
-        const {
-            skipTransition = false,
-            force = false
-        } = options;
+        const { skipTransition = false, force = false, updateHistory = true } = options;
 
-        // Проверяем, не загружается ли уже эта страница
+        // Проверяем, не загружается ли уже страница
         if (this.loadingQueue.has(pageId) && !force) {
-            console.log(`⏳ Страница "${pageId}" уже загружается`);
+            console.log(`⏳ Страница ${pageId} уже загружается`);
             return false;
         }
 
-        // Проверяем, не та же ли это страница
+        // Если это текущая страница и не форсируем перезагрузку
         if (pageId === this.currentPageId && !force) {
-            console.log(`📍 Страница "${pageId}" уже загружена`);
+            console.log(`✅ Страница ${pageId} уже активна`);
             return true;
         }
 
-        console.log(`🚀 Загрузка страницы: "${pageId}"`);
-
         this.loadingQueue.add(pageId);
+        const previousPageConfig = this.getPageConfig(this.currentPageId);
 
         try {
             // Показываем индикатор загрузки
@@ -176,53 +324,56 @@ class EnhancedPageManager extends ComponentBase {
                 await this.cleanupPage(this.currentPageId);
             }
 
-            // Загружаем ресурсы страницы параллельно
-            const [htmlContent, cssContent, jsContent] = await Promise.all([
+            // Параллельная загрузка всех ресурсов
+            const [html, css, js] = await Promise.all([
                 this.loadPageHTML(pageId),
                 this.loadPageCSS(pageId),
                 this.loadPageJS(pageId)
             ]);
 
-            // Применяем стили первыми
-            if (cssContent && this.config.enableStyles) {
-                await this.applyPageStyles(pageId, cssContent);
+            // Применяем ресурсы по порядку
+            if (css && this.config.enableStyles) {
+                await this.applyPageStyles(pageId, css);
             }
 
-            // Рендерим HTML контент
-            if (htmlContent) {
-                await this.renderPageHTML(pageId, htmlContent, skipTransition);
+            if (html) {
+                await this.renderPageHTML(pageId, html, skipTransition);
             }
 
-            // Загружаем и выполняем скрипты
-            if (jsContent && this.config.enableScripts) {
-                await this.executePageScript(pageId, jsContent);
+            if (js && this.config.enableScripts) {
+                await this.executePageScript(pageId, js);
             }
 
-            // Обновляем состояние
-            this.previousPageId = this.currentPageId;
-            this.currentPageId = pageId;
+            // ===== НОВОЕ: Управление жизненным циклом =====
+            await this.handlePageLifecycle(pageId, previousPageConfig);
 
-            // Скрываем загрузку
+            // Обновляем историю браузера
+            if (updateHistory && pageId !== this.currentPageId) {
+                this.updateBrowserHistory(pageId);
+            }
+
+            // Скрываем индикатор загрузки
             if (!skipTransition) {
                 this.hideLoadingState();
             }
 
-            // Эмитируем событие успешной загрузки
+            // Генерируем событие успешной загрузки
             this.emit('pageLoaded', {
                 pageId,
                 previousPageId: this.previousPageId,
-                hasHTML: !!htmlContent,
-                hasCSS: !!cssContent,
-                hasJS: !!jsContent
+                hasHTML: !!html,
+                hasCSS: !!css,
+                hasJS: !!js,
+                loadTime: Date.now()
             });
 
-            console.log(`✅ Страница "${pageId}" успешно загружена`);
+            console.log(`✅ Страница «${pageId}» успешно загружена`);
             return true;
 
         } catch (error) {
-            console.error(`❌ Ошибка загрузки страницы "${pageId}":`, error);
+            console.error(`❌ Ошибка загрузки страницы «${pageId}»:`, error);
             this.showErrorState(pageId, error);
-            this.emit('pageError', { pageId, error });
+            this.emit('pageError', { pageId, error, previousPageId: this.currentPageId });
             return false;
         } finally {
             this.loadingQueue.delete(pageId);
@@ -230,228 +381,213 @@ class EnhancedPageManager extends ComponentBase {
     }
 
     /**
-     * Загрузка HTML содержимого страницы
+     * ===== НОВОЕ: Управление жизненным циклом страниц =====
+     */
+    async handlePageLifecycle(newPageId, previousPageConfig) {
+        // Деактивируем предыдущую страницу
+        if (previousPageConfig && this.currentPageId) {
+            try {
+                if (typeof previousPageConfig.deactivate === 'function') {
+                    await previousPageConfig.deactivate();
+                }
+                this.emit('pageDeactivate', {
+                    pageId: this.currentPageId,
+                    nextPageId: newPageId
+                });
+            } catch (error) {
+                console.warn(`⚠️ Ошибка при деактивации страницы ${this.currentPageId}:`, error);
+            }
+        }
+
+        // Обновляем текущую страницу
+        this.previousPageId = this.currentPageId;
+        this.currentPageId = newPageId;
+
+        // Активируем новую страницу
+        const newPageConfig = this.getPageConfig(newPageId);
+        if (newPageConfig) {
+            try {
+                if (typeof newPageConfig.activate === 'function') {
+                    await newPageConfig.activate();
+                }
+                newPageConfig.initialized = true;
+                this.emit('pageActivate', {
+                    pageId: newPageId,
+                    previousPageId: this.previousPageId
+                });
+            } catch (error) {
+                console.warn(`⚠️ Ошибка при активации страницы ${newPageId}:`, error);
+            }
+        }
+    }
+
+    /**
+     * Загрузка HTML файла страницы
      */
     async loadPageHTML(pageId) {
-        if (this.cache.html.has(pageId) && this.config.cachePages) {
-            console.log(`📄 HTML для "${pageId}" загружен из кэша`);
+        if (this.config.cachePages && this.cache.html.has(pageId)) {
             return this.cache.html.get(pageId);
         }
 
         try {
-            const htmlPath = `${this.config.pagesPath}/${pageId}/${pageId}.html`;
-            const response = await fetch(htmlPath, {
-                method: 'GET',
-                headers: { 'Accept': 'text/html' }
+            const response = await fetch(`${this.config.pagesPath}/${pageId}/${pageId}.html`, {
+                cache: this.config.cachePages ? 'default' : 'no-cache'
             });
 
             if (!response.ok) {
+                if (response.status === 404) {
+                    console.log(`📄 HTML файл не найден для страницы: ${pageId}`);
+                    return null;
+                }
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            const htmlContent = await response.text();
+            const html = await response.text();
 
             if (this.config.cachePages) {
-                this.cache.html.set(pageId, htmlContent);
+                this.cache.html.set(pageId, html);
             }
 
-            console.log(`📄 HTML для "${pageId}" загружен`);
-            return htmlContent;
-
+            return html;
         } catch (error) {
-            console.warn(`⚠️ Не удалось загрузить HTML для "${pageId}":`, error.message);
+            console.warn(`⚠️ Не удалось загрузить HTML для ${pageId}:`, error.message);
             return null;
         }
     }
 
     /**
-     * Загрузка CSS стилей страницы
+     * Загрузка CSS файла страницы
      */
     async loadPageCSS(pageId) {
-        if (this.cache.css.has(pageId) && this.config.cachePages) {
-            console.log(`🎨 CSS для "${pageId}" загружен из кэша`);
+        if (this.config.cachePages && this.cache.css.has(pageId)) {
             return this.cache.css.get(pageId);
         }
 
         try {
-            const cssPath = `${this.config.pagesPath}/${pageId}/${pageId}.css`;
-            const response = await fetch(cssPath, {
-                method: 'GET',
-                headers: { 'Accept': 'text/css' }
+            const response = await fetch(`${this.config.pagesPath}/${pageId}/${pageId}.css`, {
+                cache: this.config.cachePages ? 'default' : 'no-cache'
             });
 
             if (!response.ok) {
-                // CSS не обязателен, не выбрасываем ошибку
-                console.log(`📝 CSS файл для "${pageId}" не найден или пуст`);
-                return null;
+                if (response.status === 404) {
+                    console.log(`🎨 CSS файл не найден для страницы: ${pageId}`);
+                    return null;
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            const cssContent = await response.text();
-
-            // Проверяем, что CSS не пустой
-            if (cssContent.trim().length === 0) {
-                console.log(`📝 CSS файл для "${pageId}" пуст`);
-                return null;
-            }
+            const css = await response.text();
 
             if (this.config.cachePages) {
-                this.cache.css.set(pageId, cssContent);
+                this.cache.css.set(pageId, css);
             }
 
-            console.log(`🎨 CSS для "${pageId}" загружен`);
-            return cssContent;
-
+            return css;
         } catch (error) {
-            console.log(`📝 CSS для "${pageId}" недоступен:`, error.message);
+            console.warn(`⚠️ Не удалось загрузить CSS для ${pageId}:`, error.message);
             return null;
         }
     }
 
     /**
-     * Загрузка JavaScript кода страницы
+     * Загрузка JS файла страницы
      */
     async loadPageJS(pageId) {
-        if (this.cache.js.has(pageId) && this.config.cachePages) {
-            console.log(`⚡ JS для "${pageId}" загружен из кэша`);
+        if (this.config.cachePages && this.cache.js.has(pageId)) {
             return this.cache.js.get(pageId);
         }
 
         try {
-            const jsPath = `${this.config.pagesPath}/${pageId}/${pageId}.js`;
-            const response = await fetch(jsPath, {
-                method: 'GET',
-                headers: { 'Accept': 'application/javascript' }
+            const response = await fetch(`${this.config.pagesPath}/${pageId}/${pageId}.js`, {
+                cache: this.config.cachePages ? 'default' : 'no-cache'
             });
 
             if (!response.ok) {
-                // JS не обязателен
-                console.log(`📝 JS файл для "${pageId}" не найден или пуст`);
-                return null;
+                if (response.status === 404) {
+                    console.log(`⚙️ JS файл не найден для страницы: ${pageId}`);
+                    return null;
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            const jsContent = await response.text();
-
-            // Проверяем, что JS не пустой
-            if (jsContent.trim().length === 0) {
-                console.log(`📝 JS файл для "${pageId}" пуст`);
-                return null;
-            }
+            const js = await response.text();
 
             if (this.config.cachePages) {
-                this.cache.js.set(pageId, jsContent);
+                this.cache.js.set(pageId, js);
             }
 
-            console.log(`⚡ JS для "${pageId}" загружен`);
-            return jsContent;
-
+            return js;
         } catch (error) {
-            console.log(`📝 JS для "${pageId}" недоступен:`, error.message);
+            console.warn(`⚠️ Не удалось загрузить JS для ${pageId}:`, error.message);
             return null;
         }
     }
 
     /**
-     * Применение CSS стилей страницы
+     * Применение стилей страницы
      */
-    async applyPageStyles(pageId, cssContent) {
-        try {
-            // Удаляем старые стили этой страницы
-            const existingStyle = document.getElementById(`page-style-${pageId}`);
-            if (existingStyle) {
-                existingStyle.remove();
-                this.loadedStyles.delete(pageId);
-            }
-
-            // Создаем новый style элемент
-            const styleElement = document.createElement('style');
-            styleElement.id = `page-style-${pageId}`;
-            styleElement.setAttribute('data-page', pageId);
-            styleElement.textContent = cssContent;
-
-            this.elements.styleContainer.appendChild(styleElement);
-            this.loadedStyles.add(pageId);
-
-            console.log(`🎨 Стили для "${pageId}" применены`);
-
-        } catch (error) {
-            console.error(`❌ Ошибка применения стилей для "${pageId}":`, error);
+    async applyPageStyles(pageId, css) {
+        if (this.loadedStyles.has(pageId)) {
+            return; // Стили уже загружены
         }
+
+        const styleElement = document.createElement('style');
+        styleElement.id = `page-style-${pageId}`;
+        styleElement.textContent = css;
+
+        this.elements.styleContainer.appendChild(styleElement);
+        this.loadedStyles.add(pageId);
+
+        console.log(`🎨 Стили применены для страницы: ${pageId}`);
     }
 
     /**
-     * Рендеринг HTML содержимого
+     * Рендеринг HTML страницы
      */
-    async renderPageHTML(pageId, htmlContent, skipTransition = false) {
-        try {
-            if (this.config.enableTransitions && !skipTransition) {
-                this.elements.content.style.transition = `opacity ${this.config.transitionDuration}ms ease`;
-                this.elements.content.style.opacity = '0';
+    async renderPageHTML(pageId, html, skipTransition = false) {
+        if (!this.elements.content) {
+            throw new Error('Контейнер контента не найден');
+        }
 
-                await new Promise(resolve => setTimeout(resolve, this.config.transitionDuration / 2));
-            }
+        if (this.config.enableTransitions && !skipTransition) {
+            this.elements.content.style.opacity = '0';
 
-            // Устанавливаем HTML содержимое
-            this.elements.content.innerHTML = htmlContent;
-            this.elements.content.setAttribute('data-page', pageId);
-
-            if (this.config.enableTransitions && !skipTransition) {
+            setTimeout(() => {
+                this.elements.content.innerHTML = html;
                 this.elements.content.style.opacity = '1';
-
-                await new Promise(resolve => setTimeout(resolve, this.config.transitionDuration / 2));
-                this.elements.content.style.transition = '';
-            }
-
-            console.log(`📄 HTML для "${pageId}" отрендерен`);
-
-        } catch (error) {
-            console.error(`❌ Ошибка рендеринга HTML для "${pageId}":`, error);
+            }, this.config.transitionDuration / 2);
+        } else {
+            this.elements.content.innerHTML = html;
         }
+
+        console.log(`📄 HTML отрендерен для страницы: ${pageId}`);
     }
 
     /**
-     * Выполнение JavaScript кода страницы
+     * Выполнение JavaScript страницы
      */
-    async executePageScript(pageId, jsContent) {
+    async executePageScript(pageId, js) {
         try {
-            // Создаем безопасную среду выполнения
-            const scriptContext = {
+            // Создаем контекст выполнения с доступом к pageManager
+            const context = {
                 pageId,
-                pageContainer: this.elements.content,
                 pageManager: this,
-                console: console
+                enhancedPageManager: this
             };
 
-            // Оборачиваем код в функцию для изоляции
-            const wrappedCode = `
-                (function(pageId, pageContainer, pageManager, console) {
-                    'use strict';
-                    ${jsContent}
-                })(pageId, pageContainer, pageManager, console);
-            `;
+            // Выполняем скрипт в контексте
+            const func = new Function('context', 'pageId', 'pageManager', 'enhancedPageManager', js);
+            await func(context, pageId, this, this);
 
-            // Выполняем код
-            const scriptFunction = new Function(
-                'pageId', 'pageContainer', 'pageManager', 'console',
-                wrappedCode
-            );
-
-            await scriptFunction(
-                scriptContext.pageId,
-                scriptContext.pageContainer,
-                scriptContext.pageManager,
-                scriptContext.console
-            );
-
-            this.loadedScripts.add(pageId);
-            console.log(`⚡ Скрипт для "${pageId}" выполнен`);
-
+            console.log(`⚙️ JavaScript выполнен для страницы: ${pageId}`);
         } catch (error) {
-            console.error(`❌ Ошибка выполнения скрипта для "${pageId}":`, error);
+            console.error(`❌ Ошибка выполнения JS для страницы ${pageId}:`, error);
+            throw error;
         }
     }
 
     /**
-     * Очистка ресурсов предыдущей страницы
+     * Очистка ресурсов страницы
      */
     async cleanupPage(pageId) {
         try {
@@ -460,176 +596,176 @@ class EnhancedPageManager extends ComponentBase {
                 const styleElement = document.getElementById(`page-style-${pageId}`);
                 if (styleElement) {
                     styleElement.remove();
-                    this.loadedStyles.delete(pageId);
+                }
+                this.loadedStyles.delete(pageId);
+            }
+
+            // Вызываем cleanup хук страницы
+            const pageConfig = this.getPageConfig(pageId);
+            if (pageConfig && typeof pageConfig.cleanup === 'function') {
+                try {
+                    await pageConfig.cleanup();
+                    this.emit('pageCleanup', { pageId });
+                } catch (error) {
+                    console.warn(`⚠️ Ошибка cleanup страницы ${pageId}:`, error);
                 }
             }
 
-            // Эмитируем событие очистки для скриптов страницы
-            this.emit('pageCleanup', { pageId });
-
-            console.log(`🧹 Страница "${pageId}" очищена`);
-
+            console.log(`🧹 Страница ${pageId} очищена`);
         } catch (error) {
-            console.error(`❌ Ошибка очистки страницы "${pageId}":`, error);
+            console.error(`❌ Ошибка очистки страницы ${pageId}:`, error);
         }
     }
 
     /**
-     * Показ состояния загрузки
+     * Обновление истории браузера
+     */
+    updateBrowserHistory(pageId) {
+        const pageConfig = this.getPageConfig(pageId);
+        const title = pageConfig?.title || pageId;
+
+        try {
+            window.history.pushState(
+                { pageId, timestamp: Date.now() },
+                title,
+                `#${pageId}`
+            );
+            document.title = `${title} | IP Roast Platform`;
+        } catch (error) {
+            console.warn('⚠️ Не удалось обновить историю браузера:', error);
+        }
+    }
+
+    /**
+     * Показать состояние загрузки
      */
     showLoadingState() {
         if (this.elements.loading) {
             this.elements.loading.classList.remove('hidden');
-            this.elements.loading.style.display = 'flex';
         }
     }
 
     /**
-     * Скрытие состояния загрузки
+     * Скрыть состояние загрузки
      */
     hideLoadingState() {
         if (this.elements.loading) {
-            this.elements.loading.classList.add('hidden');
             setTimeout(() => {
-                if (this.elements.loading.classList.contains('hidden')) {
-                    this.elements.loading.style.display = 'none';
-                }
-            }, 300);
+                this.elements.loading.classList.add('hidden');
+            }, 100);
         }
     }
 
     /**
-     * Показ состояния ошибки
+     * Показать состояние ошибки
      */
     showErrorState(pageId, error) {
-        this.hideLoadingState();
-
-        const errorHTML = `
+        const errorHtml = `
             <div class="page-error">
-                <div class="error-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                        <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
-                        <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                </div>
-                <h3>Ошибка загрузки страницы</h3>
+                <h3>❌ Ошибка загрузки страницы</h3>
                 <p><strong>Страница:</strong> ${pageId}</p>
                 <p><strong>Ошибка:</strong> ${error.message}</p>
                 <p><strong>Время:</strong> ${new Date().toLocaleString()}</p>
-                <button class="btn btn--primary" onclick="pageManager.loadPage('${pageId}', { force: true })">
-                    Попробовать снова
+                <button onclick="window.enhancedPageManager.loadPage('${pageId}', {force: true})" 
+                        class="btn btn-primary">
+                    🔄 Повторить попытку
                 </button>
             </div>
         `;
 
-        this.elements.content.innerHTML = errorHTML;
+        if (this.elements.content) {
+            this.elements.content.innerHTML = errorHtml;
+        }
+
+        this.hideLoadingState();
     }
 
     /**
-     * Обработка начала навигации
+     * Получить информацию о текущем состоянии
      */
-    handleNavigationStart(detail) {
-        console.log(`🧭 Обработка начала навигации:`, detail);
+    getState() {
+        return {
+            currentPageId: this.currentPageId,
+            previousPageId: this.previousPageId,
+            registeredPages: Array.from(this.registeredPages.keys()),
+            loadingQueue: Array.from(this.loadingQueue),
+            loadedStyles: Array.from(this.loadedStyles),
+            cacheSize: {
+                html: this.cache.html.size,
+                css: this.cache.css.size,
+                js: this.cache.js.size
+            }
+        };
     }
 
     /**
-     * Обработка завершения навигации  
-     */
-    handleNavigationComplete(detail) {
-        console.log(`🧭 Обработка завершения навигации:`, detail);
-    }
-
-    /**
-     * Получение текущей страницы
-     */
-    getCurrentPage() {
-        return this.currentPageId;
-    }
-
-    /**
-     * Получение предыдущей страницы
-     */
-    getPreviousPage() {
-        return this.previousPageId;
-    }
-
-    /**
-     * Очистка всего кэша
+     * Очистка кэша
      */
     clearCache() {
         this.cache.html.clear();
         this.cache.css.clear();
         this.cache.js.clear();
         this.cache.modules.clear();
-        console.log('🗑️ Кэш PageManager очищен');
-    }
-
-    /**
-     * Получение статистики кэша
-     */
-    getCacheStats() {
-        return {
-            html: this.cache.html.size,
-            css: this.cache.css.size,
-            js: this.cache.js.size,
-            modules: this.cache.modules.size,
-            loadedStyles: this.loadedStyles.size,
-            loadedScripts: this.loadedScripts.size
-        };
-    }
-
-    /**
-     * Пре-загрузка страницы
-     */
-    async preloadPage(pageId) {
-        if (this.cache.html.has(pageId) && this.cache.css.has(pageId) && this.cache.js.has(pageId)) {
-            console.log(`📦 Страница "${pageId}" уже предварительно загружена`);
-            return true;
-        }
-
-        console.log(`📦 Предварительная загрузка страницы: "${pageId}"`);
-
-        try {
-            await Promise.all([
-                this.loadPageHTML(pageId),
-                this.loadPageCSS(pageId),
-                this.loadPageJS(pageId)
-            ]);
-
-            console.log(`✅ Страница "${pageId}" предварительно загружена`);
-            return true;
-
-        } catch (error) {
-            console.error(`❌ Ошибка предварительной загрузки "${pageId}":`, error);
-            return false;
-        }
+        console.log('🧹 Кэш Enhanced PageManager очищен');
     }
 
     /**
      * Уничтожение менеджера
      */
-    async doDestroy() {
-        // Очищаем все загруженные стили
-        this.loadedStyles.forEach(pageId => {
-            const styleElement = document.getElementById(`page-style-${pageId}`);
-            if (styleElement) {
-                styleElement.remove();
+    async destroy() {
+        try {
+            // Очищаем текущую страницу
+            if (this.currentPageId) {
+                await this.cleanupPage(this.currentPageId);
             }
-        });
 
-        // Очищаем кэш
-        this.clearCache();
+            // Очищаем все зарегистрированные страницы
+            for (const [pageId, config] of this.registeredPages) {
+                if (typeof config.cleanup === 'function') {
+                    try {
+                        await config.cleanup();
+                    } catch (error) {
+                        console.warn(`⚠️ Ошибка cleanup при уничтожении ${pageId}:`, error);
+                    }
+                }
+            }
 
-        // Очищаем состояние
-        this.loadingQueue.clear();
-        this.loadedStyles.clear();
-        this.loadedScripts.clear();
+            // Очищаем кэш и состояние
+            this.clearCache();
+            this.registeredPages.clear();
+            this.pageInstances.clear();
+            this.loadingQueue.clear();
+            this.loadedStyles.clear();
 
-        console.log('🗑️ Enhanced PageManager уничтожен');
+            // Удаляем элементы
+            if (this.elements.loading) {
+                this.elements.loading.remove();
+            }
+
+            console.log('🗑️ Enhanced PageManager уничтожен');
+        } catch (error) {
+            console.error('❌ Ошибка при уничтожении Enhanced PageManager:', error);
+        }
     }
 }
 
-// Экспорт в глобальную область
+// Глобальный экспорт
 window.EnhancedPageManager = EnhancedPageManager;
-console.log('✅ Enhanced PageManager v3.0 загружен');
+
+// Автоматическая инициализация
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.enhancedPageManager) {
+        console.log('🚀 Автоинициализация Enhanced PageManager...');
+        setTimeout(async () => {
+            try {
+                window.enhancedPageManager = new EnhancedPageManager();
+                await window.enhancedPageManager.init();
+                console.log('✅ Enhanced PageManager автоматически инициализирован');
+            } catch (error) {
+                console.error('❌ Ошибка автоинициализации Enhanced PageManager:', error);
+            }
+        }, 100);
+    }
+});
+
+console.log('✅ Enhanced PageManager v3.1-Fixed модуль загружен');
